@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "autoprefixer": "^10.4.20",
     "framer-motion": "^11.11.8",
     "next": "14.2.15",
@@ -19,6 +22,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-fontawesome": "^1.6.8",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",
     "postcss": "^8.4.47",
