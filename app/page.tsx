@@ -1,10 +1,10 @@
-'use client';
 
-import Sidebar from "@/components/Sidebar";
 
 
 export default function Home() {
   return (
-   <Sidebar/>
+   <main className=" min-w-full h-screen py-4 bg-red-600">
+d
+   </main>
   );
 }
