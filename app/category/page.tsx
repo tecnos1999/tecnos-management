@@ -354,13 +354,19 @@ const categoriesData: Category[] = [{'id': 1,
   'updatedAt': '2024-04-24T19:47:00',
   'subCategories': [{'id': 1, 'name': 'Subcategory-1'}]}];
 
+
 const CategoryPage: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const categories = categoriesData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const filteredCategories = categoriesData.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const categories = filteredCategories.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const toggleDropdown = (id: number) => {
     setOpenDropdown(openDropdown === id ? null : id);
@@ -402,6 +408,17 @@ const CategoryPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center bg-gray-100 p-8 min-h-screen">
       <h1 className="text-4xl font-extrabold text-gray-800 mb-8">Categories Overview</h1>
+
+      {/* Search Bar */}
+      <div className="mb-6 w-full max-w-6xl">
+        <input
+          type="text"
+          placeholder="Search categories..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+        />
+      </div>
 
       <div className="flex space-x-4 mb-6">
         <motion.button
@@ -448,7 +465,7 @@ const CategoryPage: React.FC = () => {
                 <input
                   type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedCategories.length === categories.length}
+                  checked={selectedCategories.length === categories.length && categories.length > 0}
                   className="form-checkbox h-4 w-4 text-blue-600"
                 />
               </th>
@@ -517,8 +534,8 @@ const CategoryPage: React.FC = () => {
         </div>
         <div className="flex items-center">
           <span>
-            {page * rowsPerPage + 1}-{Math.min((page + 1) * rowsPerPage, categoriesData.length)} of{' '}
-            {categoriesData.length}
+            {page * rowsPerPage + 1}-{Math.min((page + 1) * rowsPerPage, filteredCategories.length)} of{' '}
+            {filteredCategories.length}
           </span>
           <button
             onClick={() => handleChangePage(page - 1)}
@@ -529,7 +546,7 @@ const CategoryPage: React.FC = () => {
           </button>
           <button
             onClick={() => handleChangePage(page + 1)}
-            disabled={page >= Math.ceil(categoriesData.length / rowsPerPage) - 1}
+            disabled={page >= Math.ceil(filteredCategories.length / rowsPerPage) - 1}
             className="ml-2 px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 disabled:bg-gray-200"
           >
             Next
