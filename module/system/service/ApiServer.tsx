@@ -3,7 +3,7 @@ import HttpResponse from "../httpResponse/HttpResponse";
 class ApiServer{
 
     api<U, T>(path: string, method: string, body: U, token: string): Promise<HttpResponse<T>> {
-     const url = `http://${window.location.hostname}:8080/api/v1` + path;
+     const url = `http://${window.location.hostname}:8081/server/api/v1` + path;
      const isFormData = body instanceof FormData;
      const options: RequestInit = {
        method,

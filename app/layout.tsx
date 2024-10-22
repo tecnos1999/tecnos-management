@@ -3,6 +3,9 @@ import { Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import SidebarContainer from "@/components/SidebarContainer"; 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ClientProvider from "@/module/provider/ClientProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,11 +39,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <ClientProvider>
+      
         <div className="flex h-screen">
           <SidebarContainer>
             {children}
           </SidebarContainer>
         </div>
+      </ClientProvider>
+
       </body>
     </html>
   );
