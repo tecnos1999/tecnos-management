@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import ModalCategory from "@/components/ModalCategory";
+import ModalCategory from "@/module/category/components/ModalCategory";
 
 interface SubCategory {
   id: number;
