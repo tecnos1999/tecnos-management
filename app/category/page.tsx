@@ -156,7 +156,7 @@ const CategoryPage: React.FC = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
   const [categories, setCategories] = useState(categoriesData);
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false); 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
@@ -195,7 +195,9 @@ const CategoryPage: React.FC = () => {
               className="bg-transparent focus:outline-none px-2 w-full"
             />
           </div>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition duration-300 ease-in-out">
+          <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition duration-300 ease-in-out">
             <FontAwesomeIcon icon={faPlus} className="h-5 w-5" />
             <span>Add a new category</span>
           </button>
@@ -257,7 +259,6 @@ const CategoryPage: React.FC = () => {
             </tbody>
           </table>
 
-          {/* Paginare */}
           <div className="mt-4 flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <button
