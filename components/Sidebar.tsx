@@ -7,7 +7,7 @@ import {
 import SidebarItem from './SidebarItem'; 
 import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation'; 
-import Link from 'next/link';  // Importă componenta Link
+import Link from 'next/link';  
 
 const menuItems = [
   { name: "Dashboard", path: "/dashboard", icon: faTachometerAlt ,  color: "bg-blue-500"},
@@ -25,7 +25,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
   const [hoveredItem, setHoveredItem] = useState<string>("");
 
-  const pathname = usePathname();  // Folosește usePathname pentru a obține ruta curentă
+  const pathname = usePathname(); 
   const activeItem = menuItems.find((item) => pathname === item.path)?.name || "Dashboard";
 
   return (
