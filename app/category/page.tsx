@@ -1,12 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ModalCategory from "@/module/category/components/ModalCategory";
+import ModalCategory from "../../module/category/components/ModalCategory";
 import SearchBar from "@/module/category/components/SearchBar";
-import CategoryTable from "@/module/category/components/CategoryTable";
+import CategoryTable from "../../module/category/components/CategoryTable";
 import Pagination from "@/module/category/components/Pagination";
 import CategoryService from "@/module/category/service/CategoryService";
-import { Category } from "@/module/category/models/Category";
 import { selectCategorys } from "@/store/category/category.selectors";
 import {
   loadCategorys,
