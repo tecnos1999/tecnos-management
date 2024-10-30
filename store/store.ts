@@ -2,10 +2,12 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import categorySlice from './category/category.reducers';
+import subcategorySlice from './subcategory/subcategory.reducers';
 
 
 const rootReducer = combineReducers({
     categoryState: categorySlice.reducer,
+    subcategoryState : subcategorySlice.reducer,
 });
 
 const persistConfig = {

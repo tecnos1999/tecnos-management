@@ -1,10 +1,11 @@
 import ApiServer from "@/module/system/service/ApiServer";
-import { Category } from "../models/Category";
+import { Subcategory } from "../models/Subcategory";
 
 class SubCategoryService extends ApiServer {
-  createCategory = async (categoryName: string): Promise<string> => {
+  
+  createSubCategory = async (name: string, category: string): Promise<string> => {
     const response = await this.api<null, any>(
-      `/category/create?name=${categoryName}`,
+      `/subcategory/create?name=${name}&category=${category}`,
       "POST",
       null,
       ""
@@ -13,28 +14,28 @@ class SubCategoryService extends ApiServer {
       const data = await response.text();
       return data;
     } else {
-      return Promise.reject([]);
+      return Promise.reject("Failed to create subcategory");
     }
   };
 
-  getCategories = async (): Promise<Category[]> => {
+  getSubcategories = async (): Promise<Subcategory[]> => {
     const response = await this.api<null, any>(
-      `/category/findAll`,
+      `/subcategory/all`,
       "GET",
       null,
       ""
     );
     if (response.status === 200) {
       const data = await response.json();
-      return data as Category[];
+      return data as Subcategory[];
     } else {
-      return Promise.reject([]);
+      return Promise.reject("Failed to fetch subcategories");
     }
   };
 
-  deleteCategory = async (categoryName: string): Promise<string> => {
+  deleteSubCategory = async (name: string): Promise<string> => {
     const response = await this.api<null, any>(
-      `/category/delete?name=${categoryName}`,
+      `/subcategory/delete?name=${name}`,
       "DELETE",
       null,
       ""
@@ -43,25 +44,24 @@ class SubCategoryService extends ApiServer {
       const data = await response.text();
       return data;
     } else {
-      return Promise.reject([]);
+      return Promise.reject("Failed to delete subcategory");
     }
   };
 
-
-    updateCategory = async (categoryName: string , updatedName : string): Promise<string> => {
-        const response = await this.api<null, any>(
-        `/category/update?name=${categoryName}&updatedName=${updatedName}`,
-        "PUT",
-        null,
-        ""
-        );
-        if (response.status === 200) {
-        const data = await response.text();
-        return data;
-        } else {
-        return Promise.reject([]);
-        }
-    };
+  updateSubCategory = async (name: string, updatedName: string): Promise<string> => {
+    const response = await this.api<null, any>(
+      `/subcategory/update?name=${name}&updatedName=${updatedName}`,
+      "PUT",
+      null,
+      ""
+    );
+    if (response.status === 200) {
+      const data = await response.text();
+      return data;
+    } else {
+      return Promise.reject("Failed to update subcategory");
+    }
+  };
 }
 
 export default SubCategoryService;

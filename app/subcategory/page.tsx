@@ -1,20 +1,15 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import ModalSubcategory from "../../module/subcategory/components/ModalSubcategory";
 import SearchBar from "@/module/category/components/SearchBar";
 import SubcategoryTable from "../../module/subcategory/components/SubcategoryTable";
 import Pagination from "@/module/category/components/Pagination";
 import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
-import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
-import {
-  loadSubcategories,
-  retrieveSubcategoriesError,
-  retrieveSubcategoriesLoading,
-  retrieveSubcategoriesSuccess,
-} from "@/store/subcategory/subcategory.reducers";
 import { toast } from "react-toastify";
 import Dialog from "@/components/Dialog";
+import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
+import { loadSubcategories, retrieveSubcategoriesError, retrieveSubcategoriesLoading, retrieveSubcategoriesSuccess } from "@/store/subcategory/subcategory.reducers";
+import ModalSubcategory from "@/module/subcategory/components/ModalSubcategory";
 
 const SubcategoryPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -51,7 +46,7 @@ const SubcategoryPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (subcategoryToDelete) {
       try {
-        await subcategoryService.deleteSubcategory(subcategoryToDelete);
+        await subcategoryService.deleteSubCategory(subcategoryToDelete);
         dispatch(
           loadSubcategories(
             subcategories.filter((subcategory) => subcategory.name !== subcategoryToDelete)
@@ -69,7 +64,7 @@ const SubcategoryPage: React.FC = () => {
 
   const handleEdit = async (name: string, updatedName: string) => {
     try {
-      await subcategoryService.updateSubcategory(name, updatedName);
+      await subcategoryService.updateSubCategory(name, updatedName);
       dispatch(
         loadSubcategories(
           subcategories.map((subcategory) =>

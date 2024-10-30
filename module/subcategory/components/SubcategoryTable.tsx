@@ -1,141 +1,102 @@
 'use client';
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import ModalSubcategory from "../../module/subcategory/components/ModalSubcategory";
-import SearchBar from "@/module/subcategory/components/SearchBar";
-import SubcategoryTable from "../../module/subcategory/components/SubcategoryTable";
-import Pagination from "@/module/subcategory/components/Pagination";
-import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
-import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
-import {
-  loadSubcategories,
-  retrieveSubcategoriesError,
-  retrieveSubcategoriesLoading,
-  retrieveSubcategoriesSuccess,
-} from "@/store/subcategory/subcategory.reducers";
-import { toast } from "react-toastify";
-import Dialog from "@/components/Dialog";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { Subcategory } from "../models/Subcategory";
+import ModalUpdateSubCategory from "./ModalUpdateSubCategory";
 
-const SubcategoryPage: React.FC = () => {
-  const dispatch = useDispatch();
-  const subcategories = useSelector(selectSubcategories);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [subcategoryToDelete, setSubcategoryToDelete] = useState<string | null>(null);
-  const subcategoryService = new SubcategoryService();
+interface SubcategoryTableProps {
+  currentItems: Subcategory[];
+  handleEdit: (name: string, updatedName: string) => void;
+  handleDelete: (name: string) => void;
+}
 
-  useEffect(() => {
-    const fetchSubcategories = async () => {
-      dispatch(retrieveSubcategoriesLoading());
-      try {
-        const fetchedSubcategories = await subcategoryService.getSubcategories();
-        dispatch(loadSubcategories(fetchedSubcategories));
-        dispatch(retrieveSubcategoriesSuccess());
-      } catch (error) {
-        dispatch(retrieveSubcategoriesError());
-        console.error("Failed to fetch subcategories", error);
-      }
-    };
+const SubcategoryTable: React.FC<SubcategoryTableProps> = ({
+  currentItems,
+  handleEdit,
+  handleDelete,
+}) => {
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
 
-    fetchSubcategories();
-  }, [dispatch]);
-
-  const handleDeleteRequest = (name: string) => {
-    setSubcategoryToDelete(name);
-    setIsDialogOpen(true);
+  const openUpdateModal = (subcategoryName: string) => {
+    setSelectedSubcategory(subcategoryName);
+    setIsUpdateModalOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (subcategoryToDelete) {
-      try {
-        await subcategoryService.deleteSubcategory(subcategoryToDelete);
-        dispatch(
-          loadSubcategories(
-            subcategories.filter((subcategory) => subcategory.name !== subcategoryToDelete)
-          )
-        );
-        toast.success(`Subcategory "${subcategoryToDelete}" deleted successfully.`);
-      } catch (error) {
-        console.error("Error deleting subcategory:", error);
-        toast.error("Failed to delete subcategory. Please try again.");
-      }
-    }
-    setIsDialogOpen(false);
-    setSubcategoryToDelete(null);
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
   };
 
-  const handleEdit = async (name: string, updatedName: string) => {
-    try {
-      await subcategoryService.updateSubcategory(name, updatedName);
-      dispatch(
-        loadSubcategories(
-          subcategories.map((subcategory) =>
-            subcategory.name === name ? { ...subcategory, name: updatedName } : subcategory
-          )
-        )
-      );
-      toast.success(`Subcategory "${name}" updated to "${updatedName}" successfully.`);
-    } catch (error) {
-      console.error("Error updating subcategory:", error);
-      toast.error("Failed to update subcategory. Please try again.");
-    }
+  const handleUpdate = (updatedName: string) => {
+    handleEdit(selectedSubcategory, updatedName);
   };
-
-  const filteredSubcategories = subcategories.filter((subcategory) =>
-    subcategory.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredSubcategories.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredSubcategories.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setSearchTerm(event.target.value);
 
   return (
-    <div className="flex w-full h-full mt-4">
-      <div className="w-full h-full">
-        <div className="flex justify-between items-center mb-6 shadow-lg rounded-lg py-6 px-4">
-          <h1 className="text-3xl font-bold text-left text-gray-700">Subcategory</h1>
-          <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-red-600 transition duration-300 ease-in-out"
-          >
-            + New Subcategory
-          </button>
-        </div>
+    <div className="bg-white shadow-lg rounded-lg p-6">
+      <table className="w-full table-auto">
+        <thead>
+          <tr className="bg-gray-200 text-left text-gray-600 uppercase text-sm">
+            <th className="py-3 px-6 rounded-l-lg">Subcategory</th>
+            <th className="py-3 px-6">Category</th>
+            <th className="py-3 px-6">Created On</th>
+            <th className="py-3 px-6">Updated On</th>
+            <th className="py-3 px-6 rounded-r-lg">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentItems.length > 0 ? (
+            currentItems.map((subcategory) => (
+              <motion.tr
+                key={subcategory.name}
+                className="border-b border-gray-200 hover:bg-gray-50"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <td className="py-3 px-6">{subcategory.name}</td>
+                <td className="py-3 px-6">{subcategory.categoryName}</td>
+                <td className="py-3 px-6">
+                  {new Date(subcategory.createdAt).toLocaleDateString()}
+                </td>
+                <td className="py-3 px-6">
+                  {new Date(subcategory.updatedAt).toLocaleDateString()}
+                </td>
+                <td className="py-3 px-6 flex items-center space-x-2">
+                  <button
+                    onClick={() => openUpdateModal(subcategory.name)}
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-full p-2 flex items-center justify-center w-8 h-8"
+                  >
+                    <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(subcategory.name)}
+                    className="bg-red-400 hover:bg-red-500 text-white rounded-full p-2 flex items-center justify-center w-8 h-8"
+                  >
+                    <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
+                  </button>
+                </td>
+              </motion.tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={5} className="text-center py-6 text-gray-500">
+                No subcategories found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
-        <ModalSubcategory isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-
-        <SubcategoryTable
-          currentItems={currentItems}
-          handleEdit={handleEdit}
-          handleDelete={handleDeleteRequest}
-        />
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          paginate={paginate}
-          itemsPerPage={itemsPerPage}
-          setItemsPerPage={setItemsPerPage}
-        />
-
-        <Dialog
-          isOpen={isDialogOpen}
-          message={`Are you sure you want to delete "${subcategoryToDelete}"?`}
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setIsDialogOpen(false)}
-        />
-      </div>
+      <ModalUpdateSubCategory
+        isOpen={isUpdateModalOpen}
+        onClose={closeUpdateModal}
+        currentName={selectedSubcategory}
+        onUpdate={handleUpdate}
+      />
     </div>
   );
 };
 
-export default SubcategoryPage;
+export default SubcategoryTable;
