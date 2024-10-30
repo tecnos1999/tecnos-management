@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ItemCategoryTable from "@/module/itemcategory/components/ItemCategoryTable";
 import ModalCreateItemCategory from "@/module/itemcategory/components/ModalCreateItemCategory";
@@ -27,14 +27,14 @@ const ItemsCategoryPage: React.FC = () => {
   const [itemCategoryToDelete, setItemCategoryToDelete] = useState<
     string | null
   >(null);
-  const itemCategoryService = new ItemCategoryService();
+  const itemCategoryService = useMemo(() => new ItemCategoryService(), []);
+
 
   useEffect(() => {
     const fetchItemCategories = async () => {
       dispatch(retrieveItemCategoriesLoading());
       try {
-        const fetchedItemCategories =
-          await itemCategoryService.getItemCategories();
+        const fetchedItemCategories = await itemCategoryService.getItemCategories();
         dispatch(loadItemCategories(fetchedItemCategories));
         dispatch(retrieveItemCategoriesSuccess());
       } catch (error) {
@@ -42,8 +42,10 @@ const ItemsCategoryPage: React.FC = () => {
         console.error("Failed to fetch item categories", error);
       }
     };
+  
     fetchItemCategories();
-  }, [dispatch]);
+  }, [dispatch, itemCategoryService]);
+  
 
   const handleCreate = async (name: string, subCategory: string) => {
     try {
@@ -51,9 +53,9 @@ const ItemsCategoryPage: React.FC = () => {
       const updatedCategories = await itemCategoryService.getItemCategories();
       dispatch(loadItemCategories(updatedCategories));
       toast.success(`Item Category "${name}" created successfully.`);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error creating item category:", error);
-      toast.error(error);
+      toast.error(error as string);
     }
   };
 
@@ -65,9 +67,9 @@ const ItemsCategoryPage: React.FC = () => {
       toast.success(
         `Item Category "${name}" updated to "${updatedName}" successfully.`
       );
-    } catch (error:any) {
+    } catch (error) {
       console.error("Error updating item category:", error);
-      toast.error(error);
+      toast.error(error as string);
     }
   };
 

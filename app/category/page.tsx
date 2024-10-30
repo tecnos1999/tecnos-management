@@ -39,9 +39,10 @@ const CategoryPage: React.FC = () => {
         console.error("Failed to fetch categories", error);
       }
     };
-
+  
     fetchCategories();
-  }, [dispatch]);
+  }, [dispatch, categoryService]);
+  
 
   const handleDeleteRequest = (name: string) => {
     setCategoryToDelete(name);

@@ -11,6 +11,7 @@ import SidebarItem from './SidebarItem';
 import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation'; 
 import Link from 'next/link';  
+import Image from 'next/image';
 
 const menuItems = [
   { name: "Dashboard", path: "/", icon: faTachometerAlt ,  color: "bg-blue-500"},
@@ -87,10 +88,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
           className="flex items-center hover:bg-zinc-700 p-2 rounded cursor-pointer transition-all duration-300"
           whileHover={{ scale: 1.05 }}
         >
-          <img
+          <Image
             src="https://gravatar.com/avatar/4474ca42d303761c2901fa819c4f2547"
             alt="avatar"
             className="w-10 h-10 rounded-full"
+            width={40}
+            height={40}
           />
           {isNavOpen && (
             <motion.div

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SearchBar from "@/module/category/components/SearchBar";
 import Pagination from "@/module/category/components/Pagination";
@@ -20,7 +20,8 @@ const SubcategoryPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [subcategoryToDelete, setSubcategoryToDelete] = useState<string | null>(null);
-  const subcategoryService = new SubcategoryService();
+  const subcategoryService = useMemo(() => new SubcategoryService(), []);
+
 
   useEffect(() => {
     const fetchSubcategories = async () => {
@@ -36,7 +37,7 @@ const SubcategoryPage: React.FC = () => {
     };
 
     fetchSubcategories();
-  }, [dispatch]);
+  }, [dispatch , subcategoryService]);
 
   const handleDeleteRequest = (name: string) => {
     setSubcategoryToDelete(name);
