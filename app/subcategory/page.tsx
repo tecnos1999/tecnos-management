@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SearchBar from "@/module/category/components/SearchBar";
-import SubcategoryTable from "../../module/subcategory/components/SubcategoryTable";
 import Pagination from "@/module/category/components/Pagination";
 import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
 import { toast } from "react-toastify";
@@ -10,6 +9,7 @@ import Dialog from "@/components/Dialog";
 import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
 import { loadSubcategories, retrieveSubcategoriesError, retrieveSubcategoriesLoading, retrieveSubcategoriesSuccess } from "@/store/subcategory/subcategory.reducers";
 import ModalSubcategory from "@/module/subcategory/components/ModalSubcategory";
+import SubcategoryTable from "@/module/subcategory/components/SubcategoryTable";
 
 const SubcategoryPage: React.FC = () => {
   const dispatch = useDispatch();
