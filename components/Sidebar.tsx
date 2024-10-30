@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faTachometerAlt, faBoxOpen, faList, faTags, faTag,
-  faChevronRight
+  faTachometerAlt, faBoxOpen, 
+  faChevronRight,
+  faThList,
+  faFolderTree,
+  faLayerGroup
 } from '@fortawesome/free-solid-svg-icons';
 import SidebarItem from './SidebarItem'; 
 import { motion } from 'framer-motion';
@@ -12,9 +15,9 @@ import Link from 'next/link';
 const menuItems = [
   { name: "Dashboard", path: "/", icon: faTachometerAlt ,  color: "bg-blue-500"},
   { name: "Products", path: "/products", icon: faBoxOpen,  color: "bg-yellow-500"},
-  { name: "Category", path: "/category", icon: faList , color:"bg-red-500" },
-  { name: "SubCategory", path: "/subcategory", icon: faTags , color: "bg-green-500"},
-  { name: "Tags", path: "/tags", icon: faTag , color: "bg-purple-500"}
+  { name: "Category", path: "/category", icon: faThList , color:"bg-red-500" },
+  { name: "SubCategory", path: "/subcategory", icon: faLayerGroup , color: "bg-green-500"},
+  { name: "Items Category", path: "/items-category", icon: faFolderTree, color: "bg-purple-500"}
 ];
 
 interface SidebarProps {
