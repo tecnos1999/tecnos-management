@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ModalCategory from "../../module/category/components/ModalCategory";
@@ -14,14 +14,17 @@ import {
   retrieveCategorysSuccess,
 } from "@/store/category/category.reducers";
 import { toast } from "react-toastify";
+import Dialog from "@/components/Dialog";
 
 const CategoryPage: React.FC = () => {
   const dispatch = useDispatch();
   const categories = useSelector(selectCategorys);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); 
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const categoryService = new CategoryService();
 
   useEffect(() => {
@@ -40,6 +43,30 @@ const CategoryPage: React.FC = () => {
     fetchCategories();
   }, [dispatch]);
 
+  const handleDeleteRequest = (name: string) => {
+    setCategoryToDelete(name);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (categoryToDelete) {
+      try {
+        await categoryService.deleteCategory(categoryToDelete);
+        dispatch(
+          loadCategorys(
+            categories.filter((category) => category.name !== categoryToDelete)
+          )
+        );
+        toast.success(`Category "${categoryToDelete}" deleted successfully.`);
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        toast.error("Failed to delete category. Please try again.");
+      }
+    }
+    setIsDialogOpen(false);
+    setCategoryToDelete(null);
+  };
+
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -56,36 +83,26 @@ const CategoryPage: React.FC = () => {
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) =>
     setSearchTerm(event.target.value);
 
-  const handleDelete = async (name: string) => {
-    try {
-      await categoryService.deleteCategory(name);
-      dispatch(loadCategorys(categories.filter(category => category.name !== name)));
-  
-      toast.success(`Category "${name}" deleted successfully.`);
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      
-      toast.error("Failed to delete category. Please try again.");
-    }
-  };
-
   const handleEdit = async (name: string, updatedName: string) => {
     try {
       await categoryService.updateCategory(name, updatedName);
       dispatch(
         loadCategorys(
           categories.map((category) =>
-            category.name === name ? { ...category, name: updatedName } : category
+            category.name === name
+              ? { ...category, name: updatedName }
+              : category
           )
         )
       );
-      toast.success(`Category "${name}" updated to "${updatedName}" successfully.`);
+      toast.success(
+        `Category "${name}" updated to "${updatedName}" successfully.`
+      );
     } catch (error) {
       console.error("Error updating category:", error);
       toast.error("Failed to update category. Please try again.");
     }
   };
-  
 
   return (
     <div className="flex w-full h-full mt-4">
@@ -111,7 +128,7 @@ const CategoryPage: React.FC = () => {
         <CategoryTable
           currentItems={currentItems}
           handleEdit={handleEdit}
-          handleDelete={handleDelete}
+          handleDelete={handleDeleteRequest}
         />
 
         <Pagination
@@ -119,7 +136,14 @@ const CategoryPage: React.FC = () => {
           totalPages={totalPages}
           paginate={paginate}
           itemsPerPage={itemsPerPage}
-          setItemsPerPage={setItemsPerPage} 
+          setItemsPerPage={setItemsPerPage}
+        />
+
+        <Dialog
+          isOpen={isDialogOpen}
+          message={`Are you sure you want to delete "${categoryToDelete}"?`}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setIsDialogOpen(false)}
         />
       </div>
     </div>

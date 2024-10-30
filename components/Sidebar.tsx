@@ -10,7 +10,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';  
 
 const menuItems = [
-  { name: "Dashboard", path: "/dashboard", icon: faTachometerAlt ,  color: "bg-blue-500"},
+  { name: "Dashboard", path: "/", icon: faTachometerAlt ,  color: "bg-blue-500"},
   { name: "Products", path: "/products", icon: faBoxOpen,  color: "bg-yellow-500"},
   { name: "Category", path: "/category", icon: faList , color:"bg-red-500" },
   { name: "SubCategory", path: "/subcategory", icon: faTags , color: "bg-green-500"},
