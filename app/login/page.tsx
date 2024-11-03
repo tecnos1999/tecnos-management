@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { motion } from "framer-motion"; 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoginContextType from "@/module/context/LoginContextType";
