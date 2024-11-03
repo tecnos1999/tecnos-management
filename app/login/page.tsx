@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
       setTimeout(() => {
         router.push("/");
       }, 1000);
-    } catch (_err) {
+    } catch {
       toast.error("Login failed. Please check your email and password.", {
         position: "top-center",
         autoClose: 3000,
