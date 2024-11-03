@@ -3,12 +3,12 @@ import { ItemCategory } from "../models/ItemCategory";
 
 class ItemCategoryService extends ApiServer {
   
-  createItemCategory = async (name: string, subCategory: string): Promise<string> => {
+  createItemCategory = async (name: string, subCategory: string, token: string): Promise<string> => {
     const response = await this.api<null, any>(
       `/itemcategory/create?name=${name}&subCategory=${subCategory}`,
       "POST",
       null,
-      ""
+      token
     );
     if (response.status === 201) {
       const data = await response.text();
@@ -34,12 +34,12 @@ class ItemCategoryService extends ApiServer {
     }
   };
 
-  deleteItemCategory = async (name: string): Promise<string> => {
+  deleteItemCategory = async (name: string, token: string): Promise<string> => {
     const response = await this.api<null, any>(
       `/itemcategory/delete?name=${name}`,
       "DELETE",
       null,
-      ""
+      token
     );
     if (response.status === 200) {
       const data = await response.text();
@@ -49,12 +49,12 @@ class ItemCategoryService extends ApiServer {
     }
   };
 
-  updateItemCategory = async (name: string, updatedName: string): Promise<string> => {
+  updateItemCategory = async (name: string, updatedName: string, token: string): Promise<string> => {
     const response = await this.api<null, any>(
       `/itemcategory/update?name=${name}&updatedName=${updatedName}`,
       "PUT",
       null,
-      ""
+      token
     );
     if (response.status === 200) {
       const data = await response.text();
@@ -62,21 +62,6 @@ class ItemCategoryService extends ApiServer {
     } else {
       const errorData = await response.json();
       return Promise.reject(errorData.message || "Failed to create item category");
-    }
-  };
-
-  findItemCategoryByName = async (name: string): Promise<ItemCategory> => {
-    const response = await this.api<null, any>(
-      `/itemcategory/find?name=${name}`,
-      "GET",
-      null,
-      ""
-    );
-    if (response.status === 200) {
-      const data = await response.json();
-      return data as ItemCategory;
-    } else {
-      return Promise.reject("Failed to find item category");
     }
   };
 }

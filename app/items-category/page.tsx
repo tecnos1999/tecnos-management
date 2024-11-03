@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ItemCategoryTable from "@/module/itemcategory/components/ItemCategoryTable";
 import ModalCreateItemCategory from "@/module/itemcategory/components/ModalCreateItemCategory";
@@ -14,7 +14,9 @@ import {
   retrieveItemCategoriesError,
   retrieveItemCategoriesSuccess,
 } from "@/store/itemcategory/itemCategory.reducers";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
 
 const ItemsCategoryPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -28,7 +30,8 @@ const ItemsCategoryPage: React.FC = () => {
     string | null
   >(null);
   const itemCategoryService = useMemo(() => new ItemCategoryService(), []);
-
+  const { user } = useContext(LoginContext) as LoginContextType;
+  const token = user?.token ?? "";
 
 
   useEffect(() => {
@@ -49,7 +52,7 @@ const ItemsCategoryPage: React.FC = () => {
 
   const handleCreate = async (name: string, subCategory: string) => {
     try {
-      await itemCategoryService.createItemCategory(name, subCategory);
+      await itemCategoryService.createItemCategory(name, subCategory, token);
       const updatedCategories = await itemCategoryService.getItemCategories();
       dispatch(loadItemCategories(updatedCategories));
       toast.success(`Item Category "${name}" created successfully.`);
@@ -60,7 +63,7 @@ const ItemsCategoryPage: React.FC = () => {
 
   const handleEdit = async (name: string, updatedName: string) => {
     try {
-      await itemCategoryService.updateItemCategory(name, updatedName);
+      await itemCategoryService.updateItemCategory(name, updatedName, token);
       const updatedCategories = await itemCategoryService.getItemCategories();
       dispatch(loadItemCategories(updatedCategories));
       toast.success(
@@ -79,7 +82,7 @@ const ItemsCategoryPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (itemCategoryToDelete) {
       try {
-        await itemCategoryService.deleteItemCategory(itemCategoryToDelete);
+        await itemCategoryService.deleteItemCategory(itemCategoryToDelete, token);
         const updatedCategories = await itemCategoryService.getItemCategories();
         dispatch(loadItemCategories(updatedCategories));
         toast.success(
@@ -150,6 +153,7 @@ const ItemsCategoryPage: React.FC = () => {
           onCancel={() => setIsDialogOpen(false)}
         />
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

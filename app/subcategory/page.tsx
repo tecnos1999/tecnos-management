@@ -44,7 +44,6 @@ const SubcategoryPage: React.FC = () => {
         dispatch(retrieveSubcategoriesSuccess());
       } catch (error) {
         dispatch(retrieveSubcategoriesError());
-        toast.error("Failed to retrieve subcategories. Please try again.");
       }
     };
 
