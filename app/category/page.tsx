@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ModalCategory from "../../module/category/components/ModalCategory";
 import SearchBar from "@/module/category/components/SearchBar";
@@ -25,7 +25,9 @@ const CategoryPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
-  const categoryService = new CategoryService();
+  const categoryService = useMemo(() => {
+    return new CategoryService();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
