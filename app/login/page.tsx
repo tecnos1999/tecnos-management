@@ -1,14 +1,53 @@
 "use client";
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion'; 
+import React, { useContext, useEffect, useState } from "react";
+import { motion } from "framer-motion"; 
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import LoginContextType from "@/module/context/LoginContextType";
+import { LoginContext } from "@/module/context/LoginProvider";
+import UserService from "@/module/user/service/UserService";
+import LoginResponse from "@/module/user/dto/LoginResponse";
 
-const LoginPage = () => {
+const LoginPage: React.FC = () => {
+  const { setUserCookie } = useContext(LoginContext) as LoginContextType;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  
 
-  const handleLogin = (e: React.FormEvent) => {
+ 
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+
+    const loginRequest = {
+      email: email,
+      password: password,
+    };
+
+    try {
+      const userService = new UserService();
+      const loginResponse = await userService.login(loginRequest);
+      setUserCookie(loginResponse as LoginResponse);
+      toast.success("Login successful!", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
+    } catch (err) {
+      toast.error("Login failed. Please check your email and password.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const containerVariants = {
@@ -81,13 +120,15 @@ const LoginPage = () => {
               variants={buttonVariants}
               whileHover="hover"
             >
-              Sign in
+              {loading ? "Logging in..." : "Sign in"}
             </motion.button>
 
-           
+            
           </form>
 
-          
+          <p className="text-center text-gray-500">
+            Don’t have an account? <a href="#" className="text-red-500 hover:text-red-400">Sign up</a>
+          </p>
         </motion.div>
 
         <motion.div
@@ -108,6 +149,7 @@ const LoginPage = () => {
           </div>
         </motion.div>
       </div>
+
     </div>
   );
 };
