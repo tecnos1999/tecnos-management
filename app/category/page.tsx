@@ -1,5 +1,5 @@
-'use client';
-import React, { useEffect, useMemo, useState } from "react";
+"use client";
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ModalCategory from "../../module/category/components/ModalCategory";
 import SearchBar from "@/module/category/components/SearchBar";
@@ -13,8 +13,10 @@ import {
   retrieveCategorysLoading,
   retrieveCategorysSuccess,
 } from "@/store/category/category.reducers";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import Dialog from "@/components/Dialog";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
 
 const CategoryPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -25,6 +27,10 @@ const CategoryPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
+  const { user } = useContext(LoginContext) as LoginContextType;
+  const token = user?.token ?? "";
+
   const categoryService = useMemo(() => {
     return new CategoryService();
   }, []);
@@ -38,13 +44,12 @@ const CategoryPage: React.FC = () => {
         dispatch(retrieveCategorysSuccess());
       } catch (error) {
         dispatch(retrieveCategorysError());
-        console.error("Failed to fetch categories", error);
+        toast.error(error as string);
       }
     };
-  
+
     fetchCategories();
   }, [dispatch, categoryService]);
-  
 
   const handleDeleteRequest = (name: string) => {
     setCategoryToDelete(name);
@@ -54,7 +59,7 @@ const CategoryPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (categoryToDelete) {
       try {
-        await categoryService.deleteCategory(categoryToDelete);
+        await categoryService.deleteCategory(categoryToDelete, token);
         dispatch(
           loadCategorys(
             categories.filter((category) => category.name !== categoryToDelete)
@@ -62,14 +67,32 @@ const CategoryPage: React.FC = () => {
         );
         toast.success(`Category "${categoryToDelete}" deleted successfully.`);
       } catch (error) {
-        console.error("Error deleting category:", error);
-        toast.error("Failed to delete category. Please try again.");
+        toast.error(error as string);
       }
     }
     setIsDialogOpen(false);
     setCategoryToDelete(null);
   };
 
+  const handleEdit = async (name: string, updatedName: string) => {
+    try {
+      await categoryService.updateCategory(name, updatedName, token);
+      dispatch(
+        loadCategorys(
+          categories.map((category) =>
+            category.name === name
+              ? { ...category, name: updatedName }
+              : category
+          )
+        )
+      );
+      toast.success(
+        `Category "${name}" updated to "${updatedName}" successfully.`
+      );
+    } catch (error) {
+      toast.error(error as string);
+    }
+  };
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -85,27 +108,6 @@ const CategoryPage: React.FC = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) =>
     setSearchTerm(event.target.value);
-
-  const handleEdit = async (name: string, updatedName: string) => {
-    try {
-      await categoryService.updateCategory(name, updatedName);
-      dispatch(
-        loadCategorys(
-          categories.map((category) =>
-            category.name === name
-              ? { ...category, name: updatedName }
-              : category
-          )
-        )
-      );
-      toast.success(
-        `Category "${name}" updated to "${updatedName}" successfully.`
-      );
-    } catch (error) {
-      console.error("Error updating category:", error);
-      toast.error("Failed to update category. Please try again.");
-    }
-  };
 
   return (
     <div className="flex w-full h-full mt-4">
@@ -149,6 +151,7 @@ const CategoryPage: React.FC = () => {
           onCancel={() => setIsDialogOpen(false)}
         />
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

@@ -30,6 +30,7 @@ const ItemsCategoryPage: React.FC = () => {
   const itemCategoryService = useMemo(() => new ItemCategoryService(), []);
 
 
+
   useEffect(() => {
     const fetchItemCategories = async () => {
       dispatch(retrieveItemCategoriesLoading());
@@ -39,13 +40,12 @@ const ItemsCategoryPage: React.FC = () => {
         dispatch(retrieveItemCategoriesSuccess());
       } catch (error) {
         dispatch(retrieveItemCategoriesError());
-        console.error("Failed to fetch item categories", error);
+        toast.error(error as string);
       }
     };
   
     fetchItemCategories();
   }, [dispatch, itemCategoryService]);
-  
 
   const handleCreate = async (name: string, subCategory: string) => {
     try {
@@ -54,7 +54,6 @@ const ItemsCategoryPage: React.FC = () => {
       dispatch(loadItemCategories(updatedCategories));
       toast.success(`Item Category "${name}" created successfully.`);
     } catch (error) {
-      console.error("Error creating item category:", error);
       toast.error(error as string);
     }
   };
@@ -68,7 +67,6 @@ const ItemsCategoryPage: React.FC = () => {
         `Item Category "${name}" updated to "${updatedName}" successfully.`
       );
     } catch (error) {
-      console.error("Error updating item category:", error);
       toast.error(error as string);
     }
   };
@@ -88,8 +86,7 @@ const ItemsCategoryPage: React.FC = () => {
           `Item Category "${itemCategoryToDelete}" deleted successfully.`
         );
       } catch (error) {
-        console.error("Error deleting item category:", error);
-        toast.error("Failed to delete item category. Please try again.");
+        toast.error(error as string);
       }
     }
     setIsDialogOpen(false);

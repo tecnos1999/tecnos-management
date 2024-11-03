@@ -1,28 +1,35 @@
-// ModalUpdateSubCategory.tsx
-import React, { useState, useEffect } from "react";
+"use client";
+import React, { useState, useEffect, useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
+import { loadSubcategories } from "@/store/subcategory/subcategory.reducers";
+import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
 
 interface ModalUpdateSubCategoryProps {
   isOpen: boolean;
   onClose: () => void;
   currentName: string;
-  onUpdate: (updatedName: string) => void;
 }
 
 const ModalUpdateSubCategory: React.FC<ModalUpdateSubCategoryProps> = ({
   isOpen,
   onClose,
   currentName,
-  onUpdate,
 }) => {
   const [updatedName, setUpdatedName] = useState(currentName);
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const subcategories = useSelector(selectSubcategories);
   const subcategoryService = new SubcategoryService();
+  const { user } = useContext(LoginContext) as LoginContextType;
+  const token = user?.token ?? "";
 
   useEffect(() => {
     if (isOpen) {
-      setUpdatedName(currentName); 
+      setUpdatedName(currentName);
     }
   }, [isOpen, currentName]);
 
@@ -34,13 +41,19 @@ const ModalUpdateSubCategory: React.FC<ModalUpdateSubCategoryProps> = ({
 
     setIsLoading(true);
     try {
-      await subcategoryService.updateSubCategory(currentName, updatedName);
+      await subcategoryService.updateSubCategory(currentName, updatedName, token);
+      dispatch(
+        loadSubcategories(
+          subcategories.map((subcategory) =>
+            subcategory.name === currentName ? { ...subcategory, name: updatedName } : subcategory
+          )
+        )
+      );
       toast.success(`Subcategory updated to "${updatedName}" successfully.`);
-      onUpdate(updatedName);
       onClose();
     } catch (error) {
-      console.error("Error updating subcategory:", error);
-      toast.error("Failed to update subcategory. Please try again.");
+      toast.error(error as string);
+      onClose();
     } finally {
       setIsLoading(false);
     }

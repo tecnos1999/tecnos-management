@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
@@ -7,6 +7,8 @@ import { loadSubcategories } from "@/store/subcategory/subcategory.reducers";
 import { loadCategorys } from "@/store/category/category.reducers";
 import CategoryService from "@/module/category/service/CategoryService";
 import { Category } from "@/module/category/models/Category";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
 
 interface ModalSubcategoryProps {
   isOpen: boolean;
@@ -19,6 +21,10 @@ const ModalSubcategory: React.FC<ModalSubcategoryProps> = ({ isOpen, onClose }) 
   const [subcategoryName, setSubcategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { user } = useContext(LoginContext) as LoginContextType;
+  const token = user?.token ?? "";
+
   const subcategoryService = new SubcategoryService();
   const categoryService = new CategoryService();
 
@@ -39,7 +45,7 @@ const ModalSubcategory: React.FC<ModalSubcategoryProps> = ({ isOpen, onClose }) 
       dispatch(loadCategorys(fetchedCategories));
       dispatch(loadSubcategories(fetchedSubcategories));
     } catch (error) {
-      console.error("Failed to refresh data:", error);
+      toast.error(error as string || "Failed to refresh data.");
     }
   };
 
@@ -55,14 +61,14 @@ const ModalSubcategory: React.FC<ModalSubcategoryProps> = ({ isOpen, onClose }) 
 
     setIsLoading(true);
     try {
-      await subcategoryService.createSubCategory(subcategoryName, selectedCategory);
+      await subcategoryService.createSubCategory(subcategoryName, selectedCategory, token);
       toast.success(`Subcategory "${subcategoryName}" created successfully.`);
       
       await refreshData();
       onClose();
     } catch (error) {
-      console.error("Error creating subcategory:", error);
-      toast.error("Error creating subcategory. Please try again.");
+      toast.error(error as string);
+      onClose();
     } finally {
       setIsLoading(false);
     }

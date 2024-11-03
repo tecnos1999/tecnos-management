@@ -1,15 +1,23 @@
-'use client';
-import React, { useEffect, useMemo, useState } from "react";
+"use client";
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import SearchBar from "@/module/category/components/SearchBar";
 import Pagination from "@/module/category/components/Pagination";
 import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import Dialog from "@/components/Dialog";
 import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
-import { loadSubcategories, retrieveSubcategoriesError, retrieveSubcategoriesLoading, retrieveSubcategoriesSuccess } from "@/store/subcategory/subcategory.reducers";
+import {
+  loadSubcategories,
+  retrieveSubcategoriesError,
+  retrieveSubcategoriesLoading,
+  retrieveSubcategoriesSuccess,
+} from "@/store/subcategory/subcategory.reducers";
 import ModalSubcategory from "@/module/subcategory/components/ModalSubcategory";
+import ModalUpdateSubCategory from "@/module/subcategory/components/ModalUpdateSubCategory";
 import SubcategoryTable from "@/module/subcategory/components/SubcategoryTable";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
 
 const SubcategoryPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -20,8 +28,12 @@ const SubcategoryPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [subcategoryToDelete, setSubcategoryToDelete] = useState<string | null>(null);
+  const [subcategoryToEdit, setSubcategoryToEdit] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const subcategoryService = useMemo(() => new SubcategoryService(), []);
-
+  
+  const { user } = useContext(LoginContext) as LoginContextType;
+  const token = user?.token ?? "";
 
   useEffect(() => {
     const fetchSubcategories = async () => {
@@ -32,12 +44,17 @@ const SubcategoryPage: React.FC = () => {
         dispatch(retrieveSubcategoriesSuccess());
       } catch (error) {
         dispatch(retrieveSubcategoriesError());
-        console.error("Failed to fetch subcategories", error);
+        toast.error("Failed to retrieve subcategories. Please try again.");
       }
     };
 
     fetchSubcategories();
-  }, [dispatch , subcategoryService]);
+  }, [dispatch, subcategoryService]);
+
+  const openEditModal = (name: string) => {
+    setSubcategoryToEdit(name);
+    setIsEditModalOpen(true);
+  };
 
   const handleDeleteRequest = (name: string) => {
     setSubcategoryToDelete(name);
@@ -47,7 +64,7 @@ const SubcategoryPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (subcategoryToDelete) {
       try {
-        await subcategoryService.deleteSubCategory(subcategoryToDelete);
+        await subcategoryService.deleteSubCategory(subcategoryToDelete, token);
         dispatch(
           loadSubcategories(
             subcategories.filter((subcategory) => subcategory.name !== subcategoryToDelete)
@@ -55,29 +72,11 @@ const SubcategoryPage: React.FC = () => {
         );
         toast.success(`Subcategory "${subcategoryToDelete}" deleted successfully.`);
       } catch (error) {
-        console.error("Error deleting subcategory:", error);
-        toast.error("Failed to delete subcategory. Please try again.");
+        toast.error(error as string);
       }
     }
     setIsDialogOpen(false);
     setSubcategoryToDelete(null);
-  };
-
-  const handleEdit = async (name: string, updatedName: string) => {
-    try {
-      await subcategoryService.updateSubCategory(name, updatedName);
-      dispatch(
-        loadSubcategories(
-          subcategories.map((subcategory) =>
-            subcategory.name === name ? { ...subcategory, name: updatedName } : subcategory
-          )
-        )
-      );
-      toast.success(`Subcategory "${name}" updated to "${updatedName}" successfully.`);
-    } catch (error) {
-      console.error("Error updating subcategory:", error);
-      toast.error("Failed to update subcategory. Please try again.");
-    }
   };
 
   const filteredSubcategories = subcategories.filter((subcategory) =>
@@ -85,9 +84,10 @@ const SubcategoryPage: React.FC = () => {
   );
 
   const totalPages = Math.ceil(filteredSubcategories.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredSubcategories.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredSubcategories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -111,7 +111,7 @@ const SubcategoryPage: React.FC = () => {
 
         <SubcategoryTable
           currentItems={currentItems}
-          handleEdit={handleEdit}
+          handleEdit={openEditModal}  
           handleDelete={handleDeleteRequest}
         />
 
@@ -129,7 +129,14 @@ const SubcategoryPage: React.FC = () => {
           onConfirm={handleConfirmDelete}
           onCancel={() => setIsDialogOpen(false)}
         />
+
+        <ModalUpdateSubCategory
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          currentName={subcategoryToEdit ?? ""}
+        />
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

@@ -1,5 +1,4 @@
-'use client';
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -8,6 +7,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useDispatch } from "react-redux";
 import { loadCategorys, retrieveCategorysSuccess, retrieveCategorysError } from "@/store/category/category.reducers";
+import { LoginContext } from "@/module/context/LoginProvider";
 
 interface ModalCategoryProps {
   isOpen: boolean;
@@ -20,6 +20,9 @@ const ModalCategory: React.FC<ModalCategoryProps> = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const categoryService = new CategoryService();
 
+  const { user } = useContext(LoginContext) ?? {};
+  const token = user?.token ?? "";
+
   if (!isOpen) return null;
 
   const handleSave = async () => {
@@ -30,9 +33,9 @@ const ModalCategory: React.FC<ModalCategoryProps> = ({ isOpen, onClose }) => {
 
     setIsLoading(true);
     try {
-      const response = await categoryService.createCategory(categoryName);
+      await categoryService.createCategory(categoryName, token);
       toast.success(`Category "${categoryName}" created successfully.`);
-
+      
       const updatedCategories = await categoryService.getCategories();
       dispatch(loadCategorys(updatedCategories));
       dispatch(retrieveCategorysSuccess());
@@ -40,14 +43,12 @@ const ModalCategory: React.FC<ModalCategoryProps> = ({ isOpen, onClose }) => {
       setCategoryName("");
       onClose();
     } catch (error) {
-      console.error("Error creating category:", error);
       dispatch(retrieveCategorysError());
-      toast.error("Error creating category. Please try again.");
+      toast.error(error as string);
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -92,7 +93,7 @@ const ModalCategory: React.FC<ModalCategoryProps> = ({ isOpen, onClose }) => {
         </motion.div>
       </div>
 
-      <ToastContainer position="bottom-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={3000} />
     </>
   );
 };
