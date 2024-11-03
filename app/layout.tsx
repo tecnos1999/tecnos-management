@@ -48,7 +48,6 @@ export default function RootLayout({
           </SidebarContainer>
         </div>
       </ClientProvider>
-
       </body>
     </html>
   );
