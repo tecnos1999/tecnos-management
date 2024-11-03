@@ -93,7 +93,6 @@ const SubcategoryTable: React.FC<SubcategoryTableProps> = ({
         isOpen={isUpdateModalOpen}
         onClose={closeUpdateModal}
         currentName={selectedSubcategory}
-        onUpdate={handleUpdate}
       />
     </div>
   );
