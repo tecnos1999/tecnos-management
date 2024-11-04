@@ -2,9 +2,13 @@ import ApiServer from "@/module/system/service/ApiServer";
 import { Category } from "../models/Category";
 
 class CategoryService extends ApiServer {
-  createCategory = async (categoryName: string, token: string): Promise<string> => {
+  createCategory = async (
+    categoryName: string,
+    token: string,
+    mainSection: string
+  ): Promise<string> => {
     const response = await this.api<null, any>(
-      `/category/create?name=${categoryName}`,
+      `/category/create?name=${categoryName}&mainSection=${mainSection}`,
       "POST",
       null,
       token
@@ -23,7 +27,7 @@ class CategoryService extends ApiServer {
       `/category/findAll`,
       "GET",
       null,
-      "" 
+      ""
     );
     if (response.status === 200) {
       const data = await response.json();
@@ -34,7 +38,10 @@ class CategoryService extends ApiServer {
     }
   };
 
-  deleteCategory = async (categoryName: string, token: string): Promise<string> => {
+  deleteCategory = async (
+    categoryName: string,
+    token: string
+  ): Promise<string> => {
     const response = await this.api<null, any>(
       `/category/delete?name=${categoryName}`,
       "DELETE",
@@ -50,9 +57,14 @@ class CategoryService extends ApiServer {
     }
   };
 
-  updateCategory = async (categoryName: string, updatedName: string, token: string): Promise<string> => {
+  updateCategory = async (
+    categoryName: string,
+    updatedName: string,
+    token: string,
+    updatedMainSection: string
+  ): Promise<string> => {
     const response = await this.api<null, any>(
-      `/category/update?name=${categoryName}&updatedName=${updatedName}`,
+      `/category/update?name=${categoryName}&updatedName=${updatedName}&updatedMainSection=${updatedMainSection}`,
       "PUT",
       null,
       token

@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { Category } from "../models/Category";
-import ModalUpdate from "./ModalUpdate"; 
+import ModalUpdate from "./ModalUpdate";
+import { MainSection } from "../enum/MainSection";
 
 interface CategoryTableProps {
   currentItems: Category[];
-  handleEdit: (name: string, updatedName: string) => void;
+  handleEdit: (name: string, updatedName: string, updatedSection: string) => void;
   handleDelete: (name: string) => void;
 }
 
@@ -18,10 +19,12 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
   handleDelete,
 }) => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>("");
+  const [selectedCategorySection, setSelectedCategorySection] = useState<string>("");
 
-  const openUpdateModal = (categoryName: string) => {
-    setSelectedCategory(categoryName);
+  const openUpdateModal = (categoryName: string, categorySection: MainSection) => {
+    setSelectedCategoryName(categoryName);
+    setSelectedCategorySection(categorySection); 
     setIsUpdateModalOpen(true);
   };
 
@@ -29,83 +32,89 @@ const CategoryTable: React.FC<CategoryTableProps> = ({
     setIsUpdateModalOpen(false);
   };
 
-  const handleUpdate = (updatedName: string) => {
-    handleEdit(selectedCategory, updatedName); 
+  const handleUpdate = (updatedName: string, updatedSection: string) => {
+    if (selectedCategoryName) {
+      handleEdit(selectedCategoryName, updatedName, updatedSection);
+    }
+    closeUpdateModal();
   };
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-6">
-    <table className="w-full table-auto">
-      <thead>
-        <tr className="bg-gray-200 text-left text-gray-600 uppercase text-sm !important ">
-          <th className="py-3 px-6 rounded-l-lg">Category</th>
-          <th className="py-3 px-6">Subcategories</th>
-          <th className="py-3 px-6">Created On</th>
-          <th className="py-3 px-6">Updated On</th>
-          <th className="py-3 px-6 rounded-r-lg">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {currentItems.length > 0 ? (
-          currentItems.map((category) => (
-            <motion.tr
-              key={category.name}
-              className="border-b border-gray-200 hover:bg-gray-50"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <td className="py-3 px-6">{category.name}</td>
-              <td className="py-3 px-6">
-                {category.subCategories.map((sub) => (
-                  <span
-                    key={sub.name}
-                    className="bg-blue-100 text-blue-500 text-sm px-2 py-1 rounded-lg mr-2"
-                  >
-                    {sub.name}
-                  </span>
-                ))}
-              </td>
-              <td className="py-3 px-6">
-                {new Date(category.createdAt).toLocaleDateString()}
-              </td>
-              <td className="py-3 px-6">
-                {new Date(category.updatedAt).toLocaleDateString()}
-              </td>
-
-              <td className="py-3 px-6 flex items-center space-x-2">
-                <button
-                  onClick={() => openUpdateModal(category.name)} 
-                  className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-full p-2 flex items-center justify-center w-8 h-8"
-                >
-                  <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(category.name)}
-                  className="bg-red-400 hover:bg-red-500 text-white rounded-full p-2 flex items-center justify-center w-8 h-8"
-                >
-                  <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
-                </button>
-              </td>
-            </motion.tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan={5} className="text-center py-6 text-gray-500">
-              No categories found
-            </td>
+      <table className="w-full table-auto">
+        <thead>
+          <tr className="bg-gray-200 text-left text-gray-600 uppercase text-sm">
+            <th className="py-3 px-6 rounded-l-lg">Category</th>
+            <th className="py-3 px-6">Section</th>
+            <th className="py-3 px-6">Subcategories</th>
+            <th className="py-3 px-6">Created On</th>
+            <th className="py-3 px-6">Updated On</th>
+            <th className="py-3 px-6 rounded-r-lg">Actions</th>
           </tr>
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {currentItems.length > 0 ? (
+            currentItems.reverse().map((category) => (
+              <motion.tr
+                key={category.name}
+                className="border-b border-gray-200 hover:bg-gray-50"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <td className="py-3 px-6">{category.name}</td>
+                <td className="py-3 px-6">{category.mainSection}</td>
+                <td className="py-3 px-6">
+                  {category.subCategories.map((sub) => (
+                    <span
+                      key={sub.name}
+                      className="bg-blue-100 text-blue-500 text-sm px-2 py-1 rounded-lg mr-2"
+                    >
+                      {sub.name}
+                    </span>
+                  ))}
+                </td>
+                <td className="py-3 px-6">
+                  {new Date(category.createdAt).toLocaleDateString()}
+                </td>
+                <td className="py-3 px-6">
+                  {new Date(category.updatedAt).toLocaleDateString()}
+                </td>
 
-    <ModalUpdate
-      isOpen={isUpdateModalOpen}
-      onClose={closeUpdateModal}
-      currentName={selectedCategory}
-      onUpdate={handleUpdate}
-    />
-  </div>
+                <td className="py-3 px-6 flex items-center space-x-2">
+                  <button
+                    onClick={() => openUpdateModal(category.name, category.mainSection)}
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-full p-2 flex items-center justify-center w-8 h-8"
+                  >
+                    <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(category.name)}
+                    className="bg-red-400 hover:bg-red-500 text-white rounded-full p-2 flex items-center justify-center w-8 h-8"
+                  >
+                    <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
+                  </button>
+                </td>
+              </motion.tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={6} className="text-center py-6 text-gray-500">
+                No categories found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      <ModalUpdate
+        isOpen={isUpdateModalOpen}
+        onClose={closeUpdateModal}
+        currentName={selectedCategoryName}
+        currentSection={selectedCategorySection}
+        onUpdate={handleUpdate}
+      />
+    </div>
   );
 };
 

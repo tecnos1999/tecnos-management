@@ -1,30 +1,40 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { MainSection } from "../enum/MainSection";
+import { MainSectionLabels } from "../enum/MainSectionLabels";
 
 interface ModalUpdateProps {
   isOpen: boolean;
   onClose: () => void;
   currentName: string;
-  onUpdate: (updatedName: string) => void;
+  currentSection: string;
+  onUpdate: (updatedName: string, updatedSection: string) => void;
 }
 
 const ModalUpdate: React.FC<ModalUpdateProps> = ({
   isOpen,
   onClose,
   currentName,
+  currentSection,
   onUpdate,
 }) => {
   const [updatedName, setUpdatedName] = useState(currentName);
+  const [updatedSection, setUpdatedSection] = useState<string>(currentSection);
+
   useEffect(() => {
-    setUpdatedName(currentName);
-  }, [currentName]);
+    if (isOpen) {
+      setUpdatedName(currentName);
+      setUpdatedSection(currentSection);
+    }
+  }, [isOpen, currentName, currentSection]);
+
   if (!isOpen) return null;
 
   const handleUpdate = () => {
-    onUpdate(updatedName);
+    onUpdate(updatedName,  updatedSection as string); 
     onClose();
   };
 
@@ -54,6 +64,27 @@ const ModalUpdate: React.FC<ModalUpdateProps> = ({
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500"
         />
 
+        <select
+          value={updatedSection}
+          onChange={(e) => setUpdatedSection(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-4 focus:outline-none focus:border-red-500"
+        >
+          <option value="" disabled>
+            Select Section
+          </option>
+          {Object.values(MainSection).map((sectionValue) => (
+            <option key={sectionValue} value={sectionValue}>
+              {MainSectionLabels[sectionValue as MainSection]}
+            </option>
+          ))}
+        </select>
+
+        {!updatedSection && (
+          <p className="text-red-500 mt-2">
+            Please select a section before saving.
+          </p>
+        )}
+
         <div className="mt-6 flex justify-end space-x-4">
           <button
             onClick={onClose}
@@ -64,6 +95,7 @@ const ModalUpdate: React.FC<ModalUpdateProps> = ({
           <button
             onClick={handleUpdate}
             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+            disabled={!updatedSection}
           >
             Update
           </button>

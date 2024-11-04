@@ -1,0 +1,6 @@
+export enum MainSection {
+    ACASA = "ACASA",
+    PRODUSE = "PRODUSE",
+    APLICATII_TEHNOLOGIE = "APLICATII_TEHNOLOGIE",
+    PARTENERI = "PARTENERI",
+  }

@@ -74,9 +74,18 @@ const CategoryPage: React.FC = () => {
     setCategoryToDelete(null);
   };
 
-  const handleEdit = async (name: string, updatedName: string) => {
+  const handleEdit = async (
+    name: string,
+    updatedName: string,
+    updatedMainSection: string
+  ) => {
     try {
-      await categoryService.updateCategory(name, updatedName, token);
+      await categoryService.updateCategory(
+        name,
+        updatedName,
+        token,
+        updatedMainSection
+      );
       dispatch(
         loadCategorys(
           categories.map((category) =>
