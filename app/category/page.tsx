@@ -44,7 +44,7 @@ const CategoryPage: React.FC = () => {
         dispatch(retrieveCategorysSuccess());
       } catch (error) {
         dispatch(retrieveCategorysError());
-        toast.error(error as string);
+        toast.info(error as string);
       }
     };
 

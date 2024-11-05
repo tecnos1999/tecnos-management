@@ -43,7 +43,7 @@ const ItemsCategoryPage: React.FC = () => {
         dispatch(retrieveItemCategoriesSuccess());
       } catch (error) {
         dispatch(retrieveItemCategoriesError());
-        toast.error(error as string);
+        toast.info(error as string);
       }
     };
   

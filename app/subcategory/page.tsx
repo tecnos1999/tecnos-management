@@ -42,8 +42,9 @@ const SubcategoryPage: React.FC = () => {
         const fetchedSubcategories = await subcategoryService.getSubcategories();
         dispatch(loadSubcategories(fetchedSubcategories));
         dispatch(retrieveSubcategoriesSuccess());
-      } catch  {
+      } catch (error) {
         dispatch(retrieveSubcategoriesError());
+        toast.info(error as string);        
       }
     };
 

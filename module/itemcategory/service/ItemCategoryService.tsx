@@ -30,7 +30,8 @@ class ItemCategoryService extends ApiServer {
       const data = await response.json();
       return data as ItemCategory[];
     } else {
-      return Promise.reject("Failed to fetch item categories");
+      const errorData = await response.json();
+      return Promise.reject(errorData.message || "Failed to create item category");
     }
   };
 
@@ -45,7 +46,8 @@ class ItemCategoryService extends ApiServer {
       const data = await response.text();
       return data;
     } else {
-      return Promise.reject("Failed to delete item category");
+      const errorData = await response.json();
+      return Promise.reject(errorData.message || "Failed to create item category");
     }
   };
 
