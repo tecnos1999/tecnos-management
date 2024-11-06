@@ -16,13 +16,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { LoginContext } from "@/module/context/LoginProvider";
 import LoginContextType from "@/module/context/LoginContextType";
+import { determinePath } from "@/system/utils";
 
 const menuItems = [
   { name: "Dashboard", path: "/", icon: faTachometerAlt, color: "bg-blue-500" },
-  { name: "Products", path: "/products", icon: faBoxOpen, color: "bg-yellow-500" },
-  { name: "Category", path: "/category", icon: faThList, color: "bg-red-500" },
-  { name: "SubCategory", path: "/subcategory", icon: faLayerGroup, color: "bg-green-500" },
-  { name: "Items Category", path: "/items-category", icon: faFolderTree, color: "bg-purple-500" },
+  { name: "Products", path: "products", icon: faBoxOpen, color: "bg-yellow-500" },
+  { name: "Category", path: "category", icon: faThList, color: "bg-red-500" },
+  { name: "SubCategory", path: "subcategory", icon: faLayerGroup, color: "bg-green-500" },
+  { name: "Items Category", path: "items-category", icon: faFolderTree, color: "bg-purple-500" },
 ];
 
 interface SidebarProps {
@@ -34,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
   const [hoveredItem, setHoveredItem] = useState<string>("");
 
   const pathname = usePathname();
-  const activeItem = menuItems.find((item) => pathname === item.path)?.name || "Dashboard";
+  const activeItem = menuItems.find((item) => pathname === determinePath(item.path))?.name || "Dashboard";
   const { user, logOut } = useContext(LoginContext) as LoginContextType;
 
   return (
@@ -69,7 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
       <nav className="mt-6 mx-3">
         <ul className="space-y-4">
           {menuItems.map((item) => (
-            <Link href={item.path} key={item.name}>
+            <Link href={determinePath(item.path)} key={item.name}>
               <SidebarItem
                 item={item}
                 activeItem={activeItem === item.name ? item.name : ""}

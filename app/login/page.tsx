@@ -9,6 +9,8 @@ import LoginContextType from "@/module/context/LoginContextType";
 import { LoginContext } from "@/module/context/LoginProvider";
 import UserService from "@/module/user/service/UserService";
 import LoginResponse from "@/module/user/dto/LoginResponse";
+import { determinePath } from "@/system/utils";
+
 
 const LoginPage: React.FC = () => {
   const { setUserCookie } = useContext(LoginContext) as LoginContextType;
@@ -38,7 +40,7 @@ const LoginPage: React.FC = () => {
       });
 
       setTimeout(() => {
-        router.push("/");
+        router.push(determinePath("/"));
       }, 1000);
     } catch {
       toast.error("Login failed. Please check your email and password.", {

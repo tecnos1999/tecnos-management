@@ -8,11 +8,14 @@ interface SidebarContainerProps {
   children: React.ReactNode;
 }
 
+
+
+
 const SidebarContainer: React.FC<SidebarContainerProps> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = useState(true);
   const pathname = usePathname(); 
 
-  const hideSidebar = pathname === "/login";
+  const hideSidebar = pathname === "/login" || pathname === "/admin/login";
 
   return (
     <div className="flex h-screen w-full">

@@ -3,6 +3,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { motion } from "framer-motion";
 
+
+
+const determinePath = (path: string) => {
+  if (typeof window !== "undefined" && window.location.host === "localhost:8080") {
+    return `/admin${path}`;
+  }
+  return path;
+};
+
+
 interface MenuItem {
   name: string;
   icon: IconDefinition;

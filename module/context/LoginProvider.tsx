@@ -6,6 +6,7 @@ import LoginResponse from "../user/dto/LoginResponse";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify"; 
 import "react-toastify/dist/ReactToastify.css"; 
+import { determinePath } from "@/system/utils";
 
 type LoginProviderProps = {
   children?: React.ReactNode;
@@ -57,7 +58,7 @@ const LoginProvider: React.FC<LoginProviderProps> = ({ children }) => {
       autoClose: 3000,
     });
     setTimeout(() => {
-      router.push("/login");
+      router.push(determinePath("login"));
     }, 1000);
   }, [router]);
 
