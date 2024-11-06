@@ -35,11 +35,14 @@ RUN npm install --only=production
 # Copy built files from builder stage
 COPY --from=builder /app/.next ./.next
 
-# Copy the node_modules from builder stage
-COPY --from=builder /app/node_modules ./node_modules
+# Copy public folder, which Next.js might use for static files
+COPY --from=builder /app/public public
+
+# Copy node_modules from builder stage (to have all dependencies)
+COPY --from=builder /app/node_modules node_modules
 
 # Debugging step to verify the copied build files in runner
-RUN ls -la ./.next
+RUN ls -la .next && ls -la public
 
 # Expose the port on which the Next.js app will run
 EXPOSE 3001
