@@ -5,7 +5,7 @@ const nextConfig = {
     },
     assetPrefix: process.env.REACT_APP_ENV === 'development' 
         ? 'http://localhost:8080/admin-static' 
-        : '',
+        : 'http://tecnos-gateway:8080/admin-static',
 };
 
 export default nextConfig;
