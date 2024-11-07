@@ -4,9 +4,9 @@ const nextConfig = {
         domains: ['gravatar.com'],
     },
     assetPrefix: process.env.REACT_APP_ENV === 'development'
-        ? 'http://localhost:80/ui-static'
+        ? 'http://localhost:80/admin-static'
         : process.env.REACT_APP_ENV === 'production'
-            ? 'http://tecnos-gateway/ui-static'
+            ? 'http://tecnos-gateway/admin-static'
             : '',
 };
 
