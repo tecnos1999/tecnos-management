@@ -36,7 +36,7 @@ COPY --from=builder /app/node_modules node_modules
 COPY --from=builder /app/.next/static .next/static
 
 # Expose the port on which the Next.js app will run
-EXPOSE 3000
+EXPOSE 3001
 
 # Start the Next.js application
 CMD ["npm", "run", "start"]
