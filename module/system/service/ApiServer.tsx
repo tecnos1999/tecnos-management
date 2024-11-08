@@ -2,8 +2,7 @@ import HttpResponse from "../httpResponse/HttpResponse";
 
 class ApiServer {
   api<U, T>(path: string, method: string, body: U, token: string): Promise<HttpResponse<T>> {
-    const port = process.env.REACT_APP_ENV  === 'development' ? 8080 : 80;
-    const url = `http://${window.location.hostname}:${port}/server${path}`;
+    const url = `http://${window.location.hostname}:8080/server${path}`;
     const isFormData = body instanceof FormData;
     const options: RequestInit = {
       method,
