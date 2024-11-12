@@ -67,6 +67,22 @@ class ProductService extends ApiServer {
       return Promise.reject(errorData.message || "Failed to update product");
     }
   };
+
+  getProducts = async (): Promise<Product[]> => {
+    const response = await this.api<null, any>(
+      `/product/all`,
+      "GET",
+      null,
+      ""
+    );
+    if (response.status === 200) {
+      const data = await response.json();
+      return data as Product[];
+    } else {
+      const errorData = await response.json();
+      return Promise.reject(errorData.message || "Failed to fetch products");
+    }
+  };
 }
 
 export default ProductService;

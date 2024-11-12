@@ -1,7 +1,6 @@
-// src/interfaces/Product.ts
-
 import { ItemCategory } from "@/module/itemcategory/models/ItemCategory";
 import { Image } from "@/module/image/models/Image";
+
 export interface Product {
     id: number;
     name: string;
