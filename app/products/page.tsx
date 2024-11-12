@@ -10,6 +10,8 @@ import ProductService from "@/module/products/service/ProductService";
 import SearchBar from "@/module/category/components/SearchBar";
 import ProductTable from "@/module/products/components/ProductTable";
 import Pagination from "@/module/category/components/Pagination";
+import ModalProduct from "@/module/products/components/ModalProduct";
+import { ProductDTO } from "@/module/products/dto/ProductDTO";
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -19,8 +21,6 @@ const ProductsPage: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
   const { user } = useContext(LoginContext) as LoginContextType;
   const token = user?.token ?? "";
 
@@ -58,13 +58,9 @@ const ProductsPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (sku: string, updatedProduct: Product) => {
-    setProducts(
-      products.map((product) =>
-        product.sku === sku ? { ...product, ...updatedProduct } : product
-      )
-    );
-    toast.success("Product updated successfully");
+  const handleCreateProduct = (newProductDTO: ProductDTO) => {
+    
+    toast.success("Product created successfully");
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,16 +85,16 @@ const ProductsPage: React.FC = () => {
         <h1 className="text-3xl font-bold text-left text-gray-700">Products</h1>
         <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
         <button
-          onClick={() => setIsModalOpen(true)} 
+          onClick={() => setIsModalOpen(true)}
           className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-red-600 transition duration-300 ease-in-out"
-        >  
+        >
           <span>+ New Product</span>
         </button>
       </div>
 
       <ProductTable
         currentItems={currentItems}
-        handleEdit={handleEdit}
+        handleEdit={() => {}} 
         handleDelete={handleDeleteRequest}
       />
 
@@ -116,18 +112,14 @@ const ProductsPage: React.FC = () => {
         onConfirm={handleConfirmDelete}
         onCancel={() => setIsDialogOpen(false)}
       />
-{/* 
+
       {isModalOpen && (
-        <ModalUpdateProduct
+        <ModalProduct
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          product={selectedProduct}
-          onUpdate={(updatedProduct) => {
-            handleEdit(updatedProduct.sku, updatedProduct);
-            setIsModalOpen(false);
-          }}
+          onCreate={handleCreateProduct}
         />
-      )} */}
+      )}
 
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
