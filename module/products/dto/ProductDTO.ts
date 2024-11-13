@@ -2,10 +2,10 @@ export interface ProductDTO {
     sku: string;
     name: string;
     description: string;
-    itemCategory: string;  
-    image: string;
-    broschure: string;
-    tehnic: string;
-    catalog: string;
-    linkVideo: string;
+    itemCategory: string | null;  
+    image: string | null;
+    broschure: string | null;
+    tehnic: string | null ;
+    catalog: string | null;
+    linkVideo: string | null;
 }

@@ -32,7 +32,7 @@ const ProductsPage: React.FC = () => {
         const fetchedProducts = await productService.getProducts();
         setProducts(fetchedProducts);
       } catch (error) {
-        toast.error("Failed to load products");
+        toast.error(error as string);
       }
     };
 
@@ -51,16 +51,20 @@ const ProductsPage: React.FC = () => {
         setProducts(products.filter((product) => product.sku !== productToDelete));
         toast.success("Product deleted successfully");
       } catch (error) {
-        toast.error("Failed to delete product");
+        toast.error(error as string);
       }
       setIsDialogOpen(false);
       setProductToDelete(null);
     }
   };
 
-  const handleCreateProduct = (newProductDTO: ProductDTO) => {
-    
-    toast.success("Product created successfully");
+  const handleCreateProduct = async (newProductDTO: ProductDTO) => {
+    try {
+      await productService.createProduct(newProductDTO, token);
+      toast.success("Product created successfully");
+    }catch (error) {
+      toast.error(error as string);
+    }
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {

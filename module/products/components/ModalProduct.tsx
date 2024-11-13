@@ -1,6 +1,4 @@
-"use client";
 import React, { useState } from "react";
-import { Product } from "@/module/products/models/Product";
 import { ProductDTO } from "../dto/ProductDTO";
 
 interface ModalProductProps {
@@ -13,6 +11,7 @@ const ModalProduct: React.FC<ModalProductProps> = ({ isOpen, onClose, onCreate }
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
   const [description, setDescription] = useState("");
+  const [itemCategory, setItemCategory] = useState<string | null>(null); // Adăugat pentru categoria opțională
   const [images, setImages] = useState<File[]>([]);
   const [broschure, setBroschure] = useState<File | null>(null);
   const [tehnic, setTehnic] = useState<File | null>(null);
@@ -33,18 +32,18 @@ const ModalProduct: React.FC<ModalProductProps> = ({ isOpen, onClose, onCreate }
     };
 
     const handleSubmit = () => {
-      const imageUrl = images.length > 0 ? URL.createObjectURL(images[0]) : "";
+      const imageUrl = images.length > 0 ? URL.createObjectURL(images[0]) : null; 
     
       const newProductDTO: ProductDTO = {
         sku,
         name,
         description,
-        itemCategory: "default-category",  
+        itemCategory: itemCategory ? itemCategory : null, 
         image: imageUrl,
-        broschure: broschure ? URL.createObjectURL(broschure) : "",
-        tehnic: tehnic ? URL.createObjectURL(tehnic) : "",
-        catalog: catalog ? URL.createObjectURL(catalog) : "",
-        linkVideo,
+        broschure: broschure ? URL.createObjectURL(broschure) : null, 
+        tehnic: tehnic ? URL.createObjectURL(tehnic) : null, 
+        catalog: catalog ? URL.createObjectURL(catalog) : null, 
+        linkVideo: linkVideo || null, 
       };
     
       onCreate(newProductDTO);
@@ -80,6 +79,14 @@ const ModalProduct: React.FC<ModalProductProps> = ({ isOpen, onClose, onCreate }
             className="w-full border p-2 rounded"
           />
 
+          <input
+            type="text"
+            placeholder="Category (optional)"
+            value={itemCategory || ""}
+            onChange={(e) => setItemCategory(e.target.value)}
+            className="w-full border p-2 rounded"
+          />
+
           <label>Upload Images:</label>
           <input type="file" multiple onChange={handleImageUpload} className="w-full border p-2 rounded" />
 
@@ -100,7 +107,7 @@ const ModalProduct: React.FC<ModalProductProps> = ({ isOpen, onClose, onCreate }
             className="w-full border p-2 rounded"
           />
 
-          <button onClick={handleSubmit} className="bg-blue-500 text-white px-4 py-2 rounded">
+          <button onClick={handleSubmit} className="bg-red-500 text-white px-4 py-2 rounded">
             Create Product
           </button>
           <button onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded ml-2">
