@@ -6,12 +6,12 @@ import SearchBar from "@/module/category/components/SearchBar";
 import CategoryTable from "../../module/category/components/CategoryTable";
 import Pagination from "@/module/category/components/Pagination";
 import CategoryService from "@/module/category/service/CategoryService";
-import { selectCategorys } from "@/store/category/category.selectors";
+import { selectCategories } from "@/store/category/category.selectors";
 import {
-  loadCategorys,
-  retrieveCategorysError,
-  retrieveCategorysLoading,
-  retrieveCategorysSuccess,
+  loadCategories,
+  retrieveCategoriesError,
+  retrieveCategoriesLoading,
+  retrieveCategoriesSuccess,
 } from "@/store/category/category.reducers";
 import { toast, ToastContainer } from "react-toastify";
 import Dialog from "@/components/Dialog";
@@ -20,7 +20,7 @@ import LoginContextType from "@/module/context/LoginContextType";
 
 const CategoryPage: React.FC = () => {
   const dispatch = useDispatch();
-  const categories = useSelector(selectCategorys);
+  const categories = useSelector(selectCategories);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,13 +37,13 @@ const CategoryPage: React.FC = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      dispatch(retrieveCategorysLoading());
+      dispatch(retrieveCategoriesLoading());
       try {
         const fetchedCategories = await categoryService.getCategories();
-        dispatch(loadCategorys(fetchedCategories));
-        dispatch(retrieveCategorysSuccess());
+        dispatch(loadCategories(fetchedCategories));
+        dispatch(retrieveCategoriesSuccess());
       } catch (error) {
-        dispatch(retrieveCategorysError());
+        dispatch(retrieveCategoriesError());
         toast.info(error as string);
       }
     };
@@ -61,7 +61,7 @@ const CategoryPage: React.FC = () => {
       try {
         await categoryService.deleteCategory(categoryToDelete, token);
         dispatch(
-          loadCategorys(
+          loadCategories(
             categories.filter((category) => category.name !== categoryToDelete)
           )
         );
@@ -87,7 +87,7 @@ const CategoryPage: React.FC = () => {
         updatedMainSection
       );
       dispatch(
-        loadCategorys(
+        loadCategories(
           categories.map((category) =>
             category.name === name
               ? { ...category, name: updatedName }

@@ -4,37 +4,41 @@ import { LoadingState } from "../actionType/LoadingState";
 
 export interface CategoryState {
     categories: Category[];
-    retrieveCategorysState: LoadingState;
-   
+    retrieveCategoriesState: LoadingState;
 }
 
 export const initialState: CategoryState = {
     categories: [],
-    retrieveCategorysState: LoadingState.NONE,
+    retrieveCategoriesState: LoadingState.NONE,
 };
 
 const categorySlice = createSlice({
     name: "Category",
     initialState: initialState,
     reducers: {
-        loadCategorys(state, action: PayloadAction<Category[]>) {
+        loadCategories(state, action: PayloadAction<Category[]>) {
             state.categories = action.payload;
         },
 
-        retrieveCategorysSuccess(state) {
-            state.retrieveCategorysState = LoadingState.SUCCES
+        retrieveCategoriesSuccess(state) {
+            state.retrieveCategoriesState = LoadingState.SUCCES;
         },
 
-        retrieveCategorysLoading(state) {
-            state.retrieveCategorysState = LoadingState.LOADING;
+        retrieveCategoriesLoading(state) {
+            state.retrieveCategoriesState = LoadingState.LOADING;
         },
 
-        retrieveCategorysError(state) {
-            state.retrieveCategorysState = LoadingState.ERROR;
+        retrieveCategoriesError(state) {
+            state.retrieveCategoriesState = LoadingState.ERROR;
         },
-
     },
 });
 
-export const { loadCategorys, retrieveCategorysError, retrieveCategorysLoading, retrieveCategorysSuccess } = categorySlice.actions;
+export const {
+    loadCategories,
+    retrieveCategoriesError,
+    retrieveCategoriesLoading,
+    retrieveCategoriesSuccess,
+} = categorySlice.actions;
+
 export default categorySlice;

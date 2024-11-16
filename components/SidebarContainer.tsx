@@ -25,7 +25,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = ({ children }) => {
       
       <div
         className={`flex-1 transition-all duration-200 ${
-          hideSidebar ? 'px-0 ml-0' : `px-8 ${isNavOpen ? 'ml-64' : 'ml-16'}`
+          hideSidebar ? 'px-0 ml-0' : `px-8  ${isNavOpen ? 'ml-64' : 'ml-16'}`
         }`}
       >
         {children}

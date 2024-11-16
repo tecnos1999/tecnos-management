@@ -7,9 +7,9 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 import {
-  loadCategorys,
-  retrieveCategorysSuccess,
-  retrieveCategorysError,
+  loadCategories,
+  retrieveCategoriesSuccess,
+  retrieveCategoriesError,
 } from "@/store/category/category.reducers";
 import { LoginContext } from "@/module/context/LoginProvider";
 import { MainSection } from "../enum/MainSection";
@@ -46,14 +46,14 @@ const ModalCategory: React.FC<ModalCategoryProps> = ({ isOpen, onClose }) => {
       toast.success(`Category "${categoryName}" created successfully.`);
 
       const updatedCategories = await categoryService.getCategories();
-      dispatch(loadCategorys(updatedCategories));
-      dispatch(retrieveCategorysSuccess());
+      dispatch(loadCategories(updatedCategories));
+      dispatch(retrieveCategoriesSuccess());
 
       setCategoryName("");
       setMainSection(MainSection.ACASA);
       onClose();
     } catch (error) {
-      dispatch(retrieveCategorysError());
+      dispatch(retrieveCategoriesError());
       toast.error(error as string);
     } finally {
       setIsLoading(false);

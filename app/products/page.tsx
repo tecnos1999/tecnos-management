@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState, useContext } from "react";
+import { useRouter } from "next/navigation";
 import Dialog from "@/components/Dialog";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,8 +11,7 @@ import ProductService from "@/module/products/service/ProductService";
 import SearchBar from "@/module/category/components/SearchBar";
 import ProductTable from "@/module/products/components/ProductTable";
 import Pagination from "@/module/category/components/Pagination";
-import ModalProduct from "@/module/products/components/ModalProduct";
-import { ProductDTO } from "@/module/products/dto/ProductDTO";
+import { determinePath } from "@/system/utils";
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -20,9 +20,9 @@ const ProductsPage: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useContext(LoginContext) as LoginContextType;
   const token = user?.token ?? "";
+  const router = useRouter();
 
   const productService = useMemo(() => new ProductService(), []);
 
@@ -58,15 +58,6 @@ const ProductsPage: React.FC = () => {
     }
   };
 
-  const handleCreateProduct = async (newProductDTO: ProductDTO) => {
-    try {
-      await productService.createProduct(newProductDTO, token);
-      toast.success("Product created successfully");
-    }catch (error) {
-      toast.error(error as string);
-    }
-  };
-
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
@@ -89,7 +80,7 @@ const ProductsPage: React.FC = () => {
         <h1 className="text-3xl font-bold text-left text-gray-700">Products</h1>
         <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => router.push(determinePath("products/add"))}
           className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-red-600 transition duration-300 ease-in-out"
         >
           <span>+ New Product</span>
@@ -116,14 +107,6 @@ const ProductsPage: React.FC = () => {
         onConfirm={handleConfirmDelete}
         onCancel={() => setIsDialogOpen(false)}
       />
-
-      {isModalOpen && (
-        <ModalProduct
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onCreate={handleCreateProduct}
-        />
-      )}
 
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

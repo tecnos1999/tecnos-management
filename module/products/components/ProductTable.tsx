@@ -47,9 +47,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
 
   const handleSelectAll = () => {
     if (selectedProducts.length === currentItems.length) {
-      setSelectedProducts([]); // Deselectează toate produsele
+      setSelectedProducts([]); 
     } else {
-      setSelectedProducts(currentItems.map((product) => product.sku)); // Selectează toate produsele
+      setSelectedProducts(currentItems.map((product) => product.sku));
     }
   };
 

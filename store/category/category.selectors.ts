@@ -2,19 +2,17 @@ import { createSelector } from "@reduxjs/toolkit";
 import { CategoryState } from "./category.reducers";
 
 interface RootState {
-    categoryState: CategoryState; 
+    categoryState: CategoryState;
 }
 
-export const selectCategorysState = (state: RootState) => state.categoryState;
+export const selectCategoriesState = (state: RootState) => state.categoryState;
 
-export const selectCategorys = createSelector(
-    selectCategorysState,
+export const selectCategories = createSelector(
+    selectCategoriesState,
     (categoryState) => categoryState.categories
 );
 
-export const selectRetrieveCategorysState = createSelector(
-    selectCategorysState,
-    (categoryState): typeof categoryState.retrieveCategorysState => categoryState.retrieveCategorysState
+export const selectRetrieveCategoriesState = createSelector(
+    selectCategoriesState,
+    (categoryState): typeof categoryState.retrieveCategoriesState => categoryState.retrieveCategoriesState
 );
-
-

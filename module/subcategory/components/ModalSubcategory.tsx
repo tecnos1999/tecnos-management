@@ -2,9 +2,9 @@ import React, { useEffect, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
-import { selectCategorys } from "@/store/category/category.selectors";
+import { selectCategories } from "@/store/category/category.selectors";
 import { loadSubcategories } from "@/store/subcategory/subcategory.reducers";
-import { loadCategorys } from "@/store/category/category.reducers";
+import { loadCategories } from "@/store/category/category.reducers";
 import CategoryService from "@/module/category/service/CategoryService";
 import { Category } from "@/module/category/models/Category";
 import { LoginContext } from "@/module/context/LoginProvider";
@@ -17,7 +17,7 @@ interface ModalSubcategoryProps {
 
 const ModalSubcategory: React.FC<ModalSubcategoryProps> = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
-  const categories = useSelector(selectCategorys);
+  const categories = useSelector(selectCategories);
   const [subcategoryName, setSubcategoryName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +42,7 @@ const ModalSubcategory: React.FC<ModalSubcategoryProps> = ({ isOpen, onClose }) 
       const fetchedCategories = await categoryService.getCategories();
       const fetchedSubcategories = await subcategoryService.getSubcategories();
 
-      dispatch(loadCategorys(fetchedCategories));
+      dispatch(loadCategories(fetchedCategories));
       dispatch(loadSubcategories(fetchedSubcategories));
     } catch (error) {
       toast.error(error as string || "Failed to refresh data.");
