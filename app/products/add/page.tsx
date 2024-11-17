@@ -1,41 +1,39 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FaCheck, FaTimes, FaTimesCircle } from "react-icons/fa";
+import { FaTimesCircle } from "react-icons/fa";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
 import CategoryService from "@/module/category/service/CategoryService";
 import ItemCategoryService from "@/module/itemcategory/service/ItemCategoryService";
+import ProductService from "@/module/products/service/ProductService";
 import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
 import { selectItemCategories } from "@/store/itemcategory/itemCategory.selectors";
 import {
   loadCategories,
-  retrieveCategoriesError,
-  retrieveCategoriesLoading,
   retrieveCategoriesSuccess,
 } from "@/store/category/category.reducers";
 import {
   loadSubcategories,
-  retrieveSubcategoriesError,
-  retrieveSubcategoriesLoading,
   retrieveSubcategoriesSuccess,
 } from "@/store/subcategory/subcategory.reducers";
 import {
   loadItemCategories,
-  retrieveItemCategoriesError,
-  retrieveItemCategoriesLoading,
   retrieveItemCategoriesSuccess,
 } from "@/store/itemcategory/itemCategory.reducers";
 import { selectCategories } from "@/store/category/category.selectors";
-import { motion } from "framer-motion";
-import HeaderContainer from "@/module/products/components/HeaderContainer";
-import { determinePath } from "@/system/utils";
-import GeneralInformationContainer from "@/module/products/components/GeneralInformation";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
 import AddDocumentsSection from "@/module/products/components/AddDocumentSection";
+import HeaderContainer from "@/module/products/components/HeaderContainer";
+import GeneralInformationContainer from "@/module/products/components/GeneralInformation";
+import DocumentService from "@/module/documents/service/DocumentService";
+import { motion } from "framer-motion";
+
 const AddProductPage: React.FC = () => {
   const [sku, setSku] = useState("");
   const [name, setName] = useState("");
@@ -48,7 +46,6 @@ const AddProductPage: React.FC = () => {
 
   const router = useRouter();
   const dispatch = useDispatch();
-
   const categories = useSelector(selectCategories);
   const subcategories = useSelector(selectSubcategories);
   const itemCategories = useSelector(selectItemCategories);
@@ -56,50 +53,30 @@ const AddProductPage: React.FC = () => {
   const subcategoryService = useMemo(() => new SubcategoryService(), []);
   const itemCategoryService = useMemo(() => new ItemCategoryService(), []);
   const categoryService = useMemo(() => new CategoryService(), []);
+  const documentService = useMemo(() => new DocumentService(), []);
+  const productService = useMemo(() => new ProductService(), []);
+  const { user } = useContext(LoginContext) as LoginContextType;
+  const token = user?.token ?? "";
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      dispatch(retrieveCategoriesLoading());
+    const fetchData = async () => {
       try {
         const fetchedCategories = await categoryService.getCategories();
         dispatch(loadCategories(fetchedCategories));
         dispatch(retrieveCategoriesSuccess());
-      } catch (error) {
-        dispatch(retrieveCategoriesError());
-        toast.error((error as string) || "Error fetching categories");
-      }
-    };
-
-    const fetchSubcategories = async () => {
-      dispatch(retrieveSubcategoriesLoading());
-      try {
-        const fetchedSubcategories =
-          await subcategoryService.getSubcategories();
+        const fetchedSubcategories = await subcategoryService.getSubcategories();
         dispatch(loadSubcategories(fetchedSubcategories));
         dispatch(retrieveSubcategoriesSuccess());
-      } catch (error) {
-        dispatch(retrieveSubcategoriesError());
-        toast.error((error as string) || "Error fetching subcategories");
-      }
-    };
-
-    const fetchItemCategories = async () => {
-      dispatch(retrieveItemCategoriesLoading());
-      try {
-        const fetchedItemCategories =
-          await itemCategoryService.getItemCategories();
+        const fetchedItemCategories = await itemCategoryService.getItemCategories();
         dispatch(loadItemCategories(fetchedItemCategories));
         dispatch(retrieveItemCategoriesSuccess());
       } catch (error) {
-        dispatch(retrieveItemCategoriesError());
-        toast.error((error as string) || "Error fetching item categories");
+        toast.error("Error fetching data!");
       }
     };
 
-    fetchCategories();
-    fetchSubcategories();
-    fetchItemCategories();
-  }, [dispatch, categoryService, subcategoryService, itemCategoryService]);
+    fetchData();
+  }, [categoryService, subcategoryService, itemCategoryService, dispatch]);
 
   const filteredSubcategories = subcategories.filter(
     (subcat) => subcat.categoryName === category
@@ -124,21 +101,56 @@ const AddProductPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    const newProductDTO = {
-      sku,
-      name,
-      description,
-      itemCategory,
-      category,
-      subCategory,
-      images: imageFiles.map((file) => URL.createObjectURL(file)),
-    };
+    if (!token) {
+      toast.error("Nu ești autentificat. Reîncearcă după autentificare.");
+      return;
+    }
+
+    if (!sku || !name || !description) {
+      toast.error("SKU, Name, și Description sunt obligatorii.");
+      return;
+    }
+
+    if (imageFiles.length === 0) {
+      toast.error("Adaugă cel puțin o imagine pentru produs.");
+      return;
+    }
 
     try {
-      toast.success("Product created successfully");
+      toast.info("Se încarcă imaginile...");
+      const uploadedDocuments = await documentService.uploadDocuments(imageFiles, token);
+
+      if (!uploadedDocuments || uploadedDocuments.length === 0) {
+        toast.error("Nu s-au putut încărca imaginile.");
+        return;
+      }
+
+      toast.success("Imaginile au fost încărcate cu succes!");
+
+      const newProductDTO = {
+        sku,
+        name,
+        description,
+        itemCategory,
+        category,
+        subCategory,
+        image: uploadedDocuments.map((doc) => ({
+          url: doc.url,
+          type: doc.type,
+        })),
+        broschure: null,
+        tehnic: null,
+        catalog: null,
+        linkVideo: null,
+      };
+
+      toast.info("Se salvează produsul...");
+      await productService.createProduct(newProductDTO, token);
+
+      toast.success("Produsul a fost creat cu succes!");
       router.push("/product");
-    } catch (error) {
-      toast.error("Error creating product");
+    } catch (error: any) {
+      toast.error(error.message || "A apărut o eroare.");
     }
   };
 
@@ -155,9 +167,9 @@ const AddProductPage: React.FC = () => {
   });
 
   return (
-    <div className="container  min-h-screen min-w-full grid grid-cols-3 grid-rows-10 gap-2 p-2">
+    <div className="container min-h-screen min-w-full grid grid-cols-3 grid-rows-10 gap-2 p-2">
       <HeaderContainer
-        onCancel={() => router.push(determinePath("product"))}
+        onCancel={() => router.push("/product")}
         onSubmit={handleSubmit}
       />
       <GeneralInformationContainer
@@ -189,24 +201,24 @@ const AddProductPage: React.FC = () => {
           </div>
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {imageFiles.map((file, index) => (
-             <div
-             key={index}
-             className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-           >
-             <img
-               src={URL.createObjectURL(file)}
-               alt={`Uploaded ${index + 1}`}
-               className="w-full h-full object-cover"
-               onClick={() => handleImageClick(index)}
-             />
-             <button
-               className="absolute top-1 right-0 text-red-500 text-sm p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-transform transform hover:scale-105 hover:text-red-600"
-               onClick={() => handleRemoveImage(index)}
-               title="Remove Image"
-             >
-               <FaTimesCircle />
-             </button>
-           </div>
+              <div
+                key={index}
+                className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+              >
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`Uploaded ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onClick={() => handleImageClick(index)}
+                />
+                <button
+                  className="absolute top-1 right-0 text-red-500 text-sm p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-transform transform hover:scale-105 hover:text-red-600"
+                  onClick={() => handleRemoveImage(index)}
+                  title="Remove Image"
+                >
+                  <FaTimesCircle />
+                </button>
+              </div>
             ))}
             <div
               {...getRootProps()}
@@ -217,7 +229,6 @@ const AddProductPage: React.FC = () => {
             </div>
           </div>
         </div>
-
         <div className="category space-y-4">
           <h2 className="text-lg font-bold text-gray-800">Category</h2>
           <select
@@ -264,7 +275,6 @@ const AddProductPage: React.FC = () => {
           </select>
         </div>
       </motion.div>
-
       <AddDocumentsSection />
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

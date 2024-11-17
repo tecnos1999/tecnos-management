@@ -6,10 +6,11 @@ class ProductService extends ApiServer {
   
   createProduct = async (productDTO: ProductDTO, token: string): Promise<string> => {
     const response = await this.api<ProductDTO, any>(
-      `/product`,
+      `/product/`,
       "POST",
       productDTO,
-      token
+      token,
+      false
     );
     if (response.status === 200) {
       const data = await response.text();
