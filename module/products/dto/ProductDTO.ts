@@ -7,7 +7,7 @@ export interface ProductDTO {
     category: string | null;
     subCategory: string | null;
     itemCategory: string | null;  
-    image: ImageDTO[] | null;
+    images: ImageDTO[] | null;
     broschure: string | null;
     tehnic: string | null ;
     catalog: string | null;

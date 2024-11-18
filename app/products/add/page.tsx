@@ -134,7 +134,7 @@ const AddProductPage: React.FC = () => {
         itemCategory,
         category,
         subCategory,
-        image: uploadedDocuments.map((doc) => ({
+        images: uploadedDocuments.map((doc) => ({
           url: doc.url,
           type: doc.type,
         })),
