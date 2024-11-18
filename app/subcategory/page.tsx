@@ -27,11 +27,17 @@ const SubcategoryPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [subcategoryToDelete, setSubcategoryToDelete] = useState<string | null>(null);
-  const [subcategoryToEdit, setSubcategoryToEdit] = useState<string | null>(null);
+  const [subcategoryToDelete, setSubcategoryToDelete] = useState<{
+    name: string;
+    category: string;
+  } | null>(null);
+  const [subcategoryToEdit, setSubcategoryToEdit] = useState<{
+    name: string;
+    category: string;
+  } | null>(null); 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const subcategoryService = useMemo(() => new SubcategoryService(), []);
-  
+
   const { user } = useContext(LoginContext) as LoginContextType;
   const token = user?.token ?? "";
 
@@ -44,39 +50,54 @@ const SubcategoryPage: React.FC = () => {
         dispatch(retrieveSubcategoriesSuccess());
       } catch (error) {
         dispatch(retrieveSubcategoriesError());
-        toast.info(error as string);        
+        toast.info(error as string);
       }
     };
 
     fetchSubcategories();
   }, [dispatch, subcategoryService]);
 
-  const openEditModal = (name: string) => {
-    setSubcategoryToEdit(name);
-    setIsEditModalOpen(true);
-  };
-
-  const handleDeleteRequest = (name: string) => {
-    setSubcategoryToDelete(name);
+  const handleDeleteRequest = (name: string, category: string) => {
+    setSubcategoryToDelete({ name, category });
     setIsDialogOpen(true);
   };
 
   const handleConfirmDelete = async () => {
     if (subcategoryToDelete) {
       try {
-        await subcategoryService.deleteSubCategory(subcategoryToDelete, token);
+        await subcategoryService.deleteSubCategory(
+          subcategoryToDelete.name,
+          subcategoryToDelete.category,
+          token
+        );
         dispatch(
           loadSubcategories(
-            subcategories.filter((subcategory) => subcategory.name !== subcategoryToDelete)
+            subcategories.filter(
+              (subcategory) =>
+                subcategory.name !== subcategoryToDelete.name ||
+                subcategory.categoryName !== subcategoryToDelete.category
+            )
           )
         );
-        toast.success(`Subcategory "${subcategoryToDelete}" deleted successfully.`);
+        toast.success(
+          `Subcategory "${subcategoryToDelete.name}" in category "${subcategoryToDelete.category}" deleted successfully.`
+        );
       } catch (error) {
         toast.error(error as string);
       }
     }
     setIsDialogOpen(false);
     setSubcategoryToDelete(null);
+  };
+
+  const openEditModal = (name: string, category: string) => {
+    setSubcategoryToEdit({ name, category });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setSubcategoryToEdit(null);
   };
 
   const filteredSubcategories = subcategories.filter((subcategory) =>
@@ -97,7 +118,9 @@ const SubcategoryPage: React.FC = () => {
     <div className="flex w-full h-full mt-4">
       <div className="w-full h-full">
         <div className="flex justify-between items-center mb-6 shadow-lg rounded-lg py-6 px-4">
-          <h1 className="text-3xl font-bold text-left text-gray-700">Subcategory</h1>
+          <h1 className="text-3xl font-bold text-left text-gray-700">
+            Subcategory
+          </h1>
           <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
           <button
             onClick={() => setIsModalOpen(true)}
@@ -107,11 +130,14 @@ const SubcategoryPage: React.FC = () => {
           </button>
         </div>
 
-        <ModalSubcategory isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        <ModalSubcategory
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
 
         <SubcategoryTable
           currentItems={currentItems}
-          handleEdit={openEditModal}  
+          handleEdit={openEditModal}
           handleDelete={handleDeleteRequest}
         />
 
@@ -125,16 +151,19 @@ const SubcategoryPage: React.FC = () => {
 
         <Dialog
           isOpen={isDialogOpen}
-          message={`Are you sure you want to delete "${subcategoryToDelete}"?`}
+          message={`Are you sure you want to delete "${subcategoryToDelete?.name}" in category "${subcategoryToDelete?.category}"?`}
           onConfirm={handleConfirmDelete}
           onCancel={() => setIsDialogOpen(false)}
         />
 
-        <ModalUpdateSubCategory
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          currentName={subcategoryToEdit ?? ""}
-        />
+        {subcategoryToEdit && (
+          <ModalUpdateSubCategory
+            isOpen={isEditModalOpen}
+            onClose={handleEditClose}
+            currentName={subcategoryToEdit.name}
+            currentCategory={subcategoryToEdit.category}
+          />
+        )}
       </div>
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

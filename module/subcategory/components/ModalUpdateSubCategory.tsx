@@ -12,12 +12,14 @@ interface ModalUpdateSubCategoryProps {
   isOpen: boolean;
   onClose: () => void;
   currentName: string;
+  currentCategory: string; // Adăugăm categoria actuală
 }
 
 const ModalUpdateSubCategory: React.FC<ModalUpdateSubCategoryProps> = ({
   isOpen,
   onClose,
   currentName,
+  currentCategory, // Primim categoria
 }) => {
   const [updatedName, setUpdatedName] = useState(currentName);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,11 +43,19 @@ const ModalUpdateSubCategory: React.FC<ModalUpdateSubCategoryProps> = ({
 
     setIsLoading(true);
     try {
-      await subcategoryService.updateSubCategory(currentName, updatedName, token);
+      await subcategoryService.updateSubCategory(
+        currentName,
+        updatedName,
+        currentCategory, // Transmitem categoria
+        token
+      );
       dispatch(
         loadSubcategories(
           subcategories.map((subcategory) =>
-            subcategory.name === currentName ? { ...subcategory, name: updatedName } : subcategory
+            subcategory.name === currentName &&
+            subcategory.categoryName === currentCategory
+              ? { ...subcategory, name: updatedName }
+              : subcategory
           )
         )
       );

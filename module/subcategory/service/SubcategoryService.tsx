@@ -35,9 +35,9 @@ class SubCategoryService extends ApiServer {
     }
   };
 
-  deleteSubCategory = async (name: string, token: string): Promise<string> => {
+  deleteSubCategory = async (name: string, category: string, token: string): Promise<string> => {
     const response = await this.api<null, any>(
-      `/subcategory/delete?name=${name}`,
+      `/subcategory/delete?name=${name}&category=${category}`,
       "DELETE",
       null,
       token
@@ -50,10 +50,16 @@ class SubCategoryService extends ApiServer {
       return Promise.reject(errorData.message || "Failed to delete subcategory");
     }
   };
+  
 
-  updateSubCategory = async (name: string, updatedName: string, token: string): Promise<string> => {
+  updateSubCategory = async (
+    name: string,
+    updatedName: string,
+    category: string,
+    token: string
+  ): Promise<string> => {
     const response = await this.api<null, any>(
-      `/subcategory/update?name=${name}&updatedName=${updatedName}`,
+      `/subcategory/update?name=${name}&updatedName=${updatedName}&category=${category}`, 
       "PUT",
       null,
       token
@@ -66,6 +72,7 @@ class SubCategoryService extends ApiServer {
       return Promise.reject(errorData.message || "Failed to update subcategory");
     }
   };
+  
 }
 
 export default SubCategoryService;

@@ -1,15 +1,14 @@
 'use client';
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { Subcategory } from "../models/Subcategory";
-import ModalUpdateSubCategory from "./ModalUpdateSubCategory";
 
 interface SubcategoryTableProps {
   currentItems: Subcategory[];
-  handleEdit: (name: string, updatedName: string) => void;
-  handleDelete: (name: string) => void;
+  handleEdit: (name: string, category: string) => void;
+  handleDelete: (name: string, category: string) => void;
 }
 
 const SubcategoryTable: React.FC<SubcategoryTableProps> = ({
@@ -17,22 +16,6 @@ const SubcategoryTable: React.FC<SubcategoryTableProps> = ({
   handleEdit,
   handleDelete,
 }) => {
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
-
-  const openUpdateModal = (subcategoryName: string) => {
-    setSelectedSubcategory(subcategoryName);
-    setIsUpdateModalOpen(true);
-  };
-
-  const closeUpdateModal = () => {
-    setIsUpdateModalOpen(false);
-  };
-
-  const handleUpdate = (updatedName: string) => {
-    handleEdit(selectedSubcategory, updatedName);
-  };
-
   return (
     <div className="bg-white shadow-lg rounded-lg p-6">
       <table className="w-full table-auto">
@@ -65,13 +48,13 @@ const SubcategoryTable: React.FC<SubcategoryTableProps> = ({
                 </td>
                 <td className="py-3 px-6 flex items-center space-x-2">
                   <button
-                    onClick={() => openUpdateModal(subcategory.name)}
+                    onClick={() => handleEdit(subcategory.name, subcategory.categoryName)}
                     className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-full p-2 flex items-center justify-center w-8 h-8"
                   >
                     <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(subcategory.name)}
+                    onClick={() => handleDelete(subcategory.name, subcategory.categoryName)}
                     className="bg-red-400 hover:bg-red-500 text-white rounded-full p-2 flex items-center justify-center w-8 h-8"
                   >
                     <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
@@ -88,12 +71,6 @@ const SubcategoryTable: React.FC<SubcategoryTableProps> = ({
           )}
         </tbody>
       </table>
-
-      <ModalUpdateSubCategory
-        isOpen={isUpdateModalOpen}
-        onClose={closeUpdateModal}
-        currentName={selectedSubcategory}
-      />
     </div>
   );
 };
