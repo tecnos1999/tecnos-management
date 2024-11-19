@@ -1,103 +1,111 @@
 "use client";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import SearchBar from "@/module/category/components/SearchBar";
+import Pagination from "@/module/category/components/Pagination";
 import ItemCategoryTable from "@/module/itemcategory/components/ItemCategoryTable";
 import ModalCreateItemCategory from "@/module/itemcategory/components/ModalCreateItemCategory";
-import Pagination from "@/module/category/components/Pagination";
-import SearchBar from "@/module/category/components/SearchBar";
-import ItemCategoryService from "@/module/itemcategory/service/ItemCategoryService";
+import ModalUpdateItemCategory from "@/module/itemcategory/components/ModalUpdateItemCategory";
 import Dialog from "@/components/Dialog";
+import ItemCategoryService from "@/module/itemcategory/service/ItemCategoryService";
 import { selectItemCategories } from "@/store/itemcategory/itemCategory.selectors";
-import {
-  loadItemCategories,
-  retrieveItemCategoriesLoading,
-  retrieveItemCategoriesError,
-  retrieveItemCategoriesSuccess,
-} from "@/store/itemcategory/itemCategory.reducers";
+import { loadItemCategories } from "@/store/itemcategory/itemCategory.reducers";
 import { toast, ToastContainer } from "react-toastify";
 import { LoginContext } from "@/module/context/LoginProvider";
 import LoginContextType from "@/module/context/LoginContextType";
+import { ItemCategory } from "@/module/itemcategory/models/ItemCategory";
 
-const ItemsCategoryPage: React.FC = () => {
+const ItemCategoryPage: React.FC = () => {
   const dispatch = useDispatch();
   const itemCategories = useSelector(selectItemCategories);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ItemCategory | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [itemCategoryToDelete, setItemCategoryToDelete] = useState<
-    string | null
-  >(null);
+
   const itemCategoryService = useMemo(() => new ItemCategoryService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
   const token = user?.token ?? "";
 
-
   useEffect(() => {
     const fetchItemCategories = async () => {
-      dispatch(retrieveItemCategoriesLoading());
       try {
-        const fetchedItemCategories = await itemCategoryService.getItemCategories();
-        dispatch(loadItemCategories(fetchedItemCategories));
-        dispatch(retrieveItemCategoriesSuccess());
+        const fetchedCategories = await itemCategoryService.getItemCategories();
+        dispatch(loadItemCategories(fetchedCategories));
       } catch (error) {
-        dispatch(retrieveItemCategoriesError());
-        toast.info(error as string);
+        toast.error((error as Error).message);
       }
     };
-  
     fetchItemCategories();
   }, [dispatch, itemCategoryService]);
 
-  const handleCreate = async (name: string, subCategory: string) => {
+  const handleCreate = async (name: string, subCategory: string, category: string) => {
     try {
-      await itemCategoryService.createItemCategory(name, subCategory, token);
+      await itemCategoryService.createItemCategory(name, subCategory, category, token);
       const updatedCategories = await itemCategoryService.getItemCategories();
       dispatch(loadItemCategories(updatedCategories));
       toast.success(`Item Category "${name}" created successfully.`);
+      setIsCreateModalOpen(false);
     } catch (error) {
-      toast.error(error as string);
+      toast.error((error as Error).message);
     }
   };
 
-  const handleEdit = async (name: string, updatedName: string) => {
-    try {
-      await itemCategoryService.updateItemCategory(name, updatedName, token);
-      const updatedCategories = await itemCategoryService.getItemCategories();
-      dispatch(loadItemCategories(updatedCategories));
-      toast.success(
-        `Item Category "${name}" updated to "${updatedName}" successfully.`
-      );
-    } catch (error) {
-      toast.error(error as string);
-    }
-  };
-
-  const handleDeleteRequest = (name: string) => {
-    setItemCategoryToDelete(name);
-    setIsDialogOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (itemCategoryToDelete) {
+  const handleUpdate = async (
+    updatedName: string,
+    updatedSubCategory: string,
+    updatedCategory: string
+  ) => {
+    if (selectedItem) {
       try {
-        await itemCategoryService.deleteItemCategory(itemCategoryToDelete, token);
+        await itemCategoryService.updateItemCategory(
+          selectedItem.name, 
+          updatedName, 
+          selectedItem.subcategoryName, 
+          selectedItem.categoryName, 
+          updatedSubCategory, 
+          updatedCategory, 
+          token 
+        );
         const updatedCategories = await itemCategoryService.getItemCategories();
         dispatch(loadItemCategories(updatedCategories));
         toast.success(
-          `Item Category "${itemCategoryToDelete}" deleted successfully.`
+          `Item Category updated to "${updatedName}" in subcategory "${updatedSubCategory}" under category "${updatedCategory}".`
         );
+        setIsEditModalOpen(false);
       } catch (error) {
-        toast.error(error as string);
+        toast.error((error as Error).message);
       }
     }
-    setIsDialogOpen(false);
-    setItemCategoryToDelete(null);
   };
 
-  const filteredItemCategories = itemCategories.filter((itemCategory) =>
-    itemCategory.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleDelete = async () => {
+    if (selectedItem) {
+      try {
+        await itemCategoryService.deleteItemCategory(
+          selectedItem.name,
+          selectedItem.subcategoryName,
+          selectedItem.categoryName,
+          token
+        );
+        dispatch(
+          loadItemCategories(
+            itemCategories.filter((item) => item.name !== selectedItem.name)
+          )
+        );
+        toast.success(`Item Category "${selectedItem.name}" deleted successfully.`);
+        setIsDialogOpen(false);
+      } catch (error) {
+        toast.error((error as Error).message);
+      }
+    }
+  };
+
+  const filteredItemCategories = itemCategories.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredItemCategories.length / itemsPerPage);
@@ -106,56 +114,66 @@ const ItemsCategoryPage: React.FC = () => {
     currentPage * itemsPerPage
   );
 
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setSearchTerm(event.target.value);
-
   return (
-    <div className="flex w-full h-full mt-4">
-      <div className="w-full h-full">
-        <div className="flex justify-between items-center mb-6 shadow-lg rounded-lg py-6 px-4">
-          <h1 className="text-3xl font-bold text-left text-gray-700">
-            Items Category
-          </h1>
-          <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition duration-300 ease-in-out"
-          >
-            + New Item Category
-          </button>
-        </div>
-
-        <ModalCreateItemCategory
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          onCreate={handleCreate}
-        />
-
-        <ItemCategoryTable
-          currentItems={currentItems}
-          handleEdit={handleEdit}
-          handleDelete={handleDeleteRequest}
-        />
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          paginate={paginate}
-          itemsPerPage={itemsPerPage}
-          setItemsPerPage={setItemsPerPage}
-        />
-
-        <Dialog
-          isOpen={isDialogOpen}
-          message={`Are you sure you want to delete "${itemCategoryToDelete}"?`}
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setIsDialogOpen(false)}
-        />
+    <div className="flex flex-col w-full h-full mt-4">
+      <div className="flex justify-between items-center mb-6 shadow-lg rounded-lg py-6 px-4">
+        <h1 className="text-3xl font-bold text-gray-700">Item Categories</h1>
+        <SearchBar searchTerm={searchTerm} onSearch={(e) => setSearchTerm(e.target.value)} />
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+        >
+          + New Item Category
+        </button>
       </div>
+
+      <ItemCategoryTable
+        currentItems={currentItems}
+        handleEdit={(item) => {
+          setSelectedItem(item);
+          setIsEditModalOpen(true);
+        }}
+        handleDelete={(item) => {
+          setSelectedItem(item);
+          setIsDialogOpen(true);
+        }}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginate={(page) => setCurrentPage(page)}
+        itemsPerPage={itemsPerPage}
+        setItemsPerPage={setItemsPerPage}
+      />
+
+      <ModalCreateItemCategory
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreate={handleCreate}
+      />
+
+      {isEditModalOpen && selectedItem && (
+        <ModalUpdateItemCategory
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          currentName={selectedItem.name}
+          currentSubCategory={selectedItem.subcategoryName}
+          currentCategory={selectedItem.categoryName}
+          onUpdate={handleUpdate}
+        />
+      )}
+
+      <Dialog
+        isOpen={isDialogOpen}
+        message={`Are you sure you want to delete "${selectedItem?.name}"?`}
+        onConfirm={handleDelete}
+        onCancel={() => setIsDialogOpen(false)}
+      />
+
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
 
-export default ItemsCategoryPage;
+export default ItemCategoryPage;

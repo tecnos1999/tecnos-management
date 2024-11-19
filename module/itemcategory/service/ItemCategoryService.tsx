@@ -2,70 +2,90 @@ import ApiServer from "@/module/system/service/ApiServer";
 import { ItemCategory } from "../models/ItemCategory";
 
 class ItemCategoryService extends ApiServer {
-  
-  createItemCategory = async (name: string, subCategory: string, token: string): Promise<string> => {
+  createItemCategory = async (
+    name: string,
+    subCategory: string,
+    categoryName: string,
+    token: string
+  ): Promise<string> => {
     const response = await this.api<null, any>(
-      `/itemcategory/create?name=${name}&subCategory=${subCategory}`,
+      `/itemcategory/create?name=${name}&subCategory=${subCategory}&categoryName=${categoryName}`,
       "POST",
       null,
       token
     );
-    if (response.status === 201) {
-      const data = await response.text();
-      return data;
-    } else {
-      const errorData = await response.json();
-      return Promise.reject(errorData.message || "Failed to create item category");
+
+    if (response.ok) {
+      return await response.text();
     }
+
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to create item category");
   };
 
   getItemCategories = async (): Promise<ItemCategory[]> => {
+   
     const response = await this.api<null, any>(
       `/itemcategory/all`,
       "GET",
       null,
       ""
     );
-    if (response.status === 200) {
-      const data = await response.json();
-      return data as ItemCategory[];
-    } else {
-      const errorData = await response.json();
-      return Promise.reject(errorData.message || "Failed to create item category");
+
+    if (response.ok) {
+      return await response.json();
     }
+
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch item categories");
+  
   };
 
-  deleteItemCategory = async (name: string, token: string): Promise<string> => {
+  deleteItemCategory = async (
+    name: string,
+    subCategory: string,
+    categoryName: string,
+    token: string
+  ): Promise<string> => {
     const response = await this.api<null, any>(
-      `/itemcategory/delete?name=${name}`,
+      `/itemcategory/delete?name=${name}&subCategoryName=${subCategory}&categoryName=${categoryName}`,
       "DELETE",
       null,
       token
     );
-    if (response.status === 200) {
-      const data = await response.text();
-      return data;
-    } else {
-      const errorData = await response.json();
-      return Promise.reject(errorData.message || "Failed to create item category");
+
+    if (response.ok) {
+      return await response.text();
     }
+
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to delete item category");
   };
 
-  updateItemCategory = async (name: string, updatedName: string, token: string): Promise<string> => {
+  updateItemCategory = async (
+    name: string,
+    updatedName: string,
+    subCategory: string,
+    categoryName: string,
+    updatedSubCategoryName: string,
+    updatedCategoryName: string,
+    token: string
+  ): Promise<string> => {
     const response = await this.api<null, any>(
-      `/itemcategory/update?name=${name}&updatedName=${updatedName}`,
+      `/itemcategory/update?name=${encodeURIComponent(name)}&updatedName=${encodeURIComponent(updatedName)}&subCategoryName=${encodeURIComponent(subCategory)}&categoryName=${encodeURIComponent(categoryName)}&updatedSubCategoryName=${encodeURIComponent(updatedSubCategoryName)}&updatedCategoryName=${encodeURIComponent(updatedCategoryName)}`,
       "PUT",
       null,
       token
     );
-    if (response.status === 200) {
-      const data = await response.text();
-      return data;
-    } else {
-      const errorData = await response.json();
-      return Promise.reject(errorData.message || "Failed to create item category");
+  
+    if (response.ok) {
+      return await response.text();
     }
+  
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to update item category");
   };
+  
 }
 
 export default ItemCategoryService;
