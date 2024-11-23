@@ -69,7 +69,7 @@ class ProductService extends ApiServer {
     }
   };
 
-  getProducts = async (): Promise<Product[]> => {
+  getProducts = async (): Promise<ProductDTO[]> => {
     const response = await this.api<null, any>(
       `/product/all`,
       "GET",
@@ -78,7 +78,7 @@ class ProductService extends ApiServer {
     );
     if (response.status === 200) {
       const data = await response.json();
-      return data as Product[];
+      return data as ProductDTO[];
     } else {
       const errorData = await response.json();
       return Promise.reject(errorData.message || "Failed to fetch products");

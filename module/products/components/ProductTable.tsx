@@ -3,39 +3,19 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import { Product } from "../models/Product";
-// import ModalUpdateProduct from "./ModalUpdateProduct";
+import { ProductDTO } from "../dto/ProductDTO";
 
 interface ProductTableProps {
-  currentItems: Product[];
-  handleEdit: (sku: string, updatedProduct: Product) => void;
+  currentItems: ProductDTO[];
   handleDelete: (sku: string) => void;
 }
 
 const ProductTable: React.FC<ProductTableProps> = ({
   currentItems,
-  handleEdit,
   handleDelete,
 }) => {
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
-  const openUpdateModal = (product: Product) => {
-    setSelectedProduct(product);
-    setIsUpdateModalOpen(true);
-  };
-
-  const closeUpdateModal = () => {
-    setIsUpdateModalOpen(false);
-    setSelectedProduct(null);
-  };
-
-  const handleUpdate = (updatedProduct: Product) => {
-    if (selectedProduct) {
-      handleEdit(selectedProduct.sku, updatedProduct);
-    }
-  };
 
   const handleSelectProduct = (sku: string) => {
     setSelectedProducts((prevSelected) =>
@@ -68,13 +48,15 @@ const ProductTable: React.FC<ProductTableProps> = ({
             <th className="py-3 px-6">Image</th>
             <th className="py-3 px-6">SKU</th>
             <th className="py-3 px-6">Product</th>
-            <th className="py-3 px-6">Description</th>
             <th className="py-3 px-6">Category</th>
+            <th className="py-3 px-6">SubCategory</th>
+            <th className="py-3 px-6">Item Category</th>
             <th className="py-3 px-6 rounded-r-lg">Actions</th>
           </tr>
         </thead>
         <tbody>
           {currentItems.length > 0 ? (
+            console.log(currentItems),
             currentItems.map((product) => (
               <motion.tr
                 key={product.sku}
@@ -93,8 +75,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 <td className="py-3 px-6">
                   <img
                     src={
-                      product.images[0]?.url ||
-                      "https://via.placeholder.com/100"
+                      product.images && product.images[0]
+                        ? product.images[0].url
+                        : "https://via.placeholder.com/100"
                     }
                     alt={product.name}
                     className="w-16 h-16 object-cover rounded"
@@ -102,16 +85,21 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 </td>
                 <td className="py-3 px-6">{product.sku}</td>
                 <td className="py-3 px-6 max-w-xs truncate">
-                  {product.description}
+                  {product.name}
                 </td>
                 <td className="py-3 px-6 max-w-xs truncate">
-                  {product.itemCategory?.name}
+                  {product.category}
+                </td>
+                <td className="py-3 px-6 max-w-xs truncate">
+                  {product.subCategory}
+                </td>
+                <td className="py-3 px-6 max-w-xs truncate">
+                  {product.itemCategory}
                 </td>
 
-                <td className="py-3 px-6">{product.itemCategory?.name}</td>
+                <td className="py-3 px-6">{product.itemCategory}</td>
                 <td className="py-3 px-6 flex justify-center items-center space-x-2 text-center align-middle h-full">
                   <button
-                    onClick={() => openUpdateModal(product)}
                     className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-full flex items-center justify-center w-8 h-8 "
                   >
                     <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
@@ -135,14 +123,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
         </tbody>
       </table>
 
-      {/* {selectedProduct && (
-        <ModalUpdateProduct
-          isOpen={isUpdateModalOpen}
-          onClose={closeUpdateModal}
-          product={selectedProduct}
-          onUpdate={handleUpdate}
-        />
-      )} */}
+   
     </div>
   );
 };

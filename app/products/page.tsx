@@ -6,15 +6,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { LoginContext } from "@/module/context/LoginProvider";
 import LoginContextType from "@/module/context/LoginContextType";
-import { Product } from "@/module/products/models/Product";
 import ProductService from "@/module/products/service/ProductService";
 import SearchBar from "@/module/category/components/SearchBar";
 import ProductTable from "@/module/products/components/ProductTable";
 import Pagination from "@/module/category/components/Pagination";
 import { determinePath } from "@/system/utils";
+import { ProductDTO } from "@/module/products/dto/ProductDTO";
 
 const ProductsPage: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductDTO[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -89,7 +89,6 @@ const ProductsPage: React.FC = () => {
 
       <ProductTable
         currentItems={currentItems}
-        handleEdit={() => {}} 
         handleDelete={handleDeleteRequest}
       />
 
