@@ -4,12 +4,14 @@ import storage from 'redux-persist/lib/storage';
 import categorySlice from './category/category.reducers';
 import subcategorySlice from './subcategory/subcategory.reducers';
 import itemCategorySlice from './itemcategory/itemCategory.reducers';
+import productSlice from './products/product.reducers';
 
 
 const rootReducer = combineReducers({
     categoryState: categorySlice.reducer,
     subcategoryState : subcategorySlice.reducer,
     itemCategoryState : itemCategorySlice.reducer,
+    productState: productSlice.reducer,
 });
 
 const persistConfig = {

@@ -4,8 +4,8 @@ export interface ProductDTO {
     sku: string;
     name: string;
     description: string;
-    category: string | null;
-    subCategory: string | null;
+    category: string ;
+    subCategory: string ;
     itemCategory: string | null;  
     images: ImageDTO[] | null;
     broschure: string | null;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useContext } from "react";
+import React, { useEffect, useState, useMemo, useContext, useCallback } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaTimesCircle } from "react-icons/fa";
@@ -33,6 +33,7 @@ import HeaderContainer from "@/module/products/components/HeaderContainer";
 import GeneralInformationContainer from "@/module/products/components/GeneralInformation";
 import DocumentService from "@/module/documents/service/DocumentService";
 import { motion } from "framer-motion";
+import DocumentsLinks from "@/module/documents/dto/DocumentsLinks";
 
 const AddProductPage: React.FC = () => {
   const [sku, setSku] = useState("");
@@ -43,6 +44,12 @@ const AddProductPage: React.FC = () => {
   const [subCategory, setSubCategory] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [documents, setDocuments] = useState<DocumentsLinks>({
+    broschure: null,
+    technicalSheet: null,
+    catalog: null,
+    videoLink: "",
+  });
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -57,22 +64,9 @@ const AddProductPage: React.FC = () => {
   const productService = useMemo(() => new ProductService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
   const token = user?.token ?? "";
-  const [documents, setDocuments] = useState<{
-    broschure: File | null;
-    technicalSheet: File | null;
-    catalog: File | null;
-    videoLink: string;
-  }>({
-    broschure: null,
-    technicalSheet: null,
-    catalog: null,
-    videoLink: "",
-  });
-
-  const handleDocumentsChange = (updatedDocuments: typeof documents) => {
+  const handleDocumentsChange = useCallback((updatedDocuments: DocumentsLinks) => {
     setDocuments(updatedDocuments);
-  };
-
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -120,47 +114,28 @@ const AddProductPage: React.FC = () => {
       toast.error("Nu ești autentificat. Reîncearcă după autentificare.");
       return;
     }
-  
+
     if (!sku || !name || !description) {
       toast.error("SKU, Name, și Description sunt obligatorii.");
       return;
     }
-  
+
     if (imageFiles.length === 0) {
       toast.error("Adaugă cel puțin o imagine pentru produs.");
       return;
     }
-  
+
     try {
-      // Upload Images
       toast.info("Se încarcă imaginile...");
-      const uploadedImages = await documentService.uploadDocuments(imageFiles, token);
-  
-      if (!uploadedImages || uploadedImages.length === 0) {
+      const uploadedDocuments = await documentService.uploadDocuments(imageFiles, token);
+
+      if (!uploadedDocuments || uploadedDocuments.length === 0) {
         toast.error("Nu s-au putut încărca imaginile.");
         return;
       }
+
       toast.success("Imaginile au fost încărcate cu succes!");
-  
-      // Upload Additional Documents
-      const documentUploads = [];
-  
-      if (documents.broschure) {
-        documentUploads.push(documentService.uploadDocument(documents.broschure, token));
-      }
-      if (documents.technicalSheet) {
-        documentUploads.push(documentService.uploadDocument(documents.technicalSheet, token));
-      }
-      if (documents.catalog) {
-        documentUploads.push(documentService.uploadDocument(documents.catalog, token));
-      }
-  
-      toast.info("Se încarcă documentele suplimentare...");
-      const uploadedDocuments = await Promise.all(documentUploads);
-  
-      const [broschure, technicalSheet, catalog] = uploadedDocuments;
-  
-      // Create Product DTO
+
       const newProductDTO = {
         sku,
         name,
@@ -168,27 +143,25 @@ const AddProductPage: React.FC = () => {
         itemCategory,
         category,
         subCategory,
-        images: uploadedImages.map((doc) => ({
+        images: uploadedDocuments.map((doc) => ({
           url: doc.url,
           type: doc.type,
         })),
-        broschure: broschure?.url || null,
-        tehnic: technicalSheet?.url || null,
-        catalog: catalog?.url || null,
-        linkVideo: documents.videoLink || null,
+        broschure: null,
+        tehnic: null,
+        catalog: null,
+        linkVideo: null,
       };
-  
-      // Save Product
+
       toast.info("Se salvează produsul...");
       await productService.createProduct(newProductDTO, token);
-  
+
       toast.success("Produsul a fost creat cu succes!");
-      router.push("/product");
+      // router.push("/product");
     } catch (error: any) {
       toast.error(error.message || "A apărut o eroare.");
     }
   };
-  
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
