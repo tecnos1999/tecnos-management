@@ -97,7 +97,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
                   {product.itemCategory}
                 </td>
 
-                <td className="py-3 px-6">{product.itemCategory}</td>
                 <td className="py-3 px-6 flex justify-center items-center space-x-2 text-center align-middle h-full">
                   <button
                     className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-full flex items-center justify-center w-8 h-8 "
