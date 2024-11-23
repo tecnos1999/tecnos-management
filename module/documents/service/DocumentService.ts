@@ -4,6 +4,38 @@ import { DocumentDTO } from "../dto/DocumentDTO";
 class DocumentService extends ApiServer {
 
     /**
+ * Upload a single document
+ * @param file - The file to be uploaded
+ * @param token - Authentication token (if required)
+ * @returns Promise containing the uploaded document details (url, type)
+ */
+uploadDocument = async (file: File, token: string): Promise<DocumentDTO> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const headers = {
+        Authorization: `Bearer ${token}`,
+    };
+
+    const response = await this.api<FormData, any>(
+        `/document/uploadSingle`,
+        "POST",
+        formData,
+        token,
+        true
+    );
+
+    if (response.status === 200) {
+        const data = await response.json();
+        return data as DocumentDTO;
+    } else {
+        const errorData = await response.json();
+        return Promise.reject(errorData.message || "Failed to upload document");
+    }
+};
+
+
+    /**
      * Upload multiple documents
      * @param files - Array of files to be uploaded
      * @param token - Authentication token (if required)

@@ -1,9 +1,18 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 
-const AddDocumentsSection: React.FC = () => {
+interface AddDocumentsSectionProps {
+  onDocumentsChange: (documents: {
+    broschure: File | null;
+    technicalSheet: File | null;
+    catalog: File | null;
+    videoLink: string;
+  }) => void;
+}
+
+const AddDocumentsSection: React.FC<AddDocumentsSectionProps> = ({ onDocumentsChange }) => {
   const [broschure, setBroschure] = useState<File | null>(null);
   const [technicalSheet, setTechnicalSheet] = useState<File | null>(null);
   const [catalog, setCatalog] = useState<File | null>(null);
@@ -58,6 +67,10 @@ const AddDocumentsSection: React.FC = () => {
       </div>
     );
   };
+
+  useEffect(() => {
+    onDocumentsChange({ broschure, technicalSheet, catalog, videoLink });
+  }, [broschure, technicalSheet, catalog, videoLink, onDocumentsChange]);
 
   return (
     <motion.div
