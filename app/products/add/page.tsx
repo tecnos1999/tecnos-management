@@ -200,8 +200,8 @@ const AddProductPage: React.FC = () => {
 
       toast.success("Produsul a fost creat cu succes!");
       router.push(determinePath("products"));
-    } catch (error: any) {
-      toast.error(error.message || "A apărut o eroare.");
+    } catch  {
+      toast.error("A apărut o eroare.");
     }
   };
 
