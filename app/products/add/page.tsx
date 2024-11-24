@@ -80,7 +80,7 @@ const AddProductPage: React.FC = () => {
         dispatch(loadItemCategories(fetchedItemCategories));
         dispatch(retrieveItemCategoriesSuccess());
       } catch (error) {
-        toast.error("Error fetching data!");
+        toast.error(error as string || "A apărut o eroare.");
       }
     };
 
