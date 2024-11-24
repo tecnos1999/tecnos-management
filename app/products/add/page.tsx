@@ -91,9 +91,13 @@ const AddProductPage: React.FC = () => {
     (subcat) => subcat.categoryName === category
   );
 
-  const filteredItemCategories = itemCategories.filter(
-    (itemCat) => itemCat.subcategoryName === subCategory
-  );
+  const filteredItemCategories = itemCategories.filter((itemCat) => {
+    return (
+      itemCat.categoryName === category &&
+      itemCat.subcategoryName === subCategory
+    );
+  });
+  
 
   const handleImageClick = (index: number) => {
     setSelectedImage(imageFiles[index]);
@@ -127,14 +131,26 @@ const AddProductPage: React.FC = () => {
 
     try {
       toast.info("Se încarcă imaginile...");
-      const uploadedDocuments = await documentService.uploadDocuments(imageFiles, token);
+      const uploadedImages = await documentService.uploadDocuments(imageFiles, token);
 
-      if (!uploadedDocuments || uploadedDocuments.length === 0) {
-        toast.error("Nu s-au putut încărca imaginile.");
-        return;
+      if (!uploadedImages || uploadedImages.length === 0) {
+        throw new Error("Nu s-au putut încărca imaginile.");
       }
 
-      toast.success("Imaginile au fost încărcate cu succes!");
+      const uploadedDocuments = {
+        broschure: documents.broschure
+          ? (await documentService.uploadDocuments([documents.broschure], token))[0].url
+          : null,
+        technicalSheet: documents.technicalSheet
+          ? (await documentService.uploadDocuments([documents.technicalSheet], token))[0].url
+          : null,
+        catalog: documents.catalog
+          ? (await documentService.uploadDocuments([documents.catalog], token))[0].url
+          : null,
+        videoLink: documents.videoLink,
+      };
+
+      toast.success("Documentele au fost încărcate cu succes!");
 
       const newProductDTO = {
         sku,
@@ -143,14 +159,14 @@ const AddProductPage: React.FC = () => {
         itemCategory,
         category,
         subCategory,
-        images: uploadedDocuments.map((doc) => ({
+        images: uploadedImages.map((doc) => ({
           url: doc.url,
           type: doc.type,
         })),
-        broschure: null,
-        tehnic: null,
-        catalog: null,
-        linkVideo: null,
+        broschure: uploadedDocuments.broschure,
+        tehnic: uploadedDocuments.technicalSheet,
+        catalog: uploadedDocuments.catalog,
+        linkVideo: uploadedDocuments.videoLink,
       };
 
       toast.info("Se salvează produsul...");
@@ -162,6 +178,7 @@ const AddProductPage: React.FC = () => {
       toast.error(error.message || "A apărut o eroare.");
     }
   };
+
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
