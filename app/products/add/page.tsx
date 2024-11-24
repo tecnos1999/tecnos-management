@@ -91,8 +91,8 @@ const AddProductPage: React.FC = () => {
           await itemCategoryService.getItemCategories();
         dispatch(loadItemCategories(fetchedItemCategories));
         dispatch(retrieveItemCategoriesSuccess());
-      } catch (error: any) {
-        toast.error(error.message || "A apărut o eroare.");
+      } catch (error) {
+        toast.error(error as string || "A apărut o eroare.");
       }
     };
 
@@ -200,8 +200,8 @@ const AddProductPage: React.FC = () => {
 
       toast.success("Produsul a fost creat cu succes!");
       router.push(determinePath("products"));
-    } catch  {
-      toast.error("A apărut o eroare.");
+    } catch (error) {
+      toast.error(error as string || "A apărut o eroare.");
     }
   };
 
