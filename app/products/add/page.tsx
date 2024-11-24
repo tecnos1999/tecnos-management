@@ -1,7 +1,12 @@
-/* eslint-disable-next-line @next/next/no-img-element */
 "use client";
 
-import React, { useEffect, useState, useMemo, useContext, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useContext,
+  useCallback,
+} from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaTimesCircle } from "react-icons/fa";
@@ -66,23 +71,28 @@ const AddProductPage: React.FC = () => {
   const productService = useMemo(() => new ProductService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
   const token = user?.token ?? "";
-  const handleDocumentsChange = useCallback((updatedDocuments: DocumentsLinks) => {
-    setDocuments(updatedDocuments);
-  }, []);
+  const handleDocumentsChange = useCallback(
+    (updatedDocuments: DocumentsLinks) => {
+      setDocuments(updatedDocuments);
+    },
+    []
+  );
   useEffect(() => {
     const fetchData = async () => {
       try {
         const fetchedCategories = await categoryService.getCategories();
         dispatch(loadCategories(fetchedCategories));
         dispatch(retrieveCategoriesSuccess());
-        const fetchedSubcategories = await subcategoryService.getSubcategories();
+        const fetchedSubcategories =
+          await subcategoryService.getSubcategories();
         dispatch(loadSubcategories(fetchedSubcategories));
         dispatch(retrieveSubcategoriesSuccess());
-        const fetchedItemCategories = await itemCategoryService.getItemCategories();
+        const fetchedItemCategories =
+          await itemCategoryService.getItemCategories();
         dispatch(loadItemCategories(fetchedItemCategories));
         dispatch(retrieveItemCategoriesSuccess());
-      } catch (error) {
-        toast.error(error as string || "A apărut o eroare.");
+      } catch (error: any) {
+        toast.error(error.message || "A apărut o eroare.");
       }
     };
 
@@ -99,7 +109,6 @@ const AddProductPage: React.FC = () => {
       itemCat.subcategoryName === subCategory
     );
   });
-  
 
   const handleImageClick = (index: number) => {
     setSelectedImage(imageFiles[index]);
@@ -133,7 +142,10 @@ const AddProductPage: React.FC = () => {
 
     try {
       toast.info("Se încarcă imaginile...");
-      const uploadedImages = await documentService.uploadDocuments(imageFiles, token);
+      const uploadedImages = await documentService.uploadDocuments(
+        imageFiles,
+        token
+      );
 
       if (!uploadedImages || uploadedImages.length === 0) {
         throw new Error("Nu s-au putut încărca imaginile.");
@@ -141,13 +153,25 @@ const AddProductPage: React.FC = () => {
 
       const uploadedDocuments = {
         broschure: documents.broschure
-          ? (await documentService.uploadDocuments([documents.broschure], token))[0].url
+          ? (
+              await documentService.uploadDocuments(
+                [documents.broschure],
+                token
+              )
+            )[0].url
           : null,
         technicalSheet: documents.technicalSheet
-          ? (await documentService.uploadDocuments([documents.technicalSheet], token))[0].url
+          ? (
+              await documentService.uploadDocuments(
+                [documents.technicalSheet],
+                token
+              )
+            )[0].url
           : null,
         catalog: documents.catalog
-          ? (await documentService.uploadDocuments([documents.catalog], token))[0].url
+          ? (
+              await documentService.uploadDocuments([documents.catalog], token)
+            )[0].url
           : null,
         videoLink: documents.videoLink,
       };
@@ -180,7 +204,6 @@ const AddProductPage: React.FC = () => {
       toast.error(error.message || "A apărut o eroare.");
     }
   };
-
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -218,6 +241,7 @@ const AddProductPage: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-800">Upload Img</h2>
           <div className="w-full h-64 border border-gray-300 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
             {selectedImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={URL.createObjectURL(selectedImage)}
                 alt="Selected"
@@ -233,6 +257,7 @@ const AddProductPage: React.FC = () => {
                 key={index}
                 className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
               >
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={URL.createObjectURL(file)}
                   alt={`Uploaded ${index + 1}`}
