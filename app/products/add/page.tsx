@@ -220,7 +220,7 @@ const AddProductPage: React.FC = () => {
   return (
     <div className="container min-h-screen min-w-full grid grid-cols-3 grid-rows-10 gap-2 p-2">
       <HeaderContainer
-        onCancel={() => router.push("/product")}
+        onCancel={() => router.push(determinePath("products"))}
         onSubmit={handleSubmit}
       />
       <GeneralInformationContainer
