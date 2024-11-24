@@ -257,7 +257,7 @@ const AddProductPage: React.FC = () => {
                 key={index}
                 className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
               >
-                // eslint-disable-next-line @next/next/no-img-element
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={URL.createObjectURL(file)}
                   alt={`Uploaded ${index + 1}`}
