@@ -1,3 +1,4 @@
+/* eslint-disable-next-line @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useState, useMemo, useContext, useCallback } from "react";
@@ -34,6 +35,7 @@ import GeneralInformationContainer from "@/module/products/components/GeneralInf
 import DocumentService from "@/module/documents/service/DocumentService";
 import { motion } from "framer-motion";
 import DocumentsLinks from "@/module/documents/dto/DocumentsLinks";
+import { determinePath } from "@/system/utils";
 
 const AddProductPage: React.FC = () => {
   const [sku, setSku] = useState("");
@@ -173,7 +175,7 @@ const AddProductPage: React.FC = () => {
       await productService.createProduct(newProductDTO, token);
 
       toast.success("Produsul a fost creat cu succes!");
-      // router.push("/product");
+      router.push(determinePath("products"));
     } catch (error: any) {
       toast.error(error.message || "A apărut o eroare.");
     }
