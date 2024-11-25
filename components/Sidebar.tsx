@@ -20,10 +20,25 @@ import { determinePath } from "@/system/utils";
 
 const menuItems = [
   { name: "Dashboard", path: "", icon: faTachometerAlt, color: "bg-blue-500" },
-  { name: "Products", path: "products", icon: faBoxOpen, color: "bg-yellow-500" },
+  {
+    name: "Products",
+    path: "products",
+    icon: faBoxOpen,
+    color: "bg-yellow-500",
+  },
   { name: "Category", path: "category", icon: faThList, color: "bg-red-500" },
-  { name: "SubCategory", path: "subcategory", icon: faLayerGroup, color: "bg-green-500" },
-  { name: "Items Category", path: "items-category", icon: faFolderTree, color: "bg-purple-500" },
+  {
+    name: "SubCategory",
+    path: "subcategory",
+    icon: faLayerGroup,
+    color: "bg-green-500",
+  },
+  {
+    name: "Items Category",
+    path: "items-category",
+    icon: faFolderTree,
+    color: "bg-purple-500",
+  },
 ];
 
 interface SidebarProps {
@@ -35,7 +50,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
   const [hoveredItem, setHoveredItem] = useState<string>("");
 
   const pathname = usePathname();
-  const activeItem = menuItems.find((item) => pathname === determinePath(item.path))?.name || "Dashboard";
+  const activeItem = menuItems.find((item) =>
+    pathname === determinePath(item.path) ||
+    pathname.startsWith(determinePath(item.path) + "/")
+  )?.name || "Dashboard";
+  
+
   const { user, logOut } = useContext(LoginContext) as LoginContextType;
 
   return (
@@ -45,7 +65,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
       initial={{ width: "5rem" }}
       transition={{ type: "tween", duration: 0.3 }}
     >
-      <div className={`flex items-center ${isNavOpen ? "justify-between" : "justify-center"} p-4 h-16 bg-zinc-900`}>
+      <div
+        className={`flex items-center ${
+          isNavOpen ? "justify-between" : "justify-center"
+        } p-4 h-16 bg-zinc-900`}
+      >
         {isNavOpen && (
           <motion.p
             className="text-white text-2xl font-bold uppercase"
@@ -63,7 +87,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
           animate={{ rotate: isNavOpen ? 180 : 0 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          <FontAwesomeIcon icon={faChevronRight} className="text-white text-xl" />
+          <FontAwesomeIcon
+            icon={faChevronRight}
+            className="text-white text-xl"
+          />
         </motion.div>
       </div>
 
@@ -104,10 +131,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
               transition={{ delay: 0.2, duration: 0.4, ease: "easeInOut" }}
             >
               <span className="text-white font-bold">
-                {user?.firstName.charAt(0).toUpperCase() + user?.firstName.slice(1) || "User"}{" "}
-                {user?.lastName.charAt(0).toUpperCase() + user?.lastName.slice(1) || "User"}
+                {user?.firstName.charAt(0).toUpperCase() +
+                  user?.firstName.slice(1) || "User"}{" "}
+                {user?.lastName.charAt(0).toUpperCase() +
+                  user?.lastName.slice(1) || "User"}
               </span>
-              <span className="text-red-600 font-semibold text-sm">{user?.userRole || "Role"}</span>
+              <span className="text-red-600 font-semibold text-sm">
+                {user?.userRole || "Role"}
+              </span>
             </motion.div>
           )}
         </motion.div>

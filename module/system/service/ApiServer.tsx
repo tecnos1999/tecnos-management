@@ -5,7 +5,9 @@ class ApiServer {
     const url = isCloud
       ? `https://${window.location.hostname}/cloud${path}`
       : `https://${window.location.hostname}/server${path}`;
-    
+      // ? `http://${window.location.hostname}:8080/cloud${path}`
+      // : `http://${window.location.hostname}:8080/server${path}`;
+
     const isFormData = body instanceof FormData;
     const options: RequestInit = {
       method,
