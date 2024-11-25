@@ -153,28 +153,23 @@ const AddProductPage: React.FC = () => {
 
       const uploadedDocuments = {
         broschure: documents.broschure
-          ? (
-              await documentService.uploadDocuments(
-                [documents.broschure],
-                token
-              )
-            )[0].url
-          : null,
+            ? (
+                await documentService.uploadDocument(documents.broschure, token)
+            ).url
+            : null,
         technicalSheet: documents.technicalSheet
-          ? (
-              await documentService.uploadDocuments(
-                [documents.technicalSheet],
-                token
-              )
-            )[0].url
-          : null,
+            ? (
+                await documentService.uploadDocument(documents.technicalSheet, token)
+            ).url
+            : null,
         catalog: documents.catalog
-          ? (
-              await documentService.uploadDocuments([documents.catalog], token)
-            )[0].url
-          : null,
+            ? (
+                await documentService.uploadDocument(documents.catalog, token)
+            ).url
+            : null,
         videoLink: documents.videoLink,
       };
+
 
       toast.success("Documentele au fost încărcate cu succes!");
 
