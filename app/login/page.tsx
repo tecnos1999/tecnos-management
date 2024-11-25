@@ -38,8 +38,7 @@ const LoginPage: React.FC = () => {
         position: "top-center",
         autoClose: 3000,
       });
-
-        router.push(determinePath(""));
+        router.push(determinePath("/"));
     } catch {
       toast.error("Login failed. Please check your email and password.", {
         position: "top-center",

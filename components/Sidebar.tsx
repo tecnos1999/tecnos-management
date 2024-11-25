@@ -19,7 +19,7 @@ import LoginContextType from "@/module/context/LoginContextType";
 import { determinePath } from "@/system/utils";
 
 const menuItems = [
-  { name: "Dashboard", path: "", icon: faTachometerAlt, color: "bg-blue-500" },
+  { name: "Dashboard", path: "/", icon: faTachometerAlt, color: "bg-blue-500" },
   {
     name: "Products",
     path: "products",
