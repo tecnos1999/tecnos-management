@@ -32,7 +32,7 @@ const SubcategoryTable: React.FC<SubcategoryTableProps> = ({
           {currentItems.length > 0 ? (
             currentItems.map((subcategory) => (
               <motion.tr
-                key={subcategory.name}
+                key={subcategory.name + subcategory.categoryName}
                 className="border-b border-gray-200 hover:bg-gray-50"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
