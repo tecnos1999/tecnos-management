@@ -31,7 +31,7 @@ const ItemCategoryTable: React.FC<ItemCategoryTableProps> = ({
         <tbody>
           {currentItems.map((item) => (
             <motion.tr
-              key={item.name}
+              key={item.name+item.subcategoryName+item.categoryName}
               className="border-b border-gray-200 hover:bg-gray-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
