@@ -3,8 +3,8 @@ import HttpResponse from "../httpResponse/HttpResponse";
 class ApiServer {
   api<U, T>(path: string, method: string, body: U, token: string, isCloud = false): Promise<HttpResponse<T>> {
     const url = isCloud
-      ? `http://${window.location.hostname}/cloud${path}`
-      : `http://${window.location.hostname}/server${path}`;
+      ? `https://${window.location.hostname}/cloud${path}`
+      : `https://${window.location.hostname}/server${path}`;
     
     const isFormData = body instanceof FormData;
     const options: RequestInit = {
