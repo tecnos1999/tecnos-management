@@ -1,5 +1,4 @@
 import ApiServer from "@/module/system/service/ApiServer";
-import { Product } from "../models/Product";
 import { ProductDTO } from "../dto/ProductDTO";
 
 class ProductService extends ApiServer {
@@ -21,7 +20,7 @@ class ProductService extends ApiServer {
     }
   };
 
-  getProductBySku = async (sku: string): Promise<Product> => {
+  getProductBySku = async (sku: string): Promise<ProductDTO> => {
     const response = await this.api<null, any>(
       `/product/${sku}`,
       "GET",
@@ -30,7 +29,7 @@ class ProductService extends ApiServer {
     );
     if (response.status === 200) {
       const data = await response.json();
-      return data as Product;
+      return data as ProductDTO;
     } else {
       const errorData = await response.json();
       return Promise.reject(errorData.message || "Failed to fetch product");
