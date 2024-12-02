@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { LoadingState } from "../actionType/LoadingState";
-import { Product } from "@/module/products/models/Product";
+import { ProductDTO } from "@/module/products/dto/ProductDTO";
 
 export interface ProductState {
-  products: Product[];
+  products: ProductDTO[];
   retrieveProductsState: LoadingState;
 }
 
@@ -16,7 +16,7 @@ const productSlice = createSlice({
   name: "Product",
   initialState,
   reducers: {
-    loadProducts(state, action: PayloadAction<Product[]>) {
+    loadProducts(state, action: PayloadAction<ProductDTO[]>) {
       state.products = action.payload;
     },
     retrieveProductsSuccess(state) {
