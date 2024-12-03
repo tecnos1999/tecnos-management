@@ -8,7 +8,6 @@ import {
   faFolderTree,
   faLayerGroup,
   faSignOutAlt,
-  faCoins,
   faHandshakeAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import SidebarItem from "./SidebarItem";
