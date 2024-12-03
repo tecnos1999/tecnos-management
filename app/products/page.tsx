@@ -75,7 +75,7 @@ const ProductsPage: React.FC = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto mt-4">
       <div className="flex justify-between items-center mb-6 shadow-lg rounded-lg py-6 px-4">
         <h1 className="text-3xl font-bold text-left text-gray-700">Products</h1>
         <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
