@@ -1,25 +1,45 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useDropzone } from "react-dropzone";
 import { FaTimesCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
+import PartnerDTO from "@/module/partners/dto/PartnersDTO";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
+import DocumentService from "@/module/documents/service/DocumentService";
 
 interface ModalPartnerProps {
   isOpen: boolean;
   onClose: () => void;
+  onAddPartner: (partner: PartnerDTO) => void;
 }
 
-const ModalPartner: React.FC<ModalPartnerProps> = ({ isOpen, onClose }) => {
-  const [partnerData, setPartnerData] = useState({
+const ModalPartner: React.FC<ModalPartnerProps> = ({
+  isOpen,
+  onClose,
+  onAddPartner,
+}) => {
+  const { user } = useContext(LoginContext) as LoginContextType;
+  const token = user?.token || "";
+
+  const [partnerData, setPartnerData] = useState<{
+    name: string;
+    description: string;
+    catalogFile: File | null;
+    logo: File | null;
+  }>({
     name: "",
     description: "",
-    catalogFile: null as File | null,
-    logo: null as File | null,
+    catalogFile: null,
+    logo: null,
   });
 
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
+  const documentService = new DocumentService();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -61,7 +81,7 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({ isOpen, onClose }) => {
     maxFiles: 1,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!partnerData.name || !partnerData.description) {
@@ -69,8 +89,53 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({ isOpen, onClose }) => {
       return;
     }
 
-    console.log("Submitted Partner Data:", partnerData);
-    onClose();
+    setIsSubmitting(true);
+
+    try {
+      let logoUrl = "";
+      let catalogUrl = "";
+
+      // Upload logo if available
+      if (partnerData.logo) {
+        toast.info("Uploading logo...");
+        const uploadedLogo = await documentService.uploadDocument(
+          partnerData.logo,
+          token
+        );
+        logoUrl = uploadedLogo.url;
+      }
+
+      // Upload catalog if available
+      if (partnerData.catalogFile) {
+        toast.info("Uploading catalog...");
+        const uploadedCatalog = await documentService.uploadDocument(
+          partnerData.catalogFile,
+          token
+        );
+        catalogUrl = uploadedCatalog.url;
+      }
+
+      // Construct PartnerDTO
+      const newPartner: PartnerDTO = {
+        name: partnerData.name,
+        description: partnerData.description,
+        catalogFile: catalogUrl,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        image: logoUrl
+          ? { url: logoUrl, type: partnerData.logo?.type || "" }
+          : { url: "", type: "" },
+      };
+
+      toast.success("Partner added successfully!");
+
+      onAddPartner(newPartner);
+      onClose();
+    } catch (error) {
+      toast.error(error as string || "Failed to add partner.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -108,14 +173,13 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({ isOpen, onClose }) => {
                     name="name"
                     value={partnerData.name}
                     onChange={handleInputChange}
-                    className={`mt-2 block w-full rounded-lg border-2 focus:outline-none ${
+                    className={`mt-2 block w-full rounded-lg border-2 ${
                       showErrors && !partnerData.name
-                        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-red-500 focus:border-red-500"
-                    } shadow-sm sm:text-sm py-2 px-4`}
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    } focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4`}
                     placeholder="Enter partner name"
                   />
-
                   {showErrors && !partnerData.name && (
                     <p className="text-sm text-red-500 mt-1">
                       This field is required.
@@ -135,15 +199,14 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({ isOpen, onClose }) => {
                     name="description"
                     value={partnerData.description}
                     onChange={handleInputChange}
-                    className={`mt-2 block w-full rounded-lg border-2 focus:outline-none ${
+                    className={`mt-2 block w-full rounded-lg border-2 ${
                       showErrors && !partnerData.description
-                        ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                        : "border-gray-300 focus:ring-red-500 focus:border-red-500"
-                    } shadow-sm sm:text-sm py-2 px-4`}
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    } focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4`}
                     placeholder="Enter partner description"
                     rows={5}
                   />
-
                   {showErrors && !partnerData.description && (
                     <p className="text-sm text-red-500 mt-1">
                       This field is required.
@@ -166,7 +229,6 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({ isOpen, onClose }) => {
                     <input {...getLogoInputProps()} />
                     {previewLogo ? (
                       <div className="relative">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={previewLogo}
                           alt="Logo Preview"
@@ -230,6 +292,7 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({ isOpen, onClose }) => {
                   type="button"
                   onClick={onClose}
                   className="bg-gray-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-gray-600"
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
@@ -237,8 +300,9 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({ isOpen, onClose }) => {
                   type="submit"
                   whileHover={{ scale: 1.05 }}
                   className="bg-red-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-red-600"
+                  disabled={isSubmitting}
                 >
-                  Save
+                  {isSubmitting ? "Saving..." : "Save"}
                 </motion.button>
               </div>
             </form>

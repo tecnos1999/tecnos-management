@@ -8,6 +8,8 @@ import {
   faFolderTree,
   faLayerGroup,
   faSignOutAlt,
+  faCoins,
+  faHandshakeAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import SidebarItem from "./SidebarItem";
 import { motion } from "framer-motion";
@@ -38,6 +40,12 @@ const menuItems = [
     path: "items-category",
     icon: faFolderTree,
     color: "bg-purple-500",
+  },
+  {
+    name: "Partners",
+    path: "partners",
+    icon: faHandshakeAlt,
+    color: "bg-pink-500",
   },
 ];
 

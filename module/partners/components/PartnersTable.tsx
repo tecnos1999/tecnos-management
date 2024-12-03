@@ -21,7 +21,8 @@ const PartnersTable: React.FC<PartnersTableProps> = ({
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-100 text-gray-600 text-left text-sm uppercase tracking-wide">
-            <th className="py-3 px-6 rounded-l-lg">Name</th>
+            <th className="py-3 px-6 rounded-l-lg">Image</th>
+            <th className="py-3 px-6">Name</th>
             <th className="py-3 px-6">Description</th>
             <th className="py-3 px-6">Catalog</th>
             <th className="py-3 px-6 rounded-r-lg">Actions</th>
@@ -37,15 +38,43 @@ const PartnersTable: React.FC<PartnersTableProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
+                <td className="py-3 px-6">
+                  {partner.image?.url ? (
+                    <img
+                      src={partner.image.url}
+                      alt={partner.name}
+                      className="w-16 h-16 object-cover rounded-full"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full">
+                      <span className="text-[10px] text-center text-gray-500">No Image</span>
+                    </div>
+                  )}
+                </td>
+
                 <td className="py-3 px-6 text-gray-800 font-medium">
                   {partner.name}
                 </td>
-                <td className="py-3 px-6 text-gray-600">{partner.description}</td>
-                <td className="py-3 px-6 text-blue-600 underline">
-                  <a href={partner.catalogFile} target="_blank" rel="noreferrer">
-                    View Catalog
-                  </a>
+
+                <td className="py-3 px-6 text-gray-600">
+                  {partner.description}
                 </td>
+
+                <td className="py-3 px-6 ">
+                  {partner.catalogFile ? (
+                    <a
+                      href={partner.catalogFile}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View Catalog
+                    </a>
+                  ) : (
+                    <span className="text-gray-500">No Catalog</span>
+                  )}
+                </td>
+
+                {/* Actions */}
                 <td className="py-3 px-6 flex items-center space-x-4">
                   <button
                     onClick={() => handleEdit(partner)}
@@ -64,7 +93,7 @@ const PartnersTable: React.FC<PartnersTableProps> = ({
             ))
           ) : (
             <tr>
-              <td colSpan={4} className="text-center py-6 text-gray-500">
+              <td colSpan={5} className="text-center py-6 text-gray-500">
                 No partners found.
               </td>
             </tr>

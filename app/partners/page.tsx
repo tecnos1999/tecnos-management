@@ -1,46 +1,73 @@
 "use client";
-import React, { useEffect, useMemo, useState } from "react";
+
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import Dialog from "@/components/Dialog";
-// import ModalPartner from "@/module/partners/components/ModalPartner";
-// import ModalUpdatePartner from "@/module/partners/components/ModalUpdatePartner";
-import PartnersDTO from "@/module/partners/dto/PartnersDTO";
+import PartnersService from "@/module/partners/service/PartnersService";
+import PartnerDTO from "@/module/partners/dto/PartnersDTO";
 import SearchBar from "@/module/category/components/SearchBar";
 import Pagination from "@/module/category/components/Pagination";
 import PartnersTable from "@/module/partners/components/PartnersTable";
 import ModalPartner from "@/module/partners/components/ModalPartner";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
 
 const PartnersPage: React.FC = () => {
-  const [partners, setPartners] = useState<PartnersDTO[]>([]);
+  const [partners, setPartners] = useState<PartnerDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [partnerToDelete, setPartnerToDelete] = useState<PartnersDTO | null>(null);
-  const [partnerToEdit, setPartnerToEdit] = useState<PartnersDTO | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [partnerToDelete, setPartnerToDelete] = useState<PartnerDTO | null>(null);
+  const partnersService = useMemo(() => new PartnersService(), []);
+  const {user} = useContext(LoginContext) as LoginContextType;
 
+  useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const fetchedPartners = await partnersService.getAllPartners();
+        setPartners(fetchedPartners);
+      } catch (error) {
+        toast.error(error as string || "Failed to fetch partners");
+      }
+    };
 
+    fetchPartners();
+  }, [partnersService]);
 
-
-  const handleDeleteRequest = (partner: PartnersDTO) => {
+  const handleDeleteRequest = (partner: PartnerDTO) => {
     setPartnerToDelete(partner);
     setIsDialogOpen(true);
   };
 
   const handleConfirmDelete = async () => {
-    console.log(partnerToDelete);
+    if (partnerToDelete) {
+      try {
+        await partnersService.deletePartner(partnerToDelete.name, user.token);
+        setPartners((prev) =>
+          prev.filter((partner) => partner.name !== partnerToDelete.name)
+        );
+        toast.success(
+          `Partner "${partnerToDelete.name}" deleted successfully.`
+        );
+      } catch (error) {
+        toast.error(error as string);
+      }
+    }
+    setIsDialogOpen(false);
+    setPartnerToDelete(null);
   };
 
-  const openEditModal = (partner: PartnersDTO) => {
-    setPartnerToEdit(partner);
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditClose = () => {
-    setIsEditModalOpen(false);
-    setPartnerToEdit(null);
+  const handleAddPartner = async (newPartner: PartnerDTO) => {
+    try {
+      const message = await partnersService.addPartner(newPartner, user.token);
+      setPartners((prev) => [...prev, newPartner]);
+      toast.success(message);
+      setIsModalOpen(false);
+    } catch (error) {
+      toast.error(error as string);
+    }
   };
 
   const filteredPartners = partners.filter((partner) =>
@@ -61,9 +88,7 @@ const PartnersPage: React.FC = () => {
     <div className="flex w-full h-full mt-4">
       <div className="w-full h-full">
         <div className="flex justify-between items-center mb-6 shadow-lg rounded-lg py-6 px-4">
-          <h1 className="text-3xl font-bold text-left text-gray-700">
-            Partners
-          </h1>
+          <h1 className="text-3xl font-bold text-left text-gray-700">Partners</h1>
           <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
           <button
             onClick={() => setIsModalOpen(true)}
@@ -73,11 +98,15 @@ const PartnersPage: React.FC = () => {
           </button>
         </div>
 
-        <ModalPartner isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        <ModalPartner
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onAddPartner={handleAddPartner} 
+        />
 
         <PartnersTable
           currentItems={currentItems}
-          handleEdit={openEditModal}
+          handleEdit={() => {}}
           handleDelete={handleDeleteRequest}
         />
 
@@ -95,14 +124,6 @@ const PartnersPage: React.FC = () => {
           onConfirm={handleConfirmDelete}
           onCancel={() => setIsDialogOpen(false)}
         />
-{/* 
-        {partnerToEdit && (
-          <ModalUpdatePartner
-            isOpen={isEditModalOpen}
-            onClose={handleEditClose}
-            partner={partnerToEdit}
-          />
-        )} */}
       </div>
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
