@@ -83,19 +83,18 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!partnerData.name || !partnerData.description) {
       setShowErrors(true);
       return;
     }
-
+  
     setIsSubmitting(true);
-
+  
     try {
       let logoUrl = "";
       let catalogUrl = "";
-
-      // Upload logo if available
+  
       if (partnerData.logo) {
         toast.info("Uploading logo...");
         const uploadedLogo = await documentService.uploadDocument(
@@ -104,8 +103,7 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
         );
         logoUrl = uploadedLogo.url;
       }
-
-      // Upload catalog if available
+  
       if (partnerData.catalogFile) {
         toast.info("Uploading catalog...");
         const uploadedCatalog = await documentService.uploadDocument(
@@ -114,8 +112,7 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
         );
         catalogUrl = uploadedCatalog.url;
       }
-
-      // Construct PartnerDTO
+  
       const newPartner: PartnerDTO = {
         name: partnerData.name,
         description: partnerData.description,
@@ -126,10 +123,19 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
           ? { url: logoUrl, type: partnerData.logo?.type || "" }
           : { url: "", type: "" },
       };
-
+  
       toast.success("Partner added successfully!");
-
+  
       onAddPartner(newPartner);
+  
+      setPartnerData({
+        name: "",
+        description: "",
+        catalogFile: null,
+        logo: null,
+      });
+      setPreviewLogo(null);
+      setShowErrors(false);
       onClose();
     } catch (error) {
       toast.error(error as string || "Failed to add partner.");
@@ -137,6 +143,7 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <AnimatePresence>
@@ -158,7 +165,6 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
               Add New Partner
             </h2>
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Name and Description */}
               <div className="space-y-6">
                 <div>
                   <label
@@ -215,9 +221,7 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
                 </div>
               </div>
 
-              {/* Uploads */}
               <div className="grid grid-cols-2 gap-6">
-                {/* Logo Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Logo Upload
@@ -252,7 +256,6 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
                   </div>
                 </div>
 
-                {/* Catalog Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Catalog Upload
@@ -286,7 +289,6 @@ const ModalPartner: React.FC<ModalPartnerProps> = ({
                 </div>
               </div>
 
-              {/* Submit & Cancel */}
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"

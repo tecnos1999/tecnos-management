@@ -40,14 +40,18 @@ const PartnersTable: React.FC<PartnersTableProps> = ({
               >
                 <td className="py-3 px-6">
                   {partner.image?.url ? (
-                    <img
-                      src={partner.image.url}
-                      alt={partner.name}
-                      className="w-16 h-16 object-cover rounded-full"
-                    />
+                    <div className="w-16 h-16 flex items-center justify-center rounded-full overflow-hidden bg-gray-100">
+                      <img
+                        src={partner.image.url}
+                        alt={partner.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
                   ) : (
                     <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full">
-                      <span className="text-[10px] text-center text-gray-500">No Image</span>
+                      <span className="text-[10px] text-center text-gray-500">
+                        No Image
+                      </span>
                     </div>
                   )}
                 </td>
@@ -74,7 +78,6 @@ const PartnersTable: React.FC<PartnersTableProps> = ({
                   )}
                 </td>
 
-                {/* Actions */}
                 <td className="py-3 px-6 flex items-center space-x-4">
                   <button
                     onClick={() => handleEdit(partner)}
