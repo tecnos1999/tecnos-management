@@ -41,6 +41,8 @@ import DocumentService from "@/module/documents/service/DocumentService";
 import { motion } from "framer-motion";
 import DocumentsLinks from "@/module/documents/dto/DocumentsLinks";
 import { determinePath } from "@/system/utils";
+import PartnerDTO from "@/module/partners/dto/PartnersDTO";
+import PartnersService from "@/module/partners/service/PartnersService";
 
 const AddProductPage: React.FC = () => {
   const [sku, setSku] = useState("");
@@ -70,6 +72,10 @@ const AddProductPage: React.FC = () => {
   const documentService = useMemo(() => new DocumentService(), []);
   const productService = useMemo(() => new ProductService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
+  const [partnerName, setPartnerName] = useState<string | null>(null); 
+  const [partners, setPartners] = useState<PartnerDTO[]>([]); 
+
+  const partnersService = useMemo(() => new PartnersService(), []);
   const token = user?.token ?? "";
   const handleDocumentsChange = useCallback(
     (updatedDocuments: DocumentsLinks) => {
@@ -91,6 +97,8 @@ const AddProductPage: React.FC = () => {
           await itemCategoryService.getItemCategories();
         dispatch(loadItemCategories(fetchedItemCategories));
         dispatch(retrieveItemCategoriesSuccess());
+        const fetchedPartners = await partnersService.getAllPartners();
+        setPartners(fetchedPartners);
       } catch (error) {
         toast.error(error as string || "A apărut o eroare.");
       }
@@ -188,6 +196,7 @@ const AddProductPage: React.FC = () => {
         tehnic: uploadedDocuments.technicalSheet,
         catalog: uploadedDocuments.catalog,
         linkVideo: uploadedDocuments.videoLink,
+        partnerName: partnerName,
       };
 
       toast.info("Se salvează produsul...");
@@ -318,6 +327,24 @@ const AddProductPage: React.FC = () => {
             {filteredItemCategories.map((item) => (
               <option key={item.name} value={item.name}>
                 {item.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="category space-y-4">
+          <h2 className="text-lg font-bold text-gray-800">Partener</h2>
+          <select
+            value={partnerName || ""}
+            onChange={(e) => setPartnerName(e.target.value)}
+            className="w-full border border-gray-300 p-3 rounded-md text-gray-800"
+          >
+            <option value="" disabled>
+              Selectați un partener
+            </option>
+            {partners.map((partner) => (
+              <option key={partner.name} value={partner.name}>
+                {partner.name}
               </option>
             ))}
           </select>
