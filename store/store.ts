@@ -5,6 +5,7 @@ import categorySlice from './category/category.reducers';
 import subcategorySlice from './subcategory/subcategory.reducers';
 import itemCategorySlice from './itemcategory/itemCategory.reducers';
 import productSlice from './products/product.reducers';
+import partnerSlice from './partner/partner.reducers';
 
 
 const rootReducer = combineReducers({
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
     subcategoryState : subcategorySlice.reducer,
     itemCategoryState : itemCategorySlice.reducer,
     productState: productSlice.reducer,
+    partnerState: partnerSlice.reducer,
 });
 
 const persistConfig = {

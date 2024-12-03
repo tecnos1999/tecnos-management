@@ -25,7 +25,8 @@ const PartnersPage: React.FC = () => {
 
   useEffect(() => {
     const fetchPartners = async () => {
-      try {
+      try { 
+        
         const fetchedPartners = await partnersService.getAllPartners();
         setPartners(fetchedPartners);
       } catch (error) {
