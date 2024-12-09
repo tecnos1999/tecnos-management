@@ -4,7 +4,7 @@ import PartnerDTO from "../dto/PartnersDTO";
 class PartnersService extends ApiServer {
   // Add Partner
   addPartner = async (partnerDTO: PartnerDTO, token: string): Promise<string> => {
-    const response = await this.api<PartnerDTO, any>(
+    const response = await this.api<PartnerDTO, string>(
       `/partners/create`,
       "POST",
       partnerDTO,

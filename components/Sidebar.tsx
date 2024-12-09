@@ -9,6 +9,11 @@ import {
   faLayerGroup,
   faSignOutAlt,
   faHandshakeAlt,
+  faCalendarAlt,
+  faVideo,
+  faComments,
+  faImages,
+  faNewspaper,
 } from "@fortawesome/free-solid-svg-icons";
 import SidebarItem from "./SidebarItem";
 import { motion } from "framer-motion";
@@ -46,6 +51,38 @@ const menuItems = [
     icon: faHandshakeAlt,
     color: "bg-pink-500",
   },
+  {
+    name: "Event",
+    path: "event",
+    icon: faCalendarAlt, 
+    color: "bg-teal-500", 
+  },
+  {
+    name: "Webinar",
+    path: "webinar",
+    icon: faVideo,
+    color: "bg-orange-500", 
+  },
+  {
+    name: "Feedback",
+    path: "feedback",
+    icon: faComments, 
+    color: "bg-gray-500", 
+  },
+  {
+    name: "Carousel",
+    path: "carousel",
+    icon: faImages, 
+    color: "bg-indigo-500", 
+  },
+  {
+    name: "News",
+    path: "news",
+    icon: faNewspaper, 
+    color: "bg-cyan-500", 
+  },
+  
+  
 ];
 
 interface SidebarProps {
