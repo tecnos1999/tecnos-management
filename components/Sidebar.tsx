@@ -64,8 +64,8 @@ const menuItems = [
     color: "bg-orange-500", 
   },
   {
-    name: "Feedback",
-    path: "feedback",
+    name: "Testimonial",
+    path: "testimonial",
     icon: faComments, 
     color: "bg-gray-500", 
   },
