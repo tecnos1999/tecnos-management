@@ -12,6 +12,7 @@ import WebinarService from "@/module/webinar/service/WebinarService";
 import ModalWebinar from "@/module/webinar/components/ModalWebinar";
 import WebinarsTable from "@/module/webinar/components/WebinarsTable";
 
+
 const WebinarsPage: React.FC = () => {
   const [webinars, setWebinars] = useState<WebinarDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(1);

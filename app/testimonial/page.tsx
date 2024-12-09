@@ -9,8 +9,9 @@ import { LoginContext } from "@/module/context/LoginProvider";
 import LoginContextType from "@/module/context/LoginContextType";
 import TestimonialDTO from "@/module/testimonial/dto/TestimonialDTO";
 import TestimonialService from "@/module/testimonial/service/TestimonialService";
-import TestimonialsTable from "@/module/testimonial/components/TestimonialsTable";
 import ModalTestimonial from "@/module/testimonial/components/ModalTestimonial";
+import TestimonialsTable from "@/module/testimonial/components/TestimonialsTable";
+
 
 const TestimonialsPage: React.FC = () => {
   const [testimonials, setTestimonials] = useState<TestimonialDTO[]>([]);
