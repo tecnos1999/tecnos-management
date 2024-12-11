@@ -11,7 +11,7 @@ import WebinarDTO from "../dto/WebinarDTO";
 interface ModalWebinarProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddWebinar: (webinar: WebinarDTO) => void;
+  onAddWebinar: (webinar: WebinarDTO , image : File | null) => void;
 }
 
 const ModalWebinar: React.FC<ModalWebinarProps> = ({
@@ -60,38 +60,25 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!webinarData.title) {
       setShowErrors(true);
       return;
     }
-
+  
     setIsSubmitting(true);
-
+  
     try {
-      let imageUrl = "";
-
-      if (webinarData.image) {
-        toast.info("Uploading image...");
-        const uploadedImage = await documentService.uploadDocument(
-          webinarData.image,
-          ""
-        );
-        imageUrl = uploadedImage.url;
-      }
-
       const newWebinar: WebinarDTO = {
         webCode: `WEB${Date.now()}`,
         title: webinarData.title,
         externalLink: webinarData.externalLink,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        image: imageUrl ? { url: imageUrl, type: webinarData.image?.type || "" } : undefined,
       };
-
-      toast.success("Webinar added successfully!");
-      onAddWebinar(newWebinar);
-
+  
+      onAddWebinar(newWebinar, webinarData.image);
+  
       setWebinarData({
         title: "",
         externalLink: "",
@@ -106,6 +93,7 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <AnimatePresence>

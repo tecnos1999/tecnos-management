@@ -2,20 +2,37 @@ import ApiServer from "@/module/system/service/ApiServer";
 import WebinarDTO from "../dto/WebinarDTO";
 
 class WebinarService extends ApiServer {
-  // Adaugă webinar
-  addWebinar = async (webinarDTO: WebinarDTO, token: string): Promise<string> => {
-    const response = await this.api<WebinarDTO, string>(
-      `/webinars/create`,
+
+  addWebinar = async (
+    webinarDTO: WebinarDTO,
+    image: File | null,
+    token: string
+  ): Promise<string> => {
+    const formData = new FormData();
+  
+    formData.append(
+      "webinar",
+      new Blob([JSON.stringify(webinarDTO)], { type: "application/json" })
+    );
+  
+    if (image) {
+      formData.append("image", image);
+    }
+  
+    const response = await this.api<FormData, string>(
+      `/webinars/create`, 
       "POST",
-      webinarDTO,
+      formData,
       token
     );
+  
     if (response.status === 201) {
       return await response.text();
     } else {
-      throw new Error("Failed to add webinar");
+      throw new Error("Failed to add webinar with image");
     }
   };
+  
 
   // Șterge webinar
   deleteWebinar = async (webCode: string, token: string): Promise<string> => {

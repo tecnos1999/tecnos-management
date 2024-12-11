@@ -58,16 +58,22 @@ const WebinarsPage: React.FC = () => {
     setWebinarToDelete(null);
   };
 
-  const handleAddWebinar = async (newWebinar: WebinarDTO) => {
+  const handleAddWebinar = async (newWebinar: WebinarDTO, image: File | null) => {
     try {
-      const message = await webinarService.addWebinar(newWebinar, user.token);
-      setWebinars((prev) => [...prev, newWebinar]);
+      const message = await webinarService.addWebinar(
+        newWebinar,
+        image,
+        user.token
+      );
+      const updatedWebinars = await webinarService.getAllWebinars();
+      setWebinars(updatedWebinars);
       toast.success(message);
       setIsModalOpen(false);
     } catch (error) {
       toast.error(error as string);
     }
   };
+  
 
   const filteredWebinars = webinars.filter((webinar) =>
     webinar.title.toLowerCase().includes(searchTerm.toLowerCase())
