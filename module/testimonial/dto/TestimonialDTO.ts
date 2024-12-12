@@ -1,8 +1,8 @@
 interface TestimonialDTO {
     code: string; 
     name: string; 
-    position: string; 
-    company: string; 
+    position: string | null; 
+    company: string | null; 
     testimonial: string; 
 }
   

@@ -19,6 +19,24 @@ class TestimonialService extends ApiServer {
     }
   };
 
+  updateTestimonial = async (
+    code: string,
+    testimonialDTO: TestimonialDTO,
+    token: string
+  ): Promise<string> => {
+    const response = await this.api<TestimonialDTO, string>(
+      `/testimonials/update/${code}`,
+      "PUT",
+      testimonialDTO,
+      token
+    );
+    if (response.status === 200) {
+      return await response.text();
+    } else {
+      throw new Error("Failed to update testimonial");
+    }
+  };
+
   deleteTestimonial = async (code: string, token: string): Promise<string> => {
     const response = await this.api<null, string>(
       `/testimonials/delete/${code}`,

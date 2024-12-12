@@ -11,7 +11,7 @@ import TestimonialDTO from "@/module/testimonial/dto/TestimonialDTO";
 import TestimonialService from "@/module/testimonial/service/TestimonialService";
 import ModalTestimonial from "@/module/testimonial/components/ModalTestimonial";
 import TestimonialsTable from "@/module/testimonial/components/TestimonialsTable";
-
+import ModalUpdateTestimonial from "@/module/testimonial/components/ModalUpdateTestimonail";
 
 const TestimonialsPage: React.FC = () => {
   const [testimonials, setTestimonials] = useState<TestimonialDTO[]>([]);
@@ -19,10 +19,15 @@ const TestimonialsPage: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [testimonialToDelete, setTestimonialToDelete] = useState<TestimonialDTO | null>(
     null
   );
+  const [testimonialToUpdate, setTestimonialToUpdate] = useState<TestimonialDTO | null>(
+    null
+  );
+
   const testimonialService = useMemo(() => new TestimonialService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
 
@@ -73,6 +78,32 @@ const TestimonialsPage: React.FC = () => {
     }
   };
 
+  const handleEditRequest = (testimonial: TestimonialDTO) => {
+    setTestimonialToUpdate(testimonial);
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleUpdateTestimonial = async (
+    updatedTestimonial: TestimonialDTO
+  ) => {
+    try {
+      const message = await testimonialService.updateTestimonial(
+        updatedTestimonial.code,
+        updatedTestimonial,
+        user.token
+      );
+      setTestimonials((prev) =>
+        prev.map((testimonial) =>
+          testimonial.code === updatedTestimonial.code ? updatedTestimonial : testimonial
+        )
+      );
+      toast.success(message);
+      setIsUpdateModalOpen(false);
+    } catch (error) {
+      toast.error(error as string);
+    }
+  };
+
   const filteredTestimonials = testimonials.filter((testimonial) =>
     testimonial.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -107,9 +138,16 @@ const TestimonialsPage: React.FC = () => {
           onAddTestimonial={handleAddTestimonial}
         />
 
+        <ModalUpdateTestimonial
+          isOpen={isUpdateModalOpen}
+          testimonial={testimonialToUpdate}
+          onClose={() => setIsUpdateModalOpen(false)}
+          onUpdateTestimonial={handleUpdateTestimonial}
+        />
+
         <TestimonialsTable
           currentItems={currentItems}
-          handleEdit={() => {}}
+          handleEdit={handleEditRequest}
           handleDelete={handleDeleteRequest}
         />
 
