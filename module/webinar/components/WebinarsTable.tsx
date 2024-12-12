@@ -1,22 +1,36 @@
-"use client";
-
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import WebinarDTO from "../dto/WebinarDTO";
+import ModalUpdateWebinar from "./ModalUpdateWebinar"; // Importă modalul
 
 interface WebinarsTableProps {
   currentItems: WebinarDTO[];
-  handleEdit: (webinar: WebinarDTO) => void;
   handleDelete: (webinar: WebinarDTO) => void;
+  onUpdateWebinar: (updatedWebinar: WebinarDTO, image: File | null) => void;
 }
 
 const WebinarsTable: React.FC<WebinarsTableProps> = ({
   currentItems,
-  handleEdit,
   handleDelete,
+  onUpdateWebinar,
 }) => {
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [webinarToUpdate, setWebinarToUpdate] = useState<WebinarDTO | null>(
+    null
+  );
+
+  const handleEdit = (webinar: WebinarDTO) => {
+    setWebinarToUpdate(webinar);
+    setIsUpdateModalOpen(true);
+  };
+
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setWebinarToUpdate(null);
+  };
+
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 overflow-x-auto">
       <table className="w-full table-auto">
@@ -101,6 +115,18 @@ const WebinarsTable: React.FC<WebinarsTableProps> = ({
           )}
         </tbody>
       </table>
+
+      {isUpdateModalOpen && webinarToUpdate && (
+        <ModalUpdateWebinar
+          isOpen={isUpdateModalOpen}
+          webinar={webinarToUpdate}
+          onClose={closeUpdateModal}
+          onUpdateWebinar={(updatedWebinar, image) => {
+            onUpdateWebinar(updatedWebinar, image);
+            closeUpdateModal();
+          }}
+        />
+      )}
     </div>
   );
 };

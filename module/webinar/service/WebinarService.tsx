@@ -32,6 +32,38 @@ class WebinarService extends ApiServer {
       throw new Error("Failed to add webinar with image");
     }
   };
+
+   // Actualizează un webinar
+   updateWebinar = async (
+    webCode: string, 
+    webinarDTO: WebinarDTO, 
+    image: File | null, 
+    token: string
+  ): Promise<string> => {
+    const formData = new FormData();
+
+    formData.append(
+      "webinar",
+      new Blob([JSON.stringify(webinarDTO)], { type: "application/json" })
+    );
+
+    if (image) {
+      formData.append("image", image);
+    }
+
+    const response = await this.api<FormData, string>(
+      `/webinars/update`, 
+      "PUT",
+      formData,
+      token
+    );
+
+    if (response.status === 200) {
+      return await response.text();
+    } else {
+      throw new Error("Failed to update webinar");
+    }
+  };
   
 
   // Șterge webinar
@@ -78,6 +110,8 @@ class WebinarService extends ApiServer {
       throw new Error("Failed to fetch webinar");
     }
   };
+
+  
 }
 
 export default WebinarService;

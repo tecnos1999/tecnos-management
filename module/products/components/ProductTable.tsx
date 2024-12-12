@@ -38,13 +38,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-left text-gray-600 uppercase text-sm">
-            <th className="py-3 px-6 rounded-l-lg">
-              <input
-                type="checkbox"
-                checked={selectedProducts.length === currentItems.length}
-                onChange={handleSelectAll}
-              />
-            </th>
+           
             <th className="py-3 px-6">Image</th>
             <th className="py-3 px-6">SKU</th>
             <th className="py-3 px-6">Product</th>
@@ -65,13 +59,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
-                <td className="py-3 px-6">
-                  <input
-                    type="checkbox"
-                    checked={selectedProducts.includes(product.sku)}
-                    onChange={() => handleSelectProduct(product.sku)}
-                  />
-                </td>
+               
                 <td className="py-3 px-6">
                   <img
                     src={

@@ -12,7 +12,6 @@ import WebinarService from "@/module/webinar/service/WebinarService";
 import ModalWebinar from "@/module/webinar/components/ModalWebinar";
 import WebinarsTable from "@/module/webinar/components/WebinarsTable";
 
-
 const WebinarsPage: React.FC = () => {
   const [webinars, setWebinars] = useState<WebinarDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -73,8 +72,24 @@ const WebinarsPage: React.FC = () => {
       toast.error(error as string);
     }
   };
-  
 
+  const handleUpdateWebinar = async (updatedWebinar: WebinarDTO, image: File | null) => {
+    try {
+      const message = await webinarService.updateWebinar(
+        updatedWebinar.webCode, 
+        updatedWebinar,
+        image,
+        user.token 
+      );
+      toast.success(message);
+  
+      const updatedWebinars = await webinarService.getAllWebinars();
+      setWebinars(updatedWebinars);
+    } catch (error) {
+      toast.error(error as string);
+    }
+  };
+  
   const filteredWebinars = webinars.filter((webinar) =>
     webinar.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -111,8 +126,8 @@ const WebinarsPage: React.FC = () => {
 
         <WebinarsTable
           currentItems={currentItems}
-          handleEdit={() => {}}
           handleDelete={handleDeleteRequest}
+          onUpdateWebinar={handleUpdateWebinar} 
         />
 
         <Pagination
