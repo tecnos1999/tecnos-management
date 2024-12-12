@@ -1,80 +1,106 @@
 import ApiServer from "@/module/system/service/ApiServer";
-import PartnerDTO from "../dto/PartnersDTO";
+import { PartnerDTO } from "../dto/PartnerDTO";
 
 class PartnersService extends ApiServer {
-  // Add Partner
-  addPartner = async (partnerDTO: PartnerDTO, token: string): Promise<string> => {
-    const response = await this.api<PartnerDTO, string>(
+
+  addPartner = async (
+    partnerDTO: PartnerDTO,
+    image: File | null,
+    catalogFile: File | null,
+    token: string
+  ): Promise<string> => {
+    const formData = new FormData();
+    formData.append("partner", new Blob([JSON.stringify(partnerDTO)], { type: "application/json" }));
+    if (image) formData.append("image", image);
+    if (catalogFile) formData.append("catalogFile", catalogFile);
+
+    const response = await this.api<FormData, string>(
       `/partners/create`,
       "POST",
-      partnerDTO,
-      token
+      formData,
+      token,
     );
+
     if (response.status === 201) {
-      const data = await response.text();
-      return data; // Success message: "Partner added successfully."
+      return await response.text(); 
     } else {
       const errorData = await response.json();
-      return Promise.reject(
-        errorData.message || "Failed to add partner"
-      );
+      return Promise.reject(errorData.message || "Failed to add partner");
     }
   };
 
-  // Delete Partner
+  updatePartner = async (
+    name: string,
+    partnerDTO: PartnerDTO,
+    image: File | null,
+    catalogFile: File | null,
+    token: string
+  ): Promise<string> => {
+    const formData = new FormData();
+    formData.append("partner", new Blob([JSON.stringify(partnerDTO)], { type: "application/json" }));
+    if (image) formData.append("image", image);
+    if (catalogFile) formData.append("catalogFile", catalogFile);
+
+    const response = await this.api<FormData, string>(
+      `/partners/update/${name}`,
+      "PUT",
+      formData,
+      token,
+    );
+
+    if (response.status === 200) {
+      return await response.text(); 
+    } else {
+      const errorData = await response.json();
+      return Promise.reject(errorData.message || "Failed to update partner");
+    }
+  };
+
   deletePartner = async (name: string, token: string): Promise<string> => {
-    const response = await this.api<null, any>(
+    const response = await this.api<null, string>(
       `/partners/delete/${name}`,
       "DELETE",
       null,
       token
     );
+
     if (response.status === 200) {
-      const data = await response.text();
-      return data; // Success message: "Partner deleted successfully."
+      return await response.text(); 
     } else {
       const errorData = await response.json();
-      return Promise.reject(
-        errorData.message || "Failed to delete partner"
-      );
+      return Promise.reject(errorData.message || "Failed to delete partner");
     }
   };
 
-  // Get Partner by Name
   getPartnerByName = async (name: string): Promise<PartnerDTO> => {
-    const response = await this.api<null, any>(
+    const response = await this.api<null, PartnerDTO>(
       `/partners/${name}`,
       "GET",
       null,
       ""
     );
+
     if (response.status === 200) {
-      const data = await response.json();
-      return data as PartnerDTO; // Partner data object
+      return await response.json();
     } else {
       const errorData = await response.json();
-      return Promise.reject(
-        errorData.message || "Failed to fetch partner"
-      );
+      return Promise.reject(errorData.message || "Failed to fetch partner");
     }
   };
 
-  // Get All Partners
   getAllPartners = async (): Promise<PartnerDTO[]> => {
-    const response = await this.api<null, any>(
+    const response = await this.api<null, PartnerDTO[]>(
       `/partners`,
       "GET",
       null,
       ""
     );
+
     if (response.status === 200) {
-      const data = await response.json();
-      return data as PartnerDTO[]
+      return await response.json();
     } else {
       const errorData = await response.json();
-      return Promise.reject(
-        errorData.message || "Failed to fetch partners"
-      );
+      return Promise.reject(errorData.message || "Failed to fetch partners");
     }
   };
 }

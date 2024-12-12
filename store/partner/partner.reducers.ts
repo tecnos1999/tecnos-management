@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { LoadingState } from "../actionType/LoadingState";
-import PartnerDTO from "@/module/partners/dto/PartnersDTO";
+import PartnerDTO from "@/module/partners/dto/PartnerDTO";
 
 export interface PartnerState {
   partners: PartnerDTO[];

@@ -41,7 +41,7 @@ import DocumentService from "@/module/documents/service/DocumentService";
 import { motion } from "framer-motion";
 import DocumentsLinks from "@/module/documents/dto/DocumentsLinks";
 import { determinePath } from "@/system/utils";
-import PartnerDTO from "@/module/partners/dto/PartnersDTO";
+import PartnerDTO from "@/module/partners/dto/PartnerDTO";
 import PartnersService from "@/module/partners/service/PartnersService";
 
 const AddProductPage: React.FC = () => {

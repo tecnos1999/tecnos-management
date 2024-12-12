@@ -1,14 +1,15 @@
 "use client";
+
 import React from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import PartnersDTO from "../dto/PartnersDTO";
+import { PartnerDTO } from "../dto/PartnerDTO";
 
 interface PartnersTableProps {
-  currentItems: PartnersDTO[];
-  handleEdit: (partner: PartnersDTO) => void;
-  handleDelete: (partner: PartnersDTO) => void;
+  currentItems: PartnerDTO[];
+  handleEdit: (partner: PartnerDTO) => void;
+  handleDelete: (partner: PartnerDTO) => void;
 }
 
 const PartnersTable: React.FC<PartnersTableProps> = ({
@@ -70,6 +71,7 @@ const PartnersTable: React.FC<PartnersTableProps> = ({
                       href={partner.catalogFile}
                       target="_blank"
                       rel="noreferrer"
+                      className="text-blue-500 underline"
                     >
                       View Catalog
                     </a>

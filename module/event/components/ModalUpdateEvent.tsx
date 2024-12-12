@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDropzone } from "react-dropzone";
 import EventDTO from "../dto/EventDTO";
 
 interface ModalUpdateEventProps {
@@ -32,20 +33,17 @@ const ModalUpdateEvent: React.FC<ModalUpdateEventProps> = ({
     }
   }, [event]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+  const handleDrop = (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
     setImage(file);
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setPreviewImage(event?.image?.url || null);
-    }
+    setPreviewImage(URL.createObjectURL(file));
   };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: handleDrop,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+  });
 
   const handleSubmit = () => {
     if (event) {
@@ -74,15 +72,13 @@ const ModalUpdateEvent: React.FC<ModalUpdateEventProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-xl relative"
+            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-3xl font-semibold mb-6 text-left text-red-500">
-              Update Event
-            </h2>
+            <h2 className="text-xl font-semibold mb-6 text-gray-800">Update Event</h2>
             <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
               <div className="space-y-6">
                 <div>
@@ -115,7 +111,7 @@ const ModalUpdateEvent: React.FC<ModalUpdateEventProps> = ({
                     onChange={(e) => setDescription(e.target.value)}
                     className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
                     placeholder="Enter event description"
-                    rows={5}
+                    rows={4}
                   />
                 </div>
 
@@ -145,7 +141,7 @@ const ModalUpdateEvent: React.FC<ModalUpdateEventProps> = ({
                       <img
                         src={previewImage}
                         alt="Event Preview"
-                        className="w-full h-48 object-cover rounded-lg border"
+                        className="w-full h-40 object-cover rounded-lg border"
                       />
                     ) : (
                       <span className="text-gray-500 text-sm">No image available</span>
@@ -154,16 +150,19 @@ const ModalUpdateEvent: React.FC<ModalUpdateEventProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Upload New Image (optional)
                   </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="block w-full border border-gray-300 rounded-lg py-2 px-3 mb-4"
-                  />
+                  <div
+                    {...getRootProps()}
+                    className="border-2 border-dashed rounded-lg p-4 cursor-pointer hover:bg-gray-100"
+                  >
+                    <input {...getInputProps()} />
+                    <p className="text-sm text-gray-500">
+                      Drag & drop an image, or click to select
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-4">
+              <div className="flex justify-end space-x-4 mt-4">
                 <button
                   type="button"
                   onClick={onClose}
