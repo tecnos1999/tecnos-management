@@ -21,6 +21,43 @@ class EventService extends ApiServer {
     }
   };
 
+  // Update Event
+updateEvent = async (
+  eventDTO: EventDTO,
+  image: File | null,
+  token: string
+): Promise<string> => {
+  const formData = new FormData();
+
+ 
+  formData.append(
+    "event",
+    new Blob([JSON.stringify(eventDTO)], { type: "application/json" })
+  );
+
+  if (image) {
+    formData.append("image", image);
+  }
+
+  const response = await this.api<FormData, string>(
+    `/events/update`,
+    "PUT",
+    formData,
+    token
+  );
+
+  if (response.status === 200) {
+    const data = await response.text();
+    return data; 
+  } else {
+    const errorData = await response.json();
+    return Promise.reject(
+      errorData.message || "Failed to update event"
+    );
+  }
+};
+
+
   // Delete Event
   deleteEvent = async (eventCode: string, token: string): Promise<string> => {
     const response = await this.api<null, any>(

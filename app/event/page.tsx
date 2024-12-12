@@ -10,6 +10,7 @@ import LoginContextType from "@/module/context/LoginContextType";
 import EventDTO from "@/module/event/dto/EventDTO";
 import EventService from "@/module/event/service/EventService";
 import ModalEvent from "@/module/event/components/ModalEvent";
+import ModalUpdateEvent from "@/module/event/components/ModalUpdateEvent"; 
 import EventsTable from "@/module/event/components/EventsTable";
 
 const EventPage: React.FC = () => {
@@ -18,7 +19,9 @@ const EventPage: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [eventToEdit, setEventToEdit] = useState<EventDTO | null>(null);
   const [eventToDelete, setEventToDelete] = useState<EventDTO | null>(null);
   const eventService = useMemo(() => new EventService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
@@ -68,6 +71,28 @@ const EventPage: React.FC = () => {
     }
   };
 
+  const handleEditRequest = (event: EventDTO) => {
+    setEventToEdit(event);
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleUpdateEvent = async (
+    updatedEvent: EventDTO,
+    image: File | null
+  ) => {
+    try {
+      const message = await eventService.updateEvent(updatedEvent, image, user.token);
+      const updatedEvents = events.map((e) =>
+        e.eventCode === updatedEvent.eventCode ? updatedEvent : e
+      );
+      setEvents(updatedEvents);
+      toast.success(message);
+      setIsUpdateModalOpen(false);
+    } catch (error) {
+      toast.error(error as string);
+    }
+  };
+
   const filteredEvents = events.filter((event) =>
     event.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -102,9 +127,16 @@ const EventPage: React.FC = () => {
           onAddEvent={handleAddEvent}
         />
 
+        <ModalUpdateEvent
+          isOpen={isUpdateModalOpen}
+          event={eventToEdit}
+          onClose={() => setIsUpdateModalOpen(false)}
+          onUpdateEvent={handleUpdateEvent}
+        />
+
         <EventsTable
           currentItems={currentItems}
-          handleEdit={() => {}}
+          handleEdit={handleEditRequest}
           handleDelete={handleDeleteRequest}
         />
 
