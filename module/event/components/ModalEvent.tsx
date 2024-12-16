@@ -5,7 +5,6 @@ import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimesCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
-// import DocumentService from "@/module/documents/service/DocumentService";
 import EventDTO from "../dto/EventDTO";
 import { LoginContext } from "@/module/context/LoginProvider";
 import LoginContextType from "@/module/context/LoginContextType";
@@ -36,7 +35,6 @@ const ModalEvent: React.FC<ModalEventProps> = ({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
-  // const documentService = new DocumentService();
 
     const { user } = useContext(LoginContext) as LoginContextType;
 
@@ -77,14 +75,7 @@ const ModalEvent: React.FC<ModalEventProps> = ({
     try {
       let imageUrl = "";
 
-      // if (eventData.image) {
-      //   toast.info("Uploading image...");
-      //   const uploadedImage = await documentService.uploadDocument(
-      //     eventData.image,
-      //     user.token
-      //   );
-      //   imageUrl = uploadedImage.url;
-      // }
+      
 
       const newEvent: EventDTO = {
         eventCode: `EVT${Date.now()}`,
