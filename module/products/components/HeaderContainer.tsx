@@ -2,12 +2,16 @@ import { motion } from "framer-motion";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
 interface HeaderContainerProps {
-    onCancel: () => void;
-    onSubmit: () => void;
-  }
+  onCancel: () => void;
+  onSubmit: () => void;
+  isEditMode: boolean; // New prop
+}
 
-
-const HeaderContainer: React.FC<HeaderContainerProps> = ({ onCancel, onSubmit }) => {
+const HeaderContainer: React.FC<HeaderContainerProps> = ({
+  onCancel,
+  onSubmit,
+  isEditMode,
+}) => {
   const headerVariants = {
     initial: { opacity: 0, y: -20 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
@@ -22,7 +26,9 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ onCancel, onSubmit })
       animate="animate"
       exit="exit"
     >
-      <h1 className="text-2xl font-bold text-gray-800">Add Product</h1>
+      <h1 className="text-2xl font-bold text-gray-800">
+        {isEditMode ? "Update Product" : "Add Product"}
+      </h1>
       <div className="flex gap-4">
         <button
           className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-400 transition"
@@ -32,11 +38,15 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({ onCancel, onSubmit })
           <span className="text-sm font-medium">Cancel</span>
         </button>
         <button
-          className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
+          className={`${
+            isEditMode ? "bg-blue-500 hover:bg-blue-600" : "bg-red-500 hover:bg-red-600"
+          } text-white px-4 py-2 rounded-lg flex items-center gap-2 transition`}
           onClick={onSubmit}
         >
           <FaCheck className="text-lg" />
-          <span className="text-sm font-medium">Add Product</span>
+          <span className="text-sm font-medium">
+            {isEditMode ? "Update Product" : "Add Product"}
+          </span>
         </button>
       </div>
     </motion.div>

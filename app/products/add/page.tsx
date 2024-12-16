@@ -178,6 +178,7 @@ const AddProductPage: React.FC = () => {
       <HeaderContainer
         onCancel={() => router.push(determinePath("/products"))}
         onSubmit={handleSubmit}
+        isEditMode={false}
       />
       <GeneralInformationContainer
         sku={sku}

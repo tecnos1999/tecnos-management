@@ -197,6 +197,7 @@ const UpdateProductForm: React.FC<UpdateProductFormProps> = ({ product }) => {
       <HeaderContainer
         onCancel={() => router.push("/products")}
         onSubmit={handleUpdate}
+        isEditMode={true}
       />
       <GeneralInformationContainer
         sku={sku}
