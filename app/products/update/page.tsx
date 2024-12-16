@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProductService from "@/module/products/service/ProductService";
 import { ProductDTO } from "@/module/products/dto/ProductDTO";
@@ -10,7 +10,8 @@ const UpdateProductPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sku = searchParams.get("sku");
-  const productService = new ProductService();
+  const productService = useMemo(() => new ProductService(), []);
+
 
   const [product, setProduct] = useState<ProductDTO | null>(null);
 

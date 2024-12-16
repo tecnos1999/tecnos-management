@@ -102,7 +102,7 @@ const AddProductPage: React.FC = () => {
         const fetchedPartners = await partnersService.getAllPartners();
         setPartners(fetchedPartners);
       } catch (error) {
-        toast.error("Error fetching data.");
+        toast.error(error as string || "Error fetching data")
       }
     };
 
