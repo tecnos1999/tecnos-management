@@ -5,7 +5,6 @@ import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimesCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
-import DocumentService from "@/module/documents/service/DocumentService";
 import WebinarDTO from "../dto/WebinarDTO";
 
 interface ModalWebinarProps {
@@ -32,7 +31,6 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
-  const documentService = new DocumentService();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
