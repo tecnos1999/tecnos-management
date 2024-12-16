@@ -12,7 +12,6 @@ const AddDocumentsSection: React.FC<AddDocumentsSectionProps> = ({
 }) => {
   const [broschure, setBroschure] = useState<File | null>(null);
   const [technicalSheet, setTechnicalSheet] = useState<File | null>(null);
-  const [catalog, setCatalog] = useState<File | null>(null);
   const [videoLink, setVideoLink] = useState<string>("");
 
   const handleDrop = useCallback((acceptedFiles: File[], type: string) => {
@@ -26,9 +25,7 @@ const AddDocumentsSection: React.FC<AddDocumentsSectionProps> = ({
       case "technicalSheet":
         setTechnicalSheet(file);
         break;
-      case "catalog":
-        setCatalog(file);
-        break;
+    
       default:
         toast.error("Invalid file type");
     }
@@ -66,8 +63,8 @@ const AddDocumentsSection: React.FC<AddDocumentsSectionProps> = ({
   };
 
   useEffect(() => {
-    onDocumentsChange({ broschure, technicalSheet, catalog, videoLink });
-  }, [broschure, technicalSheet, catalog, videoLink, onDocumentsChange]);
+    onDocumentsChange({ broschure, technicalSheet, videoLink });
+  }, [broschure, technicalSheet, videoLink, onDocumentsChange]);
 
   return (
     <motion.div
@@ -94,12 +91,7 @@ const AddDocumentsSection: React.FC<AddDocumentsSectionProps> = ({
         {createDropzone("technicalSheet", technicalSheet)}
       </div>
 
-      <div className="mb-1">
-        <label className="block mb-2 font-semibold text-gray-700 text-base">
-          Catalog Document
-        </label>
-        {createDropzone("catalog", catalog)}
-      </div>
+    
 
       <div className="mb-2">
         <label className="block mb-2 font-semibold text-gray-700 text-base">

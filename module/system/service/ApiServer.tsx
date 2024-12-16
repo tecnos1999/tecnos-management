@@ -1,12 +1,9 @@
 import HttpResponse from "../httpResponse/HttpResponse";
 
 class ApiServer {
-  api<U, T>(path: string, method: string, body: U, token: string, isCloud = false): Promise<HttpResponse<T>> {
-    const url = isCloud
-      // ? `https://${window.location.hostname}/cloud${path}`
-      // : `https://${window.location.hostname}/server${path}`;
-      ? `http://${window.location.hostname}:8080/cloud${path}`
-      : `http://${window.location.hostname}:8080/server${path}`;
+  api<U, T>(path: string, method: string, body: U, token: string): Promise<HttpResponse<T>> {
+    // const url = `https://${window.location.hostname}/server${path}`;
+    const url = `http://${window.location.hostname}:8080/server${path}`;
 
     const isFormData = body instanceof FormData;
     const options: RequestInit = {

@@ -4,8 +4,8 @@ import React, {
   useEffect,
   useState,
   useMemo,
-  useContext,
   useCallback,
+  useContext,
 } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -41,25 +41,16 @@ import GeneralInformationContainer from "@/module/products/components/GeneralInf
 import { motion } from "framer-motion";
 import DocumentsLinks from "@/module/documents/dto/DocumentsLinks";
 import { PartnerDTO } from "@/module/partners/dto/PartnerDTO";
-import { determinePath } from "@/system/utils";
+import { ProductDTO } from "@/module/products/dto/ProductDTO";
 
-const AddProductPage: React.FC = () => {
-  const [sku, setSku] = useState("");
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [itemCategory, setItemCategory] = useState("");
-  const [category, setCategory] = useState("");
-  const [subCategory, setSubCategory] = useState("");
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [documents, setDocuments] = useState<DocumentsLinks>({
-    broschure: null,
-    technicalSheet: null,
-    videoLink: "",
-  });
+interface UpdateProductFormProps {
+  product: ProductDTO;
+}
 
+const UpdateProductForm: React.FC<UpdateProductFormProps> = ({ product }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+
   const categories = useSelector(selectCategories);
   const subcategories = useSelector(selectSubcategories);
   const itemCategories = useSelector(selectItemCategories);
@@ -71,7 +62,20 @@ const AddProductPage: React.FC = () => {
   const partnersService = useMemo(() => new PartnersService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
 
-  const [partnerName, setPartnerName] = useState<string | null>(null);
+  const [sku, setSku] = useState(product.sku);
+  const [name, setName] = useState(product.name);
+  const [description, setDescription] = useState(product.description);
+  const [itemCategory, setItemCategory] = useState(product.itemCategory || "");
+  const [category, setCategory] = useState(product.category || "");
+  const [subCategory, setSubCategory] = useState(product.subCategory || "");
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [documents, setDocuments] = useState<DocumentsLinks>({
+    broschure: null,
+    technicalSheet: null,
+    videoLink: product.linkVideo || "",
+  });
+  const [partnerName, setPartnerName] = useState(product.partnerName || "");
   const [partners, setPartners] = useState<PartnerDTO[]>([]);
   const token = user?.token ?? "";
 
@@ -115,19 +119,33 @@ const AddProductPage: React.FC = () => {
     dispatch,
   ]);
 
-  const handleSubmit = async () => {
+  const handleUpdate = async () => {
     if (!token) {
       toast.error("You are not authenticated.");
       return;
     }
-
-    if (!sku || !name || !description) {
-      toast.error("SKU, Name, and Description are required.");
+  
+    if (!name || !description) {
+      toast.error("Name and Description are required.");
       return;
     }
-
+  
+    // Helper function to convert File to string (base64)
+    const fileToString = async (file: File | null): Promise<string | null> => {
+      if (!file) return null;
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file); // Converts to base64 string
+      });
+    };
+  
     try {
-      const productDTO = {
+      const broschureString = await fileToString(documents.broschure);
+      const technicalSheetString = await fileToString(documents.technicalSheet);
+  
+      const updatedProduct: ProductDTO = {
         sku,
         name,
         description,
@@ -135,38 +153,39 @@ const AddProductPage: React.FC = () => {
         category,
         subCategory,
         images: null,
-        broschure: null,
-        tehnic: null,
-        linkVideo: documents.videoLink || "",
-        partnerName: partnerName,
+        broschure: broschureString, // Convert File to string
+        tehnic: technicalSheetString, // Convert File to string
+        linkVideo: documents.videoLink,
+        partnerName,
       };
-
-      await productService.createProduct(
+  
+      await productService.updateProduct(
         token,
-        productDTO,
+        sku,
+        updatedProduct,
         imageFiles,
         documents.broschure || undefined,
         documents.technicalSheet || undefined
       );
-
-      toast.success("Product created successfully!");
-      router.push(determinePath("/products"));
+  
+      toast.success("Product updated successfully!");
+      router.push("/products");
     } catch (error) {
       toast.error((error as string) || "An error occurred.");
     }
   };
+  
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
       setImageFiles((prev) => {
         const newFiles = [...prev, ...acceptedFiles];
-        setSelectedImage(acceptedFiles[acceptedFiles.length - 1]); 
+        setSelectedImage(acceptedFiles[acceptedFiles.length - 1]);
         return newFiles;
       });
     },
     accept: { "image/*": [] },
   });
-  
 
   const handleRemoveImage = (index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
@@ -174,10 +193,10 @@ const AddProductPage: React.FC = () => {
   };
 
   return (
-    <div className="container min-h-screen min-w-full grid grid-cols-3 grid-rows-10 gap-2 p-2">
+    <div className="container min-h-screen grid grid-cols-3 gap-4 p-4">
       <HeaderContainer
-        onCancel={() => router.push(determinePath("/products"))}
-        onSubmit={handleSubmit}
+        onCancel={() => router.push("/products")}
+        onSubmit={handleUpdate}
       />
       <GeneralInformationContainer
         sku={sku}
@@ -188,64 +207,55 @@ const AddProductPage: React.FC = () => {
         setDescription={setDescription}
       />
       <motion.div
-        className="col-[3] row-[2/11] p-4 flex flex-col bg-white shadow-md rounded-lg border border-gray-200 gap-6"
+        className="col-span-1 p-4 bg-white shadow-md rounded-lg border border-gray-200 flex flex-col gap-6"
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
       >
-        <div className="space-y-4">
-          <h2 className="text-lg font-bold text-gray-800">Upload Images</h2>
-          {/* Imagine principală selectată */}
-          <div className="w-full h-64 border border-gray-300 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+        {/* Image Upload Section */}
+        <div>
+          <h2 className="text-lg font-bold">Upload Images</h2>
+          <div className="w-full h-64 border rounded-lg flex items-center justify-center">
             {selectedImage ? (
               <img
                 src={URL.createObjectURL(selectedImage)}
                 alt="Selected"
-                className="w-full h-full object-cover"
+                className="object-cover w-full h-full"
               />
             ) : (
-              <span className="text-gray-400">No Image Selected</span>
+              <span>No Image Selected</span>
             )}
           </div>
-
-          {/* Lista imaginilor încărcate */}
-          <div className="flex items-center justify-center gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {imageFiles.map((file, index) => (
-              <div
-                key={index}
-                className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-              >
+              <div key={index} className="relative group w-20 h-20">
                 <img
                   src={URL.createObjectURL(file)}
                   alt={`Uploaded ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  onClick={() => setSelectedImage(file)} 
+                  className="object-cover w-full h-full"
+                  onClick={() => setSelectedImage(file)}
                 />
                 <button
-                  className="absolute top-1 right-1 text-red-500 text-sm p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-transform transform hover:scale-110 hover:text-red-600"
                   onClick={() => handleRemoveImage(index)}
-                  title="Remove Image"
+                  className="absolute top-1 right-1 text-red-500 hover:text-red-600"
                 >
                   <FaTimesCircle />
                 </button>
               </div>
             ))}
-
-            <div
-              {...getRootProps()}
-              className="w-20 h-20 border border-dashed border-gray-300 flex items-center justify-center rounded-lg cursor-pointer hover:bg-gray-50"
-            >
+            <div {...getRootProps()} className="w-20 h-20 border-dashed">
               <input {...getInputProps()} />
-              <span className="text-2xl text-gray-400">+</span>
+              <span>+</span>
             </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h2 className="text-lg font-bold text-gray-800">Category</h2>
+        {/* Category & Partner Selection */}
+        <div>
+          <h2 className="text-lg font-bold">Category</h2>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-2"
           >
             <option value="">Select Category</option>
             {categories.map((cat) => (
@@ -257,7 +267,7 @@ const AddProductPage: React.FC = () => {
           <select
             value={subCategory}
             onChange={(e) => setSubCategory(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-2"
           >
             <option value="">Select Subcategory</option>
             {subcategories.map((subcat) => (
@@ -269,7 +279,7 @@ const AddProductPage: React.FC = () => {
           <select
             value={itemCategory}
             onChange={(e) => setItemCategory(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-2"
           >
             <option value="">Select Item Category</option>
             {itemCategories.map((item) => (
@@ -279,13 +289,12 @@ const AddProductPage: React.FC = () => {
             ))}
           </select>
         </div>
-
         <div>
-          <h2 className="text-lg font-bold text-gray-800">Partner</h2>
+          <h2 className="text-lg font-bold">Partner</h2>
           <select
-            value={partnerName || ""}
+            value={partnerName}
             onChange={(e) => setPartnerName(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full border p-2"
           >
             <option value="">Select Partner</option>
             {partners.map((partner) => (
@@ -302,4 +311,4 @@ const AddProductPage: React.FC = () => {
   );
 };
 
-export default AddProductPage;
+export default UpdateProductForm;

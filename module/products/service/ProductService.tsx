@@ -2,37 +2,67 @@ import ApiServer from "@/module/system/service/ApiServer";
 import { ProductDTO } from "../dto/ProductDTO";
 
 class ProductService extends ApiServer {
+  createProduct = async (
+    token: string,
+    productDTO: ProductDTO,
+    imageFiles: File[] = [],
+    broschureFile?: File,
+    tehnicFile?: File
+  ): Promise<string> => {
+    const formData = new FormData();
+    formData.append("productDTO", new Blob([JSON.stringify(productDTO)], { type: "application/json" }));
+    
+    imageFiles.forEach((file) => formData.append("images", file));
+    
+    if (broschureFile) formData.append("broschure", broschureFile);
+    if (tehnicFile) formData.append("tehnic", tehnicFile);
   
-  createProduct = async (productDTO: ProductDTO, token: string): Promise<string> => {
-    const response = await this.api<ProductDTO, any>(
+    const response = await this.api<FormData, any>(
       `/product/`,
       "POST",
-      productDTO,
-      token,
-      false
+      formData,
+      token
     );
+  
     if (response.status === 200) {
-      const data = await response.text();
-      return data;
+      return await response.text();
     } else {
       const errorData = await response.json();
       return Promise.reject(errorData.message || "Failed to create product");
     }
   };
+  
 
-  getProductBySku = async (sku: string): Promise<ProductDTO> => {
-    const response = await this.api<null, any>(
+  updateProduct = async (
+    token: string,
+    sku: string,
+    updatedProductDTO: ProductDTO,
+    imageFiles: File[] = [],
+    broschureFile?: File,
+    tehnicFile?: File
+  ): Promise<string> => {
+    const formData = new FormData();
+    formData.append("productDTO", JSON.stringify(updatedProductDTO));
+    imageFiles.forEach((file) => formData.append("images", file));
+    if (broschureFile) {
+      formData.append("broschure", broschureFile);
+    }
+    if (tehnicFile) {
+      formData.append("tehnic", tehnicFile);
+    }
+
+    const response = await this.api<FormData, any>(
       `/product/${sku}`,
-      "GET",
-      null,
-      ""
+      "PUT",
+      formData,
+      token
     );
+
     if (response.status === 200) {
-      const data = await response.json();
-      return data as ProductDTO;
+      return await response.text();
     } else {
       const errorData = await response.json();
-      return Promise.reject(errorData.message || "Failed to fetch product");
+      return Promise.reject(errorData.message || "Failed to update product");
     }
   };
 
@@ -43,28 +73,28 @@ class ProductService extends ApiServer {
       null,
       token
     );
+
     if (response.status === 200) {
-      const data = await response.text();
-      return data;
+      return await response.text();
     } else {
       const errorData = await response.json();
       return Promise.reject(errorData.message || "Failed to delete product");
     }
   };
 
-  updateProduct = async (sku: string, updatedProductDTO: ProductDTO, token: string): Promise<string> => {
-    const response = await this.api<ProductDTO, any>(
+  getProductBySku = async (sku: string): Promise<ProductDTO> => {
+    const response = await this.api<null, any>(
       `/product/${sku}`,
-      "PUT",
-      updatedProductDTO,
-      token
+      "GET",
+      null,
+      ""
     );
+
     if (response.status === 200) {
-      const data = await response.text();
-      return data;
+      return (await response.json()) as ProductDTO;
     } else {
       const errorData = await response.json();
-      return Promise.reject(errorData.message || "Failed to update product");
+      return Promise.reject(errorData.message || "Failed to fetch product");
     }
   };
 
@@ -75,9 +105,9 @@ class ProductService extends ApiServer {
       null,
       ""
     );
+
     if (response.status === 200) {
-      const data = await response.json();
-      return data as ProductDTO[];
+      return (await response.json()) as ProductDTO[];
     } else {
       const errorData = await response.json();
       return Promise.reject(errorData.message || "Failed to fetch products");

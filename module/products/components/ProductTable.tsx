@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
+
+import React from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { ProductDTO } from "../dto/ProductDTO";
+import { determinePath } from "@/system/utils";
 
 interface ProductTableProps {
   currentItems: ProductDTO[];
@@ -14,23 +17,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
   currentItems,
   handleDelete,
 }) => {
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const router = useRouter();
 
-
-  const handleSelectProduct = (sku: string) => {
-    setSelectedProducts((prevSelected) =>
-      prevSelected.includes(sku)
-        ? prevSelected.filter((item) => item !== sku)
-        : [...prevSelected, sku]
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedProducts.length === currentItems.length) {
-      setSelectedProducts([]); 
-    } else {
-      setSelectedProducts(currentItems.map((product) => product.sku));
-    }
+  const handleEdit = (sku: string) => {
+    router.push(determinePath(`/products/update?sku=${sku}`));
   };
 
   return (
@@ -38,7 +28,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-left text-gray-600 uppercase text-sm">
-           
             <th className="py-3 px-6">Image</th>
             <th className="py-3 px-6">SKU</th>
             <th className="py-3 px-6">Product</th>
@@ -50,7 +39,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
         </thead>
         <tbody>
           {currentItems.length > 0 ? (
-            console.log(currentItems),
             currentItems.map((product) => (
               <motion.tr
                 key={product.sku}
@@ -59,41 +47,30 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
-               
                 <td className="py-3 px-6">
                   <img
                     src={
-                      product.images && product.images[0]
-                        ? product.images[0].url
-                        : "https://via.placeholder.com/100"
+                      product.images?.[0]?.url || "https://via.placeholder.com/100"
                     }
                     alt={product.name}
                     className="w-16 h-16 object-cover rounded"
                   />
                 </td>
                 <td className="py-3 px-6">{product.sku}</td>
-                <td className="py-3 px-6 max-w-xs truncate">
-                  {product.name}
-                </td>
-                <td className="py-3 px-6 max-w-xs truncate">
-                  {product.category}
-                </td>
-                <td className="py-3 px-6 max-w-xs truncate">
-                  {product.subCategory}
-                </td>
-                <td className="py-3 px-6 max-w-xs truncate">
-                  {product.itemCategory}
-                </td>
-
-                <td className="py-3 px-6 flex justify-center items-center space-x-2 text-center align-middle h-full">
+                <td className="py-3 px-6 max-w-xs truncate">{product.name}</td>
+                <td className="py-3 px-6 max-w-xs truncate">{product.category}</td>
+                <td className="py-3 px-6 max-w-xs truncate">{product.subCategory}</td>
+                <td className="py-3 px-6 max-w-xs truncate">{product.itemCategory}</td>
+                <td className="py-3 px-6 flex justify-center items-center space-x-2">
                   <button
-                    className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-full flex items-center justify-center w-8 h-8 "
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white rounded-full flex items-center justify-center w-8 h-8"
+                    onClick={() => handleEdit(product.sku)}
                   >
                     <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(product.sku)}
-                    className="bg-red-400 hover:bg-red-500 text-white rounded-full flex items-center justify-center w-8 h-8 "
+                    className="bg-red-400 hover:bg-red-500 text-white rounded-full flex items-center justify-center w-8 h-8"
                   >
                     <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
                   </button>
@@ -109,8 +86,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
           )}
         </tbody>
       </table>
-
-   
     </div>
   );
 };
