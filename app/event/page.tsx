@@ -10,7 +10,7 @@ import LoginContextType from "@/module/context/LoginContextType";
 import EventDTO from "@/module/event/dto/EventDTO";
 import EventService from "@/module/event/service/EventService";
 import ModalEvent from "@/module/event/components/ModalEvent";
-import ModalUpdateEvent from "@/module/event/components/ModalUpdateEvent"; 
+import ModalUpdateEvent from "@/module/event/components/ModalUpdateEvent";
 import EventsTable from "@/module/event/components/EventsTable";
 
 const EventPage: React.FC = () => {
@@ -19,7 +19,7 @@ const EventPage: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); 
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [eventToEdit, setEventToEdit] = useState<EventDTO | null>(null);
   const [eventToDelete, setEventToDelete] = useState<EventDTO | null>(null);
@@ -32,7 +32,7 @@ const EventPage: React.FC = () => {
         const fetchedEvents = await eventService.getAllEvents();
         setEvents(fetchedEvents);
       } catch (error) {
-        toast.error(error as string || "Failed to fetch events");
+        toast.error((error as string) || "Failed to fetch events");
       }
     };
 
@@ -60,14 +60,14 @@ const EventPage: React.FC = () => {
     setEventToDelete(null);
   };
 
-  const handleAddEvent = async (newEvent: EventDTO) => {
+  const handleAddEvent = async (newEvent: EventDTO, image: File | null) => {
     try {
-      const message = await eventService.addEvent(newEvent, user.token);
+      const message = await eventService.addEvent(newEvent, image, user.token);
       setEvents((prev) => [...prev, newEvent]);
       toast.success(message);
       setIsModalOpen(false);
     } catch (error) {
-      toast.error(error as string);
+      toast.error((error as string) || "Failed to add event.");
     }
   };
 
@@ -81,7 +81,11 @@ const EventPage: React.FC = () => {
     image: File | null
   ) => {
     try {
-      const message = await eventService.updateEvent(updatedEvent, image, user.token);
+      const message = await eventService.updateEvent(
+        updatedEvent,
+        image,
+        user.token
+      );
       const updatedEvents = events.map((e) =>
         e.eventCode === updatedEvent.eventCode ? updatedEvent : e
       );

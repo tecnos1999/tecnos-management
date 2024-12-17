@@ -12,7 +12,7 @@ import LoginContextType from "@/module/context/LoginContextType";
 interface ModalEventProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddEvent: (event: EventDTO) => void;
+  onAddEvent: (event: EventDTO , image : File | null) => void;
 }
 
 const ModalEvent: React.FC<ModalEventProps> = ({
@@ -64,34 +64,27 @@ const ModalEvent: React.FC<ModalEventProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!eventData.title || !eventData.description) {
       setShowErrors(true);
       return;
     }
-
+  
     setIsSubmitting(true);
-
+  
     try {
-      let imageUrl = "";
-
-      
-
-      const newEvent: EventDTO = {
+      const eventDTO: EventDTO = {
         eventCode: `EVT${Date.now()}`,
         title: eventData.title,
         description: eventData.description,
         externalLink: eventData.externalLink,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        image: imageUrl
-          ? { url: imageUrl, type: eventData.image?.type || "" }
-          : undefined,
       };
-
+  
+      await onAddEvent(eventDTO, eventData.image);
+  
       toast.success("Event added successfully!");
-      onAddEvent(newEvent);
-
       setEventData({
         title: "",
         description: "",
@@ -99,14 +92,15 @@ const ModalEvent: React.FC<ModalEventProps> = ({
         image: null,
       });
       setPreviewImage(null);
-      setShowErrors(false);
       onClose();
     } catch (error) {
-      toast.error((error as string) || "Failed to add event.");
+      toast.error(error as string || "Failed to add event.");
     } finally {
       setIsSubmitting(false);
     }
   };
+  
+  
 
   return (
     <AnimatePresence>

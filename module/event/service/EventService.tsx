@@ -3,23 +3,38 @@ import EventDTO from "../dto/EventDTO";
 
 class EventService extends ApiServer {
   // Add Event
-  addEvent = async (eventDTO: EventDTO, token: string): Promise<string> => {
-    const response = await this.api<EventDTO, string>(
-      `/events/create`,
-      "POST",
-      eventDTO,
-      token
-    );
-    if (response.status === 201) {
-      const data = await response.text();
-      return data; 
-    } else {
-      const errorData = await response.json();
-      return Promise.reject(
-        errorData.message || "Failed to add event"
-      );
-    }
-  };
+addEvent = async (
+  eventDTO: EventDTO,
+  image: File | null,
+  token: string
+): Promise<string> => {
+  const formData = new FormData();
+
+  formData.append(
+    "event",
+    new Blob([JSON.stringify(eventDTO)], { type: "application/json" })
+  );
+
+  if (image) {
+    formData.append("image", image);
+  }
+
+  const response = await this.api<FormData, string>(
+    `/events/create`,
+    "POST",
+    formData,
+    token
+  );
+
+  if (response.status === 201) {
+    const data = await response.text();
+    return data;
+  } else {
+    const errorData = await response.json();
+    return Promise.reject(errorData.message || "Failed to add event");
+  }
+};
+
 
   // Update Event
 updateEvent = async (
