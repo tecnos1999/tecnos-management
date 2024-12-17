@@ -1,8 +1,5 @@
 "use client";
 import CategoryService from "@/module/category/service/CategoryService";
-import LoginContextType from "@/module/context/LoginContextType";
-import { LoginContext } from "@/module/context/LoginProvider";
-import DocumentsLinks from "@/module/documents/dto/DocumentsLinks";
 import ItemCategoryService from "@/module/itemcategory/service/ItemCategoryService";
 import { PartnerDTO } from "@/module/partners/dto/PartnerDTO";
 import PartnersService from "@/module/partners/service/PartnersService";
@@ -25,14 +22,8 @@ import {
 } from "@/store/subcategory/subcategory.reducers";
 import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
 import { motion } from "framer-motion";
-import { useRouter, useSearchParams } from "next/navigation";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { FaTimesCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -47,13 +38,7 @@ const UpdateProductPage = () => {
   const [subCategory, setSubCategory] = useState("");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [documents, setDocuments] = useState<DocumentsLinks>({
-    broschure: null,
-    technicalSheet: null,
-    videoLink: "",
-  });
 
-  const router = useRouter();
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
   const subcategories = useSelector(selectSubcategories);
@@ -64,18 +49,11 @@ const UpdateProductPage = () => {
   const categoryService = useMemo(() => new CategoryService(), []);
   const productService = useMemo(() => new ProductService(), []);
   const partnersService = useMemo(() => new PartnersService(), []);
-  const { user } = useContext(LoginContext) as LoginContextType;
 
   const [partnerName, setPartnerName] = useState<string | null>(null);
   const [partners, setPartners] = useState<PartnerDTO[]>([]);
   const searchParams = useSearchParams();
   const productSku = decodeURIComponent(searchParams.get("sku") || "");
-
-  const productSerivce = useMemo(() => new ProductService(), []);
-
-  const [existingImages, setExistingImages] = useState<
-    { url: string; type: string }[]
-  >([]);
 
   useEffect(() => {
     productService.getProductBySku(productSku).then((product) => {
@@ -87,17 +65,12 @@ const UpdateProductPage = () => {
       setSubCategory(product.subCategory || "");
       setPartnerName(product.partnerName || "");
 
-      setExistingImages(product.images || []);
-
       setBroschure(product.broschure ? new File([], product.broschure) : null);
       setTechnicalSheet(product.tehnic ? new File([], product.tehnic) : null);
       setVideoLink(product.linkVideo || "");
     });
   }, [productSku]);
 
-  const handleRemoveExistingImage = (index: number) => {
-    setExistingImages((prev) => prev.filter((_, i) => i !== index));
-  };
   const containerVariants = {
     initial: { opacity: 0, scale: 0.9 },
     animate: {
