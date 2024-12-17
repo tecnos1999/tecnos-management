@@ -64,12 +64,13 @@ const UpdateProductPage = () => {
       setCategory(product.category || "");
       setSubCategory(product.subCategory || "");
       setPartnerName(product.partnerName || "");
-
+  
       setBroschure(product.broschure ? new File([], product.broschure) : null);
       setTechnicalSheet(product.tehnic ? new File([], product.tehnic) : null);
       setVideoLink(product.linkVideo || "");
     });
-  }, [productSku]);
+  }, [productSku, productService]);
+  
 
   const containerVariants = {
     initial: { opacity: 0, scale: 0.9 },
@@ -233,6 +234,7 @@ const UpdateProductPage = () => {
           <h2 className="text-lg font-bold text-gray-800">Upload Images</h2>
           <div className="w-full h-64 border border-gray-300 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
             {selectedImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={URL.createObjectURL(selectedImage)}
                 alt="Selected"
@@ -248,7 +250,8 @@ const UpdateProductPage = () => {
               <div
                 key={index}
                 className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-              >
+              > 
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={URL.createObjectURL(file)}
                   alt={`Uploaded ${index + 1}`}

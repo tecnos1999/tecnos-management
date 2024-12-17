@@ -102,7 +102,7 @@ const AddProductPage: React.FC = () => {
         const fetchedPartners = await partnersService.getAllPartners();
         setPartners(fetchedPartners);
       } catch (error) {
-        toast.error(error as string || "Error fetching data")
+        toast.error((error as string) || "Error fetching data");
       }
     };
 
@@ -160,13 +160,12 @@ const AddProductPage: React.FC = () => {
     onDrop: (acceptedFiles) => {
       setImageFiles((prev) => {
         const newFiles = [...prev, ...acceptedFiles];
-        setSelectedImage(acceptedFiles[acceptedFiles.length - 1]); 
+        setSelectedImage(acceptedFiles[acceptedFiles.length - 1]);
         return newFiles;
       });
     },
     accept: { "image/*": [] },
   });
-  
 
   const handleRemoveImage = (index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
@@ -198,6 +197,7 @@ const AddProductPage: React.FC = () => {
           {/* Imagine principală selectată */}
           <div className="w-full h-64 border border-gray-300 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
             {selectedImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={URL.createObjectURL(selectedImage)}
                 alt="Selected"
@@ -215,11 +215,12 @@ const AddProductPage: React.FC = () => {
                 key={index}
                 className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={URL.createObjectURL(file)}
                   alt={`Uploaded ${index + 1}`}
                   className="w-full h-full object-cover"
-                  onClick={() => setSelectedImage(file)} 
+                  onClick={() => setSelectedImage(file)}
                 />
                 <button
                   className="absolute top-1 right-1 text-red-500 text-sm p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-transform transform hover:scale-110 hover:text-red-600"
