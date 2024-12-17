@@ -139,22 +139,7 @@ const UpdateProductPage = () => {
     if (selectedImage === imageFiles[index]) setSelectedImage(null);
   };
 
-  const handleDrop = useCallback((acceptedFiles: File[], type: string) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
-
-    switch (type) {
-      case "broschure":
-        setBroschure(file);
-        break;
-      case "technicalSheet":
-        setTechnicalSheet(file);
-        break;
-
-      default:
-        toast.error("Invalid file type");
-    }
-  }, []);
+ 
 
   return (
     <div className="container min-h-screen min-w-full grid grid-cols-3 grid-rows-10 gap-2 p-2">
