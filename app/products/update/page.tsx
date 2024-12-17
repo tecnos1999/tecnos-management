@@ -3,6 +3,7 @@ import CategoryService from "@/module/category/service/CategoryService";
 import ItemCategoryService from "@/module/itemcategory/service/ItemCategoryService";
 import { PartnerDTO } from "@/module/partners/dto/PartnerDTO";
 import PartnersService from "@/module/partners/service/PartnersService";
+import Dropzone from "@/module/products/components/Dropzone";
 import HeaderContainer from "@/module/products/components/HeaderContainer";
 import ProductService from "@/module/products/service/ProductService";
 import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
@@ -64,13 +65,12 @@ const UpdateProductPage = () => {
       setCategory(product.category || "");
       setSubCategory(product.subCategory || "");
       setPartnerName(product.partnerName || "");
-  
+
       setBroschure(product.broschure ? new File([], product.broschure) : null);
       setTechnicalSheet(product.tehnic ? new File([], product.tehnic) : null);
       setVideoLink(product.linkVideo || "");
     });
   }, [productSku, productService]);
-  
 
   const containerVariants = {
     initial: { opacity: 0, scale: 0.9 },
@@ -156,37 +156,6 @@ const UpdateProductPage = () => {
     }
   }, []);
 
-  const createDropzone = (fileType: string, currentFile: File | null) => {
-    const { getRootProps, getInputProps } = useDropzone({
-      onDrop: (files) => handleDrop(files, fileType),
-      accept: {
-        "application/pdf": [".pdf"],
-        "application/msword": [".doc", ".docx"],
-        "application/xml": [".xml"],
-      },
-    });
-
-    const dropzoneProps = getRootProps();
-
-    return (
-      <div
-        className={`border border-dashed border-gray-400 rounded-lg p-3 text-center cursor-pointer hover:bg-gray-50 transition ${
-          currentFile ? "border-red-500" : ""
-        }`}
-        {...dropzoneProps}
-      >
-        <input {...getInputProps()} />
-        {!currentFile ? (
-          <p className="text-gray-500 text-base">
-            Drag & drop or click to upload
-          </p>
-        ) : (
-          <p className="text-red-600 text-base">{currentFile.name}</p>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="container min-h-screen min-w-full grid grid-cols-3 grid-rows-10 gap-2 p-2">
       <HeaderContainer
@@ -250,7 +219,7 @@ const UpdateProductPage = () => {
               <div
                 key={index}
                 className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
-              > 
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={URL.createObjectURL(file)}
@@ -345,19 +314,33 @@ const UpdateProductPage = () => {
           Additional Resources
         </h2>
 
-        <div className="mb-1">
-          <label className="block mb-2 font-semibold text-gray-700 text-base">
-            Broschure
-          </label>
-          {createDropzone("broschure", broschure)}
-        </div>
+        <motion.div className="col-[1/3] row-[6/11] p-5 bg-white shadow-md rounded-lg border border-gray-200">
+          <h2 className="text-xl font-bold mb-5 text-gray-800">
+            Additional Resources
+          </h2>
 
-        <div className="mb-1">
-          <label className="block mb-2 font-semibold text-gray-700 text-base">
-            Technical File
-          </label>
-          {createDropzone("technicalSheet", technicalSheet)}
-        </div>
+          <div className="mb-1">
+            <label className="block mb-2 font-semibold text-gray-700 text-base">
+              Broschure
+            </label>
+            <Dropzone
+              fileType="broschure"
+              currentFile={broschure}
+              onFileDrop={(file) => setBroschure(file)}
+            />
+          </div>
+
+          <div className="mb-1">
+            <label className="block mb-2 font-semibold text-gray-700 text-base">
+              Technical File
+            </label>
+            <Dropzone
+              fileType="technicalSheet"
+              currentFile={technicalSheet}
+              onFileDrop={(file) => setTechnicalSheet(file)}
+            />
+          </div>
+        </motion.div>
 
         <div className="mb-2">
           <label className="block mb-2 font-semibold text-gray-700 text-base">
