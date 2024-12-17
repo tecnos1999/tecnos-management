@@ -24,7 +24,7 @@ import {
 import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {  useEffect, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { FaTimesCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
