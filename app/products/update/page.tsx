@@ -1,39 +1,404 @@
 "use client";
-
-import React, { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import CategoryService from "@/module/category/service/CategoryService";
+import LoginContextType from "@/module/context/LoginContextType";
+import { LoginContext } from "@/module/context/LoginProvider";
+import DocumentsLinks from "@/module/documents/dto/DocumentsLinks";
+import ItemCategoryService from "@/module/itemcategory/service/ItemCategoryService";
+import { PartnerDTO } from "@/module/partners/dto/PartnerDTO";
+import PartnersService from "@/module/partners/service/PartnersService";
+import HeaderContainer from "@/module/products/components/HeaderContainer";
 import ProductService from "@/module/products/service/ProductService";
-import { ProductDTO } from "@/module/products/dto/ProductDTO";
-import UpdateProductForm from "@/module/products/components/UpdateProductForm";
+import SubcategoryService from "@/module/subcategory/service/SubcategoryService";
+import {
+  loadCategories,
+  retrieveCategoriesSuccess,
+} from "@/store/category/category.reducers";
+import { selectCategories } from "@/store/category/category.selectors";
+import {
+  loadItemCategories,
+  retrieveItemCategoriesSuccess,
+} from "@/store/itemcategory/itemCategory.reducers";
+import { selectItemCategories } from "@/store/itemcategory/itemCategory.selectors";
+import {
+  loadSubcategories,
+  retrieveSubcategoriesSuccess,
+} from "@/store/subcategory/subcategory.reducers";
+import { selectSubcategories } from "@/store/subcategory/subcategory.selectors";
+import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useDropzone } from "react-dropzone";
+import { FaTimesCircle } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
 
-const UpdateProductPage: React.FC = () => {
+const UpdateProductPage = () => {
+  const [sku, setSku] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [itemCategory, setItemCategory] = useState("");
+  const [category, setCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [documents, setDocuments] = useState<DocumentsLinks>({
+    broschure: null,
+    technicalSheet: null,
+    videoLink: "",
+  });
+
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const sku = searchParams.get("sku");
+  const dispatch = useDispatch();
+  const categories = useSelector(selectCategories);
+  const subcategories = useSelector(selectSubcategories);
+  const itemCategories = useSelector(selectItemCategories);
+
+  const subcategoryService = useMemo(() => new SubcategoryService(), []);
+  const itemCategoryService = useMemo(() => new ItemCategoryService(), []);
+  const categoryService = useMemo(() => new CategoryService(), []);
   const productService = useMemo(() => new ProductService(), []);
+  const partnersService = useMemo(() => new PartnersService(), []);
+  const { user } = useContext(LoginContext) as LoginContextType;
 
+  const [partnerName, setPartnerName] = useState<string | null>(null);
+  const [partners, setPartners] = useState<PartnerDTO[]>([]);
+  const searchParams = useSearchParams();
+  const productSku = decodeURIComponent(searchParams.get("sku") || "");
 
-  const [product, setProduct] = useState<ProductDTO | null>(null);
+  const productSerivce = useMemo(() => new ProductService(), []);
+
+  const [existingImages, setExistingImages] = useState<
+    { url: string; type: string }[]
+  >([]);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      if (sku) {
-        try {
-          const fetchedProduct = await productService.getProductBySku(sku);
-          setProduct(fetchedProduct);
-        } catch (error) {
-          console.error("Failed to fetch product:", error);
-          router.push("/products");
-        }
+    productService.getProductBySku(productSku).then((product) => {
+      setSku(product.sku);
+      setName(product.name);
+      setDescription(product.description);
+      setItemCategory(product.itemCategory || "");
+      setCategory(product.category || "");
+      setSubCategory(product.subCategory || "");
+      setPartnerName(product.partnerName || "");
+
+      setExistingImages(product.images || []);
+
+      setBroschure(product.broschure ? new File([], product.broschure) : null);
+      setTechnicalSheet(product.tehnic ? new File([], product.tehnic) : null);
+      setVideoLink(product.linkVideo || "");
+    });
+  }, [productSku]);
+
+  const handleRemoveExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
+  };
+  const containerVariants = {
+    initial: { opacity: 0, scale: 0.9 },
+    animate: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.9,
+      transition: { duration: 0.3, ease: "easeIn" },
+    },
+  };
+
+  const [broschure, setBroschure] = useState<File | null>(null);
+  const [technicalSheet, setTechnicalSheet] = useState<File | null>(null);
+  const [videoLink, setVideoLink] = useState<string>("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedCategories = await categoryService.getCategories();
+        dispatch(loadCategories(fetchedCategories));
+        dispatch(retrieveCategoriesSuccess());
+
+        const fetchedSubcategories =
+          await subcategoryService.getSubcategories();
+        dispatch(loadSubcategories(fetchedSubcategories));
+        dispatch(retrieveSubcategoriesSuccess());
+
+        const fetchedItemCategories =
+          await itemCategoryService.getItemCategories();
+        dispatch(loadItemCategories(fetchedItemCategories));
+        dispatch(retrieveItemCategoriesSuccess());
+
+        const fetchedPartners = await partnersService.getAllPartners();
+        setPartners(fetchedPartners);
+      } catch (error) {
+        toast.error((error as string) || "Error fetching data");
       }
     };
 
-    fetchProduct();
-  }, [sku, productService, router]);
+    fetchData();
+  }, [
+    categoryService,
+    subcategoryService,
+    itemCategoryService,
+    partnersService,
+    dispatch,
+  ]);
 
-  if (!product) return <div>Loading...</div>;
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      setImageFiles((prev) => {
+        const newFiles = [...prev, ...acceptedFiles];
+        setSelectedImage(acceptedFiles[acceptedFiles.length - 1]);
+        return newFiles;
+      });
+    },
+    accept: { "image/*": [] },
+  });
 
-  return <UpdateProductForm product={product} />;
+  const handleRemoveImage = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    if (selectedImage === imageFiles[index]) setSelectedImage(null);
+  };
+
+  const handleDrop = useCallback((acceptedFiles: File[], type: string) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+
+    switch (type) {
+      case "broschure":
+        setBroschure(file);
+        break;
+      case "technicalSheet":
+        setTechnicalSheet(file);
+        break;
+
+      default:
+        toast.error("Invalid file type");
+    }
+  }, []);
+
+  const createDropzone = (fileType: string, currentFile: File | null) => {
+    const { getRootProps, getInputProps } = useDropzone({
+      onDrop: (files) => handleDrop(files, fileType),
+      accept: {
+        "application/pdf": [".pdf"],
+        "application/msword": [".doc", ".docx"],
+        "application/xml": [".xml"],
+      },
+    });
+
+    const dropzoneProps = getRootProps();
+
+    return (
+      <div
+        className={`border border-dashed border-gray-400 rounded-lg p-3 text-center cursor-pointer hover:bg-gray-50 transition ${
+          currentFile ? "border-red-500" : ""
+        }`}
+        {...dropzoneProps}
+      >
+        <input {...getInputProps()} />
+        {!currentFile ? (
+          <p className="text-gray-500 text-base">
+            Drag & drop or click to upload
+          </p>
+        ) : (
+          <p className="text-red-600 text-base">{currentFile.name}</p>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="container min-h-screen min-w-full grid grid-cols-3 grid-rows-10 gap-2 p-2">
+      <HeaderContainer
+        onCancel={() => {}}
+        onSubmit={() => {}}
+        isEditMode={true}
+      />
+      <motion.div
+        className="col-[1/3] row-[2/6] bg-white p-6 rounded-xl shadow-md border border-gray-200"
+        variants={containerVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+      >
+        <h2 className="text-xl font-bold mb-4 text-gray-800">
+          General Information
+        </h2>
+        <input
+          type="text"
+          placeholder="SKU"
+          value={sku}
+          onChange={(e) => setSku(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+        />
+        <input
+          type="text"
+          placeholder="Product Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+        />
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full border border-gray-300 p-3 rounded-md min-h-32 max-h-32 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+        />
+      </motion.div>
+      <motion.div
+        className="col-[3] row-[2/11] p-4 flex flex-col bg-white shadow-md rounded-lg border border-gray-200 gap-6"
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+      >
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-gray-800">Upload Images</h2>
+          <div className="w-full h-64 border border-gray-300 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+            {selectedImage ? (
+              <img
+                src={URL.createObjectURL(selectedImage)}
+                alt="Selected"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-gray-400">No Image Selected</span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            {imageFiles.map((file, index) => (
+              <div
+                key={index}
+                className="relative group w-20 h-20 border border-gray-300 rounded-lg overflow-hidden cursor-pointer"
+              >
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`Uploaded ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onClick={() => setSelectedImage(file)}
+                />
+                <button
+                  className="absolute top-1 right-1 text-red-500 text-sm p-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-transform transform hover:scale-110 hover:text-red-600"
+                  onClick={() => handleRemoveImage(index)}
+                  title="Remove Image"
+                >
+                  <FaTimesCircle />
+                </button>
+              </div>
+            ))}
+
+            <div
+              {...getRootProps()}
+              className="w-20 h-20 border border-dashed border-gray-300 flex items-center justify-center rounded-lg cursor-pointer hover:bg-gray-50"
+            >
+              <input {...getInputProps()} />
+              <span className="text-2xl text-gray-400">+</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-gray-800">Category</h2>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full border p-2 rounded"
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat.name} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={subCategory}
+            onChange={(e) => setSubCategory(e.target.value)}
+            className="w-full border p-2 rounded"
+          >
+            <option value="">Select Subcategory</option>
+            {subcategories.map((subcat) => (
+              <option key={subcat.name} value={subcat.name}>
+                {subcat.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={itemCategory}
+            onChange={(e) => setItemCategory(e.target.value)}
+            className="w-full border p-2 rounded"
+          >
+            <option value="">Select Item Category</option>
+            {itemCategories.map((item) => (
+              <option key={item.name} value={item.name}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-bold text-gray-800">Partner</h2>
+          <select
+            value={partnerName || ""}
+            onChange={(e) => setPartnerName(e.target.value)}
+            className="w-full border p-2 rounded"
+          >
+            <option value="">Select Partner</option>
+            {partners.map((partner) => (
+              <option key={partner.name} value={partner.name}>
+                {partner.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="col-[1/3] row-[6/11] p-5 bg-white shadow-md rounded-lg border border-gray-200"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0, transition: { duration: 0.5 } }}
+        exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
+      >
+        <h2 className="text-xl font-bold mb-5 text-gray-800">
+          Additional Resources
+        </h2>
+
+        <div className="mb-1">
+          <label className="block mb-2 font-semibold text-gray-700 text-base">
+            Broschure
+          </label>
+          {createDropzone("broschure", broschure)}
+        </div>
+
+        <div className="mb-1">
+          <label className="block mb-2 font-semibold text-gray-700 text-base">
+            Technical File
+          </label>
+          {createDropzone("technicalSheet", technicalSheet)}
+        </div>
+
+        <div className="mb-2">
+          <label className="block mb-2 font-semibold text-gray-700 text-base">
+            Link
+          </label>
+          <input
+            type="url"
+            placeholder="Enter link"
+            value={videoLink}
+            onChange={(e) => setVideoLink(e.target.value)}
+            className="w-full border border-gray-300 p-3 rounded-lg text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500"
+          />
+        </div>
+      </motion.div>
+      <ToastContainer position="top-right" autoClose={3000} />
+    </div>
+  );
 };
 
 export default UpdateProductPage;

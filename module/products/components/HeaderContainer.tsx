@@ -4,7 +4,7 @@ import { FaCheck, FaTimes } from "react-icons/fa";
 interface HeaderContainerProps {
   onCancel: () => void;
   onSubmit: () => void;
-  isEditMode: boolean; // New prop
+  isEditMode: boolean; 
 }
 
 const HeaderContainer: React.FC<HeaderContainerProps> = ({
@@ -39,7 +39,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = ({
         </button>
         <button
           className={`${
-            isEditMode ? "bg-blue-500 hover:bg-blue-600" : "bg-red-500 hover:bg-red-600"
+            isEditMode ? "bg-yellow-500 hover:bg-yellow-600" : "bg-red-500 hover:bg-red-600"
           } text-white px-4 py-2 rounded-lg flex items-center gap-2 transition`}
           onClick={onSubmit}
         >
