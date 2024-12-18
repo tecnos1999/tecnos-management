@@ -32,6 +32,8 @@ import { ProductDTO } from "@/module/products/dto/ProductDTO";
 import { motion } from "framer-motion";
 import { LoginContext } from "@/module/context/LoginProvider";
 import LoginContextType from "@/module/context/LoginContextType";
+import TagService from "@/module/tags/services/TagService";
+import TagDTO from "@/module/tags/dto/TagDTO";
 
 const UpdateProductPage = () => {
   const [sku, setSku] = useState("");
@@ -57,7 +59,7 @@ const UpdateProductPage = () => {
   const subcategoryService = useMemo(() => new SubcategoryService(), []);
   const itemCategoryService = useMemo(() => new ItemCategoryService(), []);
   const partnersService = useMemo(() => new PartnersService(), []);
-  const {user} = useContext(LoginContext) as LoginContextType;  
+  const { user } = useContext(LoginContext) as LoginContextType;
 
   const categories = useSelector(selectCategories);
   const subcategories = useSelector(selectSubcategories);
@@ -74,6 +76,19 @@ const UpdateProductPage = () => {
       scale: 0.9,
       transition: { duration: 0.3, ease: "easeIn" },
     },
+  };
+
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [allTags, setAllTags] = useState<TagDTO[]>([]);
+  const [tagsDropdownOpen, setTagsDropdownOpen] = useState(false);
+
+  const tagService = useMemo(() => new TagService(), []);
+  const handleTagSelect = (tagName: string) => {
+    setSelectedTags((prevTags) =>
+      prevTags.includes(tagName)
+        ? prevTags.filter((tag) => tag !== tagName)
+        : [...prevTags, tagName]
+    );
   };
   useEffect(() => {
     const loadData = async () => {
@@ -92,17 +107,20 @@ const UpdateProductPage = () => {
         setTechnicalSheet(product.tehnic ? new File([], product.tehnic) : null);
         setVideoLink(product.linkVideo || "");
         setExistingImages(product.images || []);
+        setSelectedTags(product.tags || []); // Setăm tag-urile selectate
 
         const [
           fetchedCategories,
           fetchedSubcategories,
           fetchedItemCategories,
           fetchedPartners,
+          fetchedTags,
         ] = await Promise.all([
           categoryService.getCategories(),
           subcategoryService.getSubcategories(),
           itemCategoryService.getItemCategories(),
           partnersService.getAllPartners(),
+          tagService.getAllTags(),
         ]);
 
         dispatch(loadCategories(fetchedCategories));
@@ -112,8 +130,9 @@ const UpdateProductPage = () => {
         dispatch(loadItemCategories(fetchedItemCategories));
         dispatch(retrieveItemCategoriesSuccess());
         setPartners(fetchedPartners);
+        setAllTags(fetchedTags);
       } catch (error) {
-        toast.error(error as string || "Failed to load product data");
+        toast.error((error as string) || "Failed to load product data");
       }
     };
     loadData();
@@ -132,34 +151,35 @@ const UpdateProductPage = () => {
         linkVideo: videoLink,
         broschure: broschure ? broschure.name : null,
         tehnic: technicalSheet ? technicalSheet.name : null,
+        tags: selectedTags,
       };
-  
+
       const formData = new FormData();
       formData.append(
         "productDTO",
-        new Blob([JSON.stringify(updatedProductDTO)], { type: "application/json" })
+        new Blob([JSON.stringify(updatedProductDTO)], {
+          type: "application/json",
+        })
       );
-  
+
       imageFiles.forEach((file) => formData.append("images", file));
-  
+
       if (broschure) {
         formData.append("broschure", broschure);
       }
       if (technicalSheet) {
         formData.append("tehnic", technicalSheet);
       }
-  
+
       await productService.updateProduct(user.token, productSku, formData);
-  
+
       toast.success("Product updated successfully!");
     } catch (error) {
-      
       toast.error(
-        error as string || "Failed to update product. Please try again later."
+        (error as string) || "Failed to update product. Please try again later."
       );
     }
   };
-  
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) =>
@@ -216,27 +236,33 @@ const UpdateProductPage = () => {
         <div className="p-6 bg-white rounded shadow">
           <h2 className="text-lg font-bold mb-4">Images</h2>
           <div className="flex gap-2">
-          {existingImages.map((img, index) => (
-            <div key={index} className="relative">
-              <img src={img.url} className="w-20 h-20 object-cover" />
-              <button onClick={() => handleRemoveExistingImage(index)}>
-                <FaTimesCircle className="text-red-600 absolute top-0 right-0" />
-              </button>
+            {existingImages.map((img, index) => (
+              <div key={index} className="relative">
+                <img src={img.url} className="w-20 h-20 object-cover" />
+                <button onClick={() => handleRemoveExistingImage(index)}>
+                  <FaTimesCircle className="text-red-600 absolute top-0 right-0" />
+                </button>
+              </div>
+            ))}
+            {imageFiles.map((file, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={URL.createObjectURL(file)}
+                  className="w-20 h-20 object-cover"
+                />
+                <button onClick={() => handleRemoveNewImage(index)}>
+                  <FaTimesCircle className="text-red-600 absolute top-0 right-0" />
+                </button>
+              </div>
+            ))}
+            <div
+              {...getRootProps()}
+              className="border-dashed border rounded w-20 h-20 flex items-center justify-center"
+            >
+              <input {...getInputProps()} />
+              <span>+</span>
             </div>
-          ))}
-          {imageFiles.map((file, index) => (
-            <div key={index} className="relative">
-              <img src={URL.createObjectURL(file)} className="w-20 h-20 object-cover" />
-              <button onClick={() => handleRemoveNewImage(index)}>
-                <FaTimesCircle className="text-red-600 absolute top-0 right-0" />
-              </button>
-            </div>
-          ))}
-          <div {...getRootProps()} className="border-dashed border rounded w-20 h-20 flex items-center justify-center">
-            <input {...getInputProps()} />
-            <span>+</span>
           </div>
-        </div>
         </div>
 
         <div className="p-6 bg-white rounded shadow">
@@ -293,6 +319,63 @@ const UpdateProductPage = () => {
               </option>
             ))}
           </select>
+          <h2 className="text-lg font-bold text-gray-800">Tags</h2>
+          <div className="relative w-full">
+            <button
+              onClick={() => setTagsDropdownOpen(!tagsDropdownOpen)}
+              className="w-full border p-2 rounded bg-white text-gray-800 flex justify-between items-center"
+            >
+              <span>
+                {selectedTags.length > 0
+                  ? selectedTags.join(", ")
+                  : "Select Tags"}
+              </span>
+              <svg
+                className={`w-5 h-5 transition-transform ${
+                  tagsDropdownOpen ? "rotate-180" : ""
+                }`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 9.707a1 1 0 010-1.414L10 3.586l4.707 4.707a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+            {tagsDropdownOpen && (
+              <ul className="absolute z-10 w-full bg-white border rounded shadow-lg mt-1 max-h-60 overflow-y-auto">
+                {allTags.map((tag) => (
+                  <li
+                  key={tag.name}
+                  onClick={() => handleTagSelect(tag.name)}
+                  className={`p-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                    selectedTags.includes(tag.name) ? "bg-gray-100" : ""
+                  }`}
+                >
+                  {tag.name}
+                  {selectedTags.includes(tag.name) && (
+                    <svg
+                      className="w-5 h-5 text-green-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 5.707 8.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </li>
+                
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </motion.div>
       <motion.div

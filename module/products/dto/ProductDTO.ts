@@ -10,5 +10,6 @@ export interface ProductDTO {
     tehnic: string | null;
     linkVideo: string | null;
     partnerName: string | null;
+    tags: string[] | null;
   }
   

@@ -42,6 +42,8 @@ import { motion } from "framer-motion";
 import DocumentsLinks from "@/module/documents/dto/DocumentsLinks";
 import { PartnerDTO } from "@/module/partners/dto/PartnerDTO";
 import { determinePath } from "@/system/utils";
+import TagService from "@/module/tags/services/TagService";
+import TagDTO from "@/module/tags/dto/TagDTO";
 
 const AddProductPage: React.FC = () => {
   const [sku, setSku] = useState("");
@@ -69,9 +71,13 @@ const AddProductPage: React.FC = () => {
   const categoryService = useMemo(() => new CategoryService(), []);
   const productService = useMemo(() => new ProductService(), []);
   const partnersService = useMemo(() => new PartnersService(), []);
+  const tagService = useMemo(() => new TagService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
 
   const [partnerName, setPartnerName] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [allTags, setAllTags] = useState<TagDTO[]>([]);
+
   const [partners, setPartners] = useState<PartnerDTO[]>([]);
   const token = user?.token ?? "";
 
@@ -101,6 +107,9 @@ const AddProductPage: React.FC = () => {
 
         const fetchedPartners = await partnersService.getAllPartners();
         setPartners(fetchedPartners);
+
+        const fetchedTags = await tagService.getAllTags();
+        setAllTags(fetchedTags);
       } catch (error) {
         toast.error((error as string) || "Error fetching data");
       }
@@ -112,6 +121,7 @@ const AddProductPage: React.FC = () => {
     subcategoryService,
     itemCategoryService,
     partnersService,
+    tagService,
     dispatch,
   ]);
 
@@ -139,6 +149,7 @@ const AddProductPage: React.FC = () => {
         tehnic: null,
         linkVideo: documents.videoLink || "",
         partnerName: partnerName,
+        tags: selectedTags, // Adăugăm tag-urile selectate
       };
 
       await productService.createProduct(
@@ -154,6 +165,14 @@ const AddProductPage: React.FC = () => {
     } catch (error) {
       toast.error((error as string) || "An error occurred.");
     }
+  };
+  const [tagsDropdownOpen, setTagsDropdownOpen] = useState(false);
+  const handleTagSelect = (tagName: string) => {
+    setSelectedTags((prevTags) =>
+      prevTags.includes(tagName)
+        ? prevTags.filter((tag) => tag !== tagName)
+        : [...prevTags, tagName]
+    );
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -296,6 +315,65 @@ const AddProductPage: React.FC = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-gray-800">Tags</h2>
+          <div className="relative w-full">
+            <button
+              onClick={() => setTagsDropdownOpen(!tagsDropdownOpen)}
+              className="w-full border p-2 rounded bg-white text-gray-800 flex justify-between items-center"
+            >
+              <span>
+                {selectedTags.length > 0
+                  ? selectedTags.join(", ")
+                  : "Select Tags"}
+              </span>
+              <svg
+                className={`w-5 h-5 transition-transform ${
+                  tagsDropdownOpen ? "rotate-180" : ""
+                }`}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 9.707a1 1 0 010-1.414L10 3.586l4.707 4.707a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+            {tagsDropdownOpen && (
+              <ul className="absolute z-10 w-full bg-white border rounded shadow-lg mt-1 max-h-60 overflow-y-auto">
+                {allTags.map((tag) => (
+                  <li
+                    key={tag.name}
+                    onClick={() => handleTagSelect(tag.name)}
+                    className={`p-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                      selectedTags.includes(tag.name) ? "bg-gray-100" : ""
+                    }`}
+                  >
+                    {tag.name}
+                    {selectedTags.includes(tag.name) && (
+                      <svg
+                        className="w-5 h-5 text-green-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 5.707 8.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </motion.div>
       <AddDocumentsSection onDocumentsChange={handleDocumentsChange} />
