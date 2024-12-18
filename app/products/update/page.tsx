@@ -113,7 +113,7 @@ const UpdateProductPage = () => {
         dispatch(retrieveItemCategoriesSuccess());
         setPartners(fetchedPartners);
       } catch (error) {
-        toast.error("Error loading data");
+        toast.error(error as string || "Failed to load product data");
       }
     };
     loadData();
@@ -121,7 +121,6 @@ const UpdateProductPage = () => {
 
   const handleUpdate = async () => {
     try {
-      // Construiește DTO-ul pentru produs
       const updatedProductDTO: ProductDTO = {
         sku,
         name,
@@ -135,17 +134,14 @@ const UpdateProductPage = () => {
         tehnic: technicalSheet ? technicalSheet.name : null,
       };
   
-      // Pregătește datele pentru update
       const formData = new FormData();
       formData.append(
         "productDTO",
         new Blob([JSON.stringify(updatedProductDTO)], { type: "application/json" })
       );
   
-      // Adaugă noile fișiere imagini
       imageFiles.forEach((file) => formData.append("images", file));
   
-      // Adaugă fișierele broschure și tehnic
       if (broschure) {
         formData.append("broschure", broschure);
       }
@@ -153,14 +149,11 @@ const UpdateProductPage = () => {
         formData.append("tehnic", technicalSheet);
       }
   
-      // Trimite request-ul către server
       await productService.updateProduct(user.token, productSku, formData);
   
-      // Notificare de succes
       toast.success("Product updated successfully!");
     } catch (error) {
-      // Tratare eroare
-      console.error("Error updating product:", error);
+      
       toast.error(
         error as string || "Failed to update product. Please try again later."
       );
