@@ -36,28 +36,15 @@ class ProductService extends ApiServer {
   updateProduct = async (
     token: string,
     sku: string,
-    updatedProductDTO: ProductDTO,
-    imageFiles: File[] = [],
-    broschureFile?: File,
-    tehnicFile?: File
+    formData: FormData
   ): Promise<string> => {
-    const formData = new FormData();
-    formData.append("productDTO", new Blob([JSON.stringify(updatedProductDTO)], { type: "application/json" }));
-    imageFiles.forEach((file) => formData.append("images", file));
-    if (broschureFile) {
-      formData.append("broschure", broschureFile);
-    }
-    if (tehnicFile) {
-      formData.append("tehnic", tehnicFile);
-    }
-
     const response = await this.api<FormData, any>(
       `/product/${sku}`,
       "PUT",
       formData,
       token
     );
-
+  
     if (response.status === 200) {
       return await response.text();
     } else {
@@ -65,6 +52,7 @@ class ProductService extends ApiServer {
       return Promise.reject(errorData.message || "Failed to update product");
     }
   };
+  
 
   deleteProduct = async (sku: string, token: string): Promise<string> => {
     const response = await this.api<null, any>(

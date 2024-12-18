@@ -121,6 +121,7 @@ const UpdateProductPage = () => {
 
   const handleUpdate = async () => {
     try {
+      // Construiește DTO-ul pentru produs
       const updatedProductDTO: ProductDTO = {
         sku,
         name,
@@ -130,25 +131,42 @@ const UpdateProductPage = () => {
         itemCategory,
         partnerName: partnerName || "",
         linkVideo: videoLink,
-        images: existingImages.map((img) => img.url),
         broschure: broschure ? broschure.name : null,
         tehnic: technicalSheet ? technicalSheet.name : null,
       };
-
-      await productService.updateProduct(
-        user.token,
-        productSku,
-        updatedProductDTO,
-        imageFiles,
-        broschure || undefined,
-        technicalSheet || undefined
+  
+      // Pregătește datele pentru update
+      const formData = new FormData();
+      formData.append(
+        "productDTO",
+        new Blob([JSON.stringify(updatedProductDTO)], { type: "application/json" })
       );
-
+  
+      // Adaugă noile fișiere imagini
+      imageFiles.forEach((file) => formData.append("images", file));
+  
+      // Adaugă fișierele broschure și tehnic
+      if (broschure) {
+        formData.append("broschure", broschure);
+      }
+      if (technicalSheet) {
+        formData.append("tehnic", technicalSheet);
+      }
+  
+      // Trimite request-ul către server
+      await productService.updateProduct(user.token, productSku, formData);
+  
+      // Notificare de succes
       toast.success("Product updated successfully!");
     } catch (error) {
-      toast.error("Failed to update product");
+      // Tratare eroare
+      console.error("Error updating product:", error);
+      toast.error(
+        error as string || "Failed to update product. Please try again later."
+      );
     }
   };
+  
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) =>
