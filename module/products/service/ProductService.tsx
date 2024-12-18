@@ -42,7 +42,7 @@ class ProductService extends ApiServer {
     tehnicFile?: File
   ): Promise<string> => {
     const formData = new FormData();
-    formData.append("productDTO", JSON.stringify(updatedProductDTO));
+    formData.append("productDTO", new Blob([JSON.stringify(updatedProductDTO)], { type: "application/json" }));
     imageFiles.forEach((file) => formData.append("images", file));
     if (broschureFile) {
       formData.append("broschure", broschureFile);

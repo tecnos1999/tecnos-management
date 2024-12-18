@@ -24,7 +24,7 @@ const Dropzone: React.FC<DropzoneProps> = ({ fileType, currentFile, onFileDrop }
 
   return (
     <div
-      className={`border border-dashed border-gray-400 rounded-lg p-3 text-center cursor-pointer hover:bg-gray-50 transition ${
+      className={`border border-dashed border-gray-400 rounded-lg p-3 text-center cursor-pointer hover:bg-gray-50 transition overflow-hidden ${
         currentFile ? "border-red-500" : ""
       }`}
       {...getRootProps()}
