@@ -14,6 +14,7 @@ import {
   faComments,
   faImages,
   faNewspaper,
+  faTags,
 } from "@fortawesome/free-solid-svg-icons";
 import SidebarItem from "./SidebarItem";
 import { motion } from "framer-motion";
@@ -81,6 +82,12 @@ const menuItems = [
     icon: faNewspaper, 
     color: "bg-cyan-500", 
   },
+  {
+    name: "Tags",
+    path: "tags",
+    icon: faTags, 
+    color: "bg-green-500", 
+  }
   
   
 ];
