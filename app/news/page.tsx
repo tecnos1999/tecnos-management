@@ -1,21 +1,23 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useContext } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import Pagination from "@/module/category/components/Pagination";
 import SearchBar from "@/module/category/components/SearchBar";
 import Dialog from "@/components/Dialog";
 import NewsDTO from "@/module/news/dto/NewsDTO";
 import NewsService from "@/module/news/services/NewsService";
-import TagService from "@/module/tags/services/TagService"; // Importă serviciul pentru tag-uri
+import TagService from "@/module/tags/services/TagService"; 
 import ModalNews from "@/module/news/components/ModalNews";
 import NewsTable from "@/module/news/components/NewsTable";
 import ModalUpdateNews from "@/module/news/components/ModalUpdateNews";
 import TagDTO from "@/module/tags/dto/TagDTO";
+import { LoginContext } from "@/module/context/LoginProvider";
+import LoginContextType from "@/module/context/LoginContextType";
 
 const NewsPage: React.FC = () => {
   const [news, setNews] = useState<NewsDTO[]>([]);
-  const [availableTags, setAvailableTags] = useState<TagDTO[]>([]); // Tag-uri disponibile
+  const [availableTags, setAvailableTags] = useState<TagDTO[]>([]); 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,9 +28,10 @@ const NewsPage: React.FC = () => {
   const [newsToUpdate, setNewsToUpdate] = useState<NewsDTO | null>(null);
 
   const newsService = useMemo(() => new NewsService(), []);
-  const tagService = useMemo(() => new TagService(), []); // Inițializează serviciul pentru tag-uri
+  const tagService = useMemo(() => new TagService(), []); 
 
-  // Fetch all news
+  const { user } = useContext(LoginContext) as LoginContextType;
+
   useEffect(() => {
     const fetchNews = async () => {
       try {
@@ -42,7 +45,6 @@ const NewsPage: React.FC = () => {
     fetchNews();
   }, [newsService]);
 
-  // Fetch available tags
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -64,9 +66,9 @@ const NewsPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (newsToDelete) {
       try {
-        await newsService.deleteNews(newsToDelete.uniqueCode);
+        await newsService.deleteNews(newsToDelete.code, user.token);
         setNews((prev) =>
-          prev.filter((item) => item.uniqueCode !== newsToDelete.uniqueCode)
+          prev.filter((item) => item.code !== newsToDelete.code)
         );
         toast.success(`News "${newsToDelete.title}" deleted successfully.`);
       } catch (error) {
@@ -79,7 +81,7 @@ const NewsPage: React.FC = () => {
 
   const handleAddNews = async (newNews: NewsDTO) => {
     try {
-      const message = await newsService.addNews(newNews);
+      const message = await newsService.addNews(newNews, user.token);
       setNews((prev) => [...prev, newNews]);
       toast.success(message);
       setIsModalOpen(false);
@@ -96,12 +98,13 @@ const NewsPage: React.FC = () => {
   const handleUpdateNews = async (updatedNews: NewsDTO) => {
     try {
       const message = await newsService.updateNews(
-        updatedNews.uniqueCode,
-        updatedNews
+        updatedNews.code,
+        updatedNews,
+        user.token
       );
       setNews((prev) =>
         prev.map((item) =>
-          item.uniqueCode === updatedNews.uniqueCode ? updatedNews : item
+          item.code === updatedNews.code ? updatedNews : item
         )
       );
       toast.success(message);
@@ -143,7 +146,7 @@ const NewsPage: React.FC = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onAddNews={handleAddNews}
-          availableTags={availableTags} // Transmite tag-urile
+          availableTags={availableTags}
         />
 
         <ModalUpdateNews

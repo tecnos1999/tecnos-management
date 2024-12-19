@@ -40,7 +40,7 @@ const NewsTable: React.FC<NewsTableProps> = ({
 
               return (
                 <motion.tr
-                  key={newsItem.uniqueCode}
+                  key={newsItem.code}
                   className="border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}

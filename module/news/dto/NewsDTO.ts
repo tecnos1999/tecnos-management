@@ -1,5 +1,5 @@
 interface NewsDTO {
-    uniqueCode: string;
+    code: string;
     title: string;
     shortDescription: string;
     longDescription: string;

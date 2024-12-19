@@ -77,9 +77,9 @@ const ModalUpdateNews: React.FC<ModalUpdateNewsProps> = ({
 
     if (newsItem) {
       const updatedNews: NewsDTO = {
-        uniqueCode: newsItem.uniqueCode,
+        code: newsItem.code,
         ...formData,
-        tags: selectedTags, // Adăugăm tag-urile selectate
+        tags: selectedTags, 
       };
 
       onUpdateNews(updatedNews);

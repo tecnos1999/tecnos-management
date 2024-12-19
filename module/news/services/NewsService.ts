@@ -2,12 +2,12 @@ import ApiServer from "@/module/system/service/ApiServer";
 import NewsDTO from "../dto/NewsDTO";
 
 class NewsService extends ApiServer {
-  addNews = async (newsDTO: NewsDTO): Promise<string> => {
+  addNews = async (newsDTO: NewsDTO, token: string): Promise<string> => {
     const response = await this.api<NewsDTO, string>(
       `/news`,
       "POST",
       newsDTO,
-      ""
+      token 
     );
     if (response.status === 201) {
       return await response.text();
@@ -16,12 +16,16 @@ class NewsService extends ApiServer {
     }
   };
 
-  updateNews = async (uniqueCode: string, newsDTO: NewsDTO): Promise<string> => {
+  updateNews = async (
+    uniqueCode: string,
+    newsDTO: NewsDTO,
+    token: string
+  ): Promise<string> => {
     const response = await this.api<NewsDTO, string>(
       `/news/${uniqueCode}`,
       "PUT",
       newsDTO,
-      ""
+      token 
     );
     if (response.status === 200) {
       return await response.text();
@@ -30,12 +34,12 @@ class NewsService extends ApiServer {
     }
   };
 
-  deleteNews = async (uniqueCode: string): Promise<string> => {
+  deleteNews = async (uniqueCode: string, token: string): Promise<string> => {
     const response = await this.api<null, string>(
       `/news/${uniqueCode}`,
       "DELETE",
       null,
-      ""
+      token
     );
     if (response.status === 200) {
       return await response.text();
@@ -49,7 +53,7 @@ class NewsService extends ApiServer {
       `/news`,
       "GET",
       null,
-      ""
+      "" // Token-ul nu este necesar pentru fetch
     );
     if (response.status === 200) {
       return await response.json();

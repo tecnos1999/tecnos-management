@@ -11,7 +11,7 @@ interface ModalAddNewsProps {
   isOpen: boolean;
   onClose: () => void;
   onAddNews: (newNews: NewsDTO) => void;
-  availableTags: TagDTO[]; // Lista de tag-uri disponibile
+  availableTags: TagDTO[];
 }
 
 const ModalAddNews: React.FC<ModalAddNewsProps> = ({
@@ -24,7 +24,7 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
     title: string;
     shortDescription: string;
     longDescription: string;
-    tags: TagDTO[]; // Selecție tag-uri
+    tags: TagDTO[];
     icon: string;
   }>({
     title: "",
@@ -38,7 +38,6 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
 
   useEffect(() => {
     if (!isOpen) {
-      // Resetare când modalul se închide
       setFormData({
         title: "",
         shortDescription: "",
@@ -75,7 +74,6 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
     e.preventDefault();
 
     const newNews: NewsDTO = {
-      uniqueCode: `NEWS-${Date.now()}`, // Generăm un cod unic
       ...formData,
       tags: selectedTags, // Adăugăm tag-urile selectate
     };
