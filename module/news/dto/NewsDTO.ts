@@ -1,9 +1,11 @@
+import TagDTO from "@/module/tags/dto/TagDTO";
+
 interface NewsDTO {
-    code: string;
+    code?: string;
     title: string;
     shortDescription: string;
     longDescription: string;
-    tags: { name: string; color: string }[];
+    tags: TagDTO[];
     icon: string;
   }
   

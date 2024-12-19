@@ -66,6 +66,9 @@ const NewsPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (newsToDelete) {
       try {
+        if (newsToDelete.code === undefined) {
+          throw new Error("News code is missing.");
+        }
         await newsService.deleteNews(newsToDelete.code, user.token);
         setNews((prev) =>
           prev.filter((item) => item.code !== newsToDelete.code)
@@ -81,14 +84,15 @@ const NewsPage: React.FC = () => {
 
   const handleAddNews = async (newNews: NewsDTO) => {
     try {
-      const message = await newsService.addNews(newNews, user.token);
-      setNews((prev) => [...prev, newNews]);
-      toast.success(message);
-      setIsModalOpen(false);
+      const response = await newsService.addNews(newNews, user.token);
+      toast.success("News added successfully.");
+      setNews((prev) => [...prev, response as NewsDTO]);
+      setIsModalOpen(false); 
     } catch (error) {
       toast.error(error as string);
     }
   };
+  
 
   const handleEditRequest = (newsItem: NewsDTO) => {
     setNewsToUpdate(newsItem);
@@ -97,6 +101,10 @@ const NewsPage: React.FC = () => {
 
   const handleUpdateNews = async (updatedNews: NewsDTO) => {
     try {
+
+      if (updatedNews.code === undefined) {
+        throw new Error("News code is missing.");
+      }
       const message = await newsService.updateNews(
         updatedNews.code,
         updatedNews,
@@ -178,7 +186,7 @@ const NewsPage: React.FC = () => {
           onCancel={() => setIsDialogOpen(false)}
         />
       </div>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-center" autoClose={3000} />
     </div>
   );
 };

@@ -24,7 +24,8 @@ const NewsTable: React.FC<NewsTableProps> = ({
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-100 text-gray-600 text-left text-sm uppercase tracking-wide">
-            <th className="py-3 px-6 rounded-l-lg">Title</th>
+            <th className="py-3 px-6 rounded-l-lg">Code</th>
+            <th className="py-3 px-6 ">Title</th>
             <th className="py-3 px-6">Tags</th>
             <th className="py-3 px-6">Icon</th>
             <th className="py-3 px-6 rounded-r-lg">Actions</th>
@@ -33,7 +34,6 @@ const NewsTable: React.FC<NewsTableProps> = ({
         <tbody>
           {currentItems.length > 0 ? (
             currentItems.map((newsItem) => {
-              // Găsim iconița în lista `freeIcons` pe baza numelui
               const iconEntry = freeIcons.find(
                 (icon) => icon.name === newsItem.icon.toLowerCase()
               );
@@ -46,6 +46,9 @@ const NewsTable: React.FC<NewsTableProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
+                  <td className="py-3 px-6 text-gray-800 font-medium">
+                    {newsItem.code}
+                  </td>
                   <td className="py-3 px-6 text-gray-800 font-medium">
                     {newsItem.title}
                   </td>
@@ -81,7 +84,7 @@ const NewsTable: React.FC<NewsTableProps> = ({
                       onClick={() => handleDelete(newsItem)}
                       className="bg-red-500 hover:bg-red-600 text-white rounded-full p-2 w-8 h-8 flex items-center justify-center transition"
                     >
-                      <FontAwesomeIcon icon={faTrashAlt}/>
+                      <FontAwesomeIcon icon={faTrashAlt} />
                     </button>
                   </td>
                 </motion.tr>

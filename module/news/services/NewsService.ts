@@ -2,19 +2,20 @@ import ApiServer from "@/module/system/service/ApiServer";
 import NewsDTO from "../dto/NewsDTO";
 
 class NewsService extends ApiServer {
-  addNews = async (newsDTO: NewsDTO, token: string): Promise<string> => {
-    const response = await this.api<NewsDTO, string>(
+  addNews = async (newsDTO: NewsDTO, token: string): Promise<NewsDTO> => {
+    const response = await this.api<NewsDTO, NewsDTO>(
       `/news`,
       "POST",
       newsDTO,
-      token 
+      token
     );
     if (response.status === 201) {
-      return await response.text();
+      return await response.json();
     } else {
-      throw new Error("Failed to add news.");
+      throw new Error(response.message || "Failed to add news.");
     }
   };
+  
 
   updateNews = async (
     uniqueCode: string,
@@ -53,7 +54,7 @@ class NewsService extends ApiServer {
       `/news`,
       "GET",
       null,
-      "" // Token-ul nu este necesar pentru fetch
+      "" 
     );
     if (response.status === 200) {
       return await response.json();

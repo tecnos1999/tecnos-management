@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NewsDTO from "../dto/NewsDTO";
 import TagDTO from "@/module/tags/dto/TagDTO";
 import { freeIcons } from "@/system/utils";
+import { toast } from "react-toastify";
 
 interface ModalAddNewsProps {
   isOpen: boolean;
@@ -72,15 +73,25 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    if (!formData.icon) {
+      toast.error("Please select an icon.");
+      return;
+    }
+  
     const newNews: NewsDTO = {
-      ...formData,
-      tags: selectedTags, // Adăugăm tag-urile selectate
+      title: formData.title,
+      shortDescription: formData.shortDescription,
+      longDescription: formData.longDescription,
+      tags: selectedTags,
+      icon: formData.icon,
     };
-
+  
     onAddNews(newNews);
     onClose();
   };
+  
+  
 
   if (!isOpen) return null;
 
