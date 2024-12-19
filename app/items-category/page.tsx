@@ -104,9 +104,12 @@ const ItemCategoryPage: React.FC = () => {
     }
   };
 
-  const filteredItemCategories = itemCategories.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredItemCategories = (itemCategories || []).filter(
+    (item) =>
+      item.name &&
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
   const totalPages = Math.ceil(filteredItemCategories.length / itemsPerPage);
   const currentItems = filteredItemCategories.slice(

@@ -1,5 +1,6 @@
 import ApiServer from "@/module/system/service/ApiServer";
 import { ItemCategory } from "../models/ItemCategory";
+import { ItemCategoryDTO } from "../dto/ItemCategoryDTO";
 
 class ItemCategoryService extends ApiServer {
   createItemCategory = async (
@@ -23,7 +24,7 @@ class ItemCategoryService extends ApiServer {
     throw new Error(errorData.message || "Failed to create item category");
   };
 
-  getItemCategories = async (): Promise<ItemCategory[]> => {
+  getItemCategories = async (): Promise<ItemCategoryDTO[]> => {
    
     const response = await this.api<null, any>(
       `/itemcategory/all`,

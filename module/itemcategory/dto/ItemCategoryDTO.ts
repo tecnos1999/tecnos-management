@@ -1,4 +1,4 @@
-export interface ItemCategory {
+export interface ItemCategoryDTO {
     name: string;
     product: string[];
     createdAt: Date;
