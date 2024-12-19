@@ -100,8 +100,12 @@ const SubcategoryPage: React.FC = () => {
     setSubcategoryToEdit(null);
   };
 
-  const filteredSubcategories = subcategories.filter((subcategory) =>
-    subcategory.name.toLowerCase().includes(searchTerm.toLowerCase())
+
+
+  const filteredSubcategories = (subcategories|| []).filter(
+    (item) =>
+      item.name &&
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredSubcategories.length / itemsPerPage);
