@@ -54,10 +54,10 @@ const WebinarsTable: React.FC<WebinarsTableProps> = ({
                 transition={{ duration: 0.3 }}
               >
                 <td className="py-3 px-6">
-                  {webinar.image?.url ? (
+                  {webinar.imageUrl ? (
                     <div className="w-[100px] h-[100px] flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
                       <img
-                        src={webinar.image.url}
+                        src={webinar.imageUrl}
                         alt={webinar.title}
                         className="w-full h-full object-cover"
                       />

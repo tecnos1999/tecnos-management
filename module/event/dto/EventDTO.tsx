@@ -1,4 +1,3 @@
-import ImageDTO from "@/module/image/dto/ImageDTO";
 
 export default interface EventDTO {
   eventCode: string; 
@@ -7,5 +6,5 @@ export default interface EventDTO {
   externalLink?: string; 
   createdAt?: string; 
   updatedAt?: string; 
-  image?: ImageDTO; 
+  imageUrl?: string; 
 }

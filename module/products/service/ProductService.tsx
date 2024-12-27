@@ -10,20 +10,23 @@ class ProductService extends ApiServer {
     tehnicFile?: File
   ): Promise<string> => {
     const formData = new FormData();
-    formData.append("productDTO", new Blob([JSON.stringify(productDTO)], { type: "application/json" }));
-    
+    formData.append(
+      "productDTO",
+      new Blob([JSON.stringify(productDTO)], { type: "application/json" })
+    );
+
     imageFiles.forEach((file) => formData.append("images", file));
-    
+
     if (broschureFile) formData.append("broschure", broschureFile);
     if (tehnicFile) formData.append("tehnic", tehnicFile);
-  
+
     const response = await this.api<FormData, any>(
       `/product/`,
       "POST",
       formData,
       token
     );
-  
+
     if (response.status === 200) {
       return await response.text();
     } else {
@@ -31,7 +34,6 @@ class ProductService extends ApiServer {
       return Promise.reject(errorData.message || "Failed to create product");
     }
   };
-  
 
   updateProduct = async (
     token: string,
@@ -44,7 +46,7 @@ class ProductService extends ApiServer {
       formData,
       token
     );
-  
+
     if (response.status === 200) {
       return await response.text();
     } else {
@@ -52,7 +54,6 @@ class ProductService extends ApiServer {
       return Promise.reject(errorData.message || "Failed to update product");
     }
   };
-  
 
   deleteProduct = async (sku: string, token: string): Promise<string> => {
     const response = await this.api<null, any>(
@@ -87,12 +88,7 @@ class ProductService extends ApiServer {
   };
 
   getProducts = async (): Promise<ProductDTO[]> => {
-    const response = await this.api<null, any>(
-      `/product/all`,
-      "GET",
-      null,
-      ""
-    );
+    const response = await this.api<null, any>(`/product/all`, "GET", null, "");
 
     if (response.status === 200) {
       return (await response.json()) as ProductDTO[];

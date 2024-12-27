@@ -40,16 +40,16 @@ const PartnersTable: React.FC<PartnersTableProps> = ({
                 transition={{ duration: 0.3 }}
               >
                 <td className="py-3 px-6">
-                  {partner.image?.url ? (
-                    <div className="w-16 h-16 flex items-center justify-center rounded-full overflow-hidden bg-gray-100">
+                  {partner.imageUrl ? (
+                    <div className="w-16 h-16 flex items-center justify-center  overflow-hidden bg-gray-100">
                       <img
-                        src={partner.image.url}
+                        src={partner.imageUrl}
                         alt={partner.name}
                         className="w-full h-full object-contain"
                       />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full">
+                    <div className="w-16 h-16 bg-gray-200 flex items-center justify-center ">
                       <span className="text-[10px] text-center text-gray-500">
                         No Image
                       </span>

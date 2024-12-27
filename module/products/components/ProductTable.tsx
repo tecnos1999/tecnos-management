@@ -50,7 +50,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 <td className="py-3 px-6">
                   <img
                     src={
-                      product.images?.[0]?.url || "https://via.placeholder.com/100"
+                      product.images?.[0] || "https://via.placeholder.com/100"
                     }
                     alt={product.name}
                     className="w-16 h-16 object-cover rounded"

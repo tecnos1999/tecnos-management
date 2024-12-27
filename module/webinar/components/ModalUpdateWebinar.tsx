@@ -27,7 +27,7 @@ const ModalUpdateWebinar: React.FC<ModalUpdateWebinarProps> = ({
     if (webinar) {
       setTitle(webinar.title || "");
       setExternalLink(webinar.externalLink || "");
-      setPreviewImage(webinar.image?.url || null);
+      setPreviewImage(webinar.imageUrl || null);
     }
   }, [webinar]);
 

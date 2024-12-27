@@ -41,10 +41,10 @@ const EventsTable: React.FC<EventsTableProps> = ({
                 transition={{ duration: 0.3 }}
               >
                 <td className="py-3 px-6">
-                  {event.image?.url ? (
+                  {event.imageUrl ? (
                     <div className="w-16 h-16 flex items-center justify-center rounded-full overflow-hidden bg-gray-100">
                       <img
-                        src={event.image.url}
+                        src={event.imageUrl}
                         alt={event.title}
                         className="w-full h-full object-contain"
                       />
@@ -60,9 +60,7 @@ const EventsTable: React.FC<EventsTableProps> = ({
                 <td className="py-3 px-6 text-gray-800 font-medium">
                   {event.title}
                 </td>
-                <td className="py-3 px-6 text-gray-600">
-                  {event.description}
-                </td>
+                <td className="py-3 px-6 text-gray-600">{event.description}</td>
                 <td className="py-3 px-6 text-gray-600">
                   {new Date(event.createdAt || "").toLocaleDateString()}
                 </td>

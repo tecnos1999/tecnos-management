@@ -1,4 +1,3 @@
-import ImageDTO from "@/module/image/dto/ImageDTO";
 
 export interface PartnerDTO {
   name: string;
@@ -6,5 +5,5 @@ export interface PartnerDTO {
   catalogFile?: string; 
   createdAt?: string;
   updatedAt?: string;
-  image?: ImageDTO;
+  imageUrl?: string;
 }

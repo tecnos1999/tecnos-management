@@ -48,7 +48,8 @@ const UpdateProductPage = () => {
   const [partnerName, setPartnerName] = useState<string | null>(null);
   const [partners, setPartners] = useState<PartnerDTO[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState<{ url: string }[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
 
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
@@ -64,6 +65,7 @@ const UpdateProductPage = () => {
   const categories = useSelector(selectCategories);
   const subcategories = useSelector(selectSubcategories);
   const itemCategories = useSelector(selectItemCategories);
+
   const containerVariants = {
     initial: { opacity: 0, scale: 0.9 },
     animate: {
@@ -83,6 +85,7 @@ const UpdateProductPage = () => {
   const [tagsDropdownOpen, setTagsDropdownOpen] = useState(false);
 
   const tagService = useMemo(() => new TagService(), []);
+
   const handleTagSelect = (tagName: string) => {
     setSelectedTags((prevTags) =>
       prevTags.includes(tagName)
@@ -90,6 +93,7 @@ const UpdateProductPage = () => {
         : [...prevTags, tagName]
     );
   };
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -107,7 +111,7 @@ const UpdateProductPage = () => {
         setTechnicalSheet(product.tehnic ? new File([], product.tehnic) : null);
         setVideoLink(product.linkVideo || "");
         setExistingImages(product.images || []);
-        setSelectedTags(product.tags || []); // Setăm tag-urile selectate
+        setSelectedTags(product.tags || []);
 
         const [
           fetchedCategories,
@@ -144,14 +148,16 @@ const UpdateProductPage = () => {
         sku,
         name,
         description,
-        category,
-        subCategory,
-        itemCategory,
-        partnerName: partnerName || "",
-        linkVideo: videoLink,
+        category: category || null,
+        subCategory: subCategory || null,
+        itemCategory: itemCategory || null,
+        partnerName: partnerName || null,
+        linkVideo: videoLink || null,
         broschure: broschure ? broschure.name : null,
         tehnic: technicalSheet ? technicalSheet.name : null,
-        tags: selectedTags,
+        tags: selectedTags.length > 0 ? selectedTags : null,
+        images: existingImages,
+        imagesToRemove: imagesToRemove.length > 0 ? imagesToRemove : null,
       };
 
       const formData = new FormData();
@@ -164,12 +170,8 @@ const UpdateProductPage = () => {
 
       imageFiles.forEach((file) => formData.append("images", file));
 
-      if (broschure) {
-        formData.append("broschure", broschure);
-      }
-      if (technicalSheet) {
-        formData.append("tehnic", technicalSheet);
-      }
+      if (broschure) formData.append("broschure", broschure);
+      if (technicalSheet) formData.append("tehnic", technicalSheet);
 
       await productService.updateProduct(user.token, productSku, formData);
 
@@ -186,20 +188,20 @@ const UpdateProductPage = () => {
       setImageFiles((prev) => [...prev, ...acceptedFiles]),
     accept: { "image/*": [] },
   });
+
   const handleRemoveExistingImage = (index: number) => {
+    const removedImage = existingImages[index];
+    setImagesToRemove((prev) => [...prev, removedImage]);
     setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleRemoveNewImage = (index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
   };
+
   return (
     <div className="container min-h-screen p-4 grid grid-cols-3 gap-4">
-      <HeaderContainer
-        onCancel={() => {}}
-        onSubmit={handleUpdate}
-        isEditMode={true}
-      />
+      <HeaderContainer onCancel={() => {}} onSubmit={handleUpdate} isEditMode />
       <motion.div
         className="col-[1/3] row-[2/6] bg-white p-6 rounded-xl shadow-md border border-gray-200"
         variants={containerVariants}
@@ -238,7 +240,7 @@ const UpdateProductPage = () => {
           <div className="flex gap-2">
             {existingImages.map((img, index) => (
               <div key={index} className="relative">
-                <img src={img.url} className="w-20 h-20 object-cover" />
+                <img src={img} className="w-20 h-20 object-cover" />
                 <button onClick={() => handleRemoveExistingImage(index)}>
                   <FaTimesCircle className="text-red-600 absolute top-0 right-0" />
                 </button>
@@ -349,29 +351,28 @@ const UpdateProductPage = () => {
               <ul className="absolute z-10 w-full bg-white border rounded shadow-lg mt-1 max-h-60 overflow-y-auto">
                 {allTags.map((tag) => (
                   <li
-                  key={tag.name}
-                  onClick={() => handleTagSelect(tag.name)}
-                  className={`p-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
-                    selectedTags.includes(tag.name) ? "bg-gray-100" : ""
-                  }`}
-                >
-                  {tag.name}
-                  {selectedTags.includes(tag.name) && (
-                    <svg
-                      className="w-5 h-5 text-green-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 5.707 8.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
-                </li>
-                
+                    key={tag.name}
+                    onClick={() => handleTagSelect(tag.name)}
+                    className={`p-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                      selectedTags.includes(tag.name) ? "bg-gray-100" : ""
+                    }`}
+                  >
+                    {tag.name}
+                    {selectedTags.includes(tag.name) && (
+                      <svg
+                        className="w-5 h-5 text-green-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 5.707 8.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </li>
                 ))}
               </ul>
             )}
