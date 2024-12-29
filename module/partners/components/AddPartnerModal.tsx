@@ -59,7 +59,7 @@ const AddPartnerModal: React.FC<AddPartnerModalProps> = ({
       catalogFile: "",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      image: { url: "", type: "" },
+      imageUrl: "",
     };
 
     onSavePartner(newPartner, logo, catalogFile);
