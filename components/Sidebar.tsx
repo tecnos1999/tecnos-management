@@ -15,6 +15,7 @@ import {
   faImages,
   faNewspaper,
   faTags,
+  faQuoteRight,
 } from "@fortawesome/free-solid-svg-icons";
 import SidebarItem from "./SidebarItem";
 import { motion } from "framer-motion";
@@ -88,6 +89,14 @@ const menuItems = [
     icon: faTags, 
     color: "bg-green-500", 
   }
+
+  ,{
+    name: "Motto",
+    path: "motto",
+    icon: faQuoteRight, 
+    color: "bg-blue-500", 
+  }
+
   
   
 ];
@@ -163,36 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
       </nav>
 
       <div className="absolute bottom-0 w-full p-4 bg-zinc-900">
-        <motion.div
-          className="flex items-center hover:bg-zinc-700 p-2 rounded cursor-pointer transition-all duration-300"
-          whileHover={{ scale: 1.05 }}
-        >
-          <Image
-            src="https://gravatar.com/avatar/4474ca42d303761c2901fa819c4f2547"
-            alt="avatar"
-            className="w-10 h-10 rounded-full"
-            width={40}
-            height={40}
-          />
-          {isNavOpen && (
-            <motion.div
-              className="ml-3 flex flex-col"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.4, ease: "easeInOut" }}
-            >
-              <span className="text-white font-bold">
-                {user?.firstName.charAt(0).toUpperCase() +
-                  user?.firstName.slice(1) || "User"}{" "}
-                {user?.lastName.charAt(0).toUpperCase() +
-                  user?.lastName.slice(1) || "User"}
-              </span>
-              <span className="text-red-600 font-semibold text-sm">
-                {user?.userRole || "Role"}
-              </span>
-            </motion.div>
-          )}
-        </motion.div>
+        
 
         <motion.div
           className="flex items-center justify-center mt-4 hover:bg-zinc-700 p-2 rounded cursor-pointer transition-all duration-300"

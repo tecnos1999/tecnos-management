@@ -1,19 +1,19 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
-import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import CarouselDTO from "../dto/CarouselDTO";
+import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { motion } from "framer-motion";
+import MottoDTO from "../dto/MottoDTO";
 import { formatDateTime } from "@/system/utils";
 
-interface CarouselTableProps {
-  currentItems: CarouselDTO[];
-  handleEdit: (item: CarouselDTO) => void;
-  handleDelete: (item: CarouselDTO) => void;
+interface MottoTableProps {
+  currentItems: MottoDTO[];
+  handleEdit: (item: MottoDTO) => void;
+  handleDelete: (item: MottoDTO) => void;
 }
 
-const CarouselTable: React.FC<CarouselTableProps> = ({
+const MottoTable: React.FC<MottoTableProps> = ({
   currentItems,
   handleEdit,
   handleDelete,
@@ -23,10 +23,9 @@ const CarouselTable: React.FC<CarouselTableProps> = ({
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-100 text-gray-600 text-left text-sm uppercase tracking-wide">
-            <th className="py-3 px-6">Code</th>
-            <th className="py-3 px-6">Preview</th>
-            <th className="py-3 px-6">Type</th>
+            <th className="py-3 px-6">Text</th>
             <th className="py-3 px-6">Created At</th>
+            <th className="py-3 px-6">Updated At</th>
             <th className="py-3 px-6 rounded-r-lg">Actions</th>
           </tr>
         </thead>
@@ -41,32 +40,15 @@ const CarouselTable: React.FC<CarouselTableProps> = ({
                 transition={{ duration: 0.3 }}
               >
                 <td className="py-3 px-6 text-gray-800 font-medium">
-                  {item.code}
+                  {item.content}
                 </td>
-                <td className="py-3 px-6 text-gray-600 truncate max-w-xs">
-                  {item.type === "image" ? (
-                    <img
-                      src={item.fileUrl}
-                      alt="Carousel item"
-                      className="w-32 h-32 object-cover rounded-lg"
-                    />
-                  ) : (
-                    <video
-                      src={item.fileUrl}
-                      controls
-                      className="w-32 h-32 rounded-lg"
-                    >
-                      Your browser does not support the video tag.
-                    </video>
-                  )}
-                </td>
-                <td className="py-3 px-6 text-gray-800 font-medium">
-                  {item.type}
-                </td>
-
                 <td className="py-3 px-6 text-gray-600">
                   {formatDateTime(item.createdAt)}
                 </td>
+                <td className="py-3 px-6 text-gray-600">
+                  {formatDateTime(item.updatedAt)}
+                </td>
+
                 <td className="py-3 px-6 flex items-center space-x-4">
                   <button
                     onClick={() => handleEdit(item)}
@@ -85,8 +67,8 @@ const CarouselTable: React.FC<CarouselTableProps> = ({
             ))
           ) : (
             <tr>
-              <td colSpan={5} className="text-center py-6 text-gray-500">
-                No items found.
+              <td colSpan={3} className="text-center py-6 text-gray-500">
+                No mottos found.
               </td>
             </tr>
           )}
@@ -96,4 +78,4 @@ const CarouselTable: React.FC<CarouselTableProps> = ({
   );
 };
 
-export default CarouselTable;
+export default MottoTable;

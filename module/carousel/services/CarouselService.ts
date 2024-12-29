@@ -32,7 +32,10 @@ class CarouselService extends ApiServer {
     token: string
   ): Promise<string> => {
     const formData = new FormData();
-    formData.append("carousel", JSON.stringify(carouselDTO));
+    formData.append(
+        "carousel",
+        new Blob([JSON.stringify(carouselDTO)], { type: "application/json" })
+      );
     if (file) {
       formData.append("file", file);
     }

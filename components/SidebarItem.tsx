@@ -32,7 +32,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
   return (
     <li
-      className={`flex items-center p-3 ${isNavOpen ? "" : "justify-center"} cursor-pointer rounded-md transition-all duration-300 relative`}
+      className={`flex items-center px-3 py-2 ${isNavOpen ? "" : "justify-center"} cursor-pointer rounded-md transition-all duration-300 relative`}
       onClick={() => onClick(name)}
       onMouseEnter={() => onHover(name)}
       onMouseLeave={() => onHover("")}
