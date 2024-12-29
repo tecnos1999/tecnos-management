@@ -248,6 +248,7 @@ const UpdateProductPage = () => {
           <div className="flex gap-2">
             {existingImages.map((img, index) => (
               <div key={index} className="relative">
+                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img} className="w-20 h-20 object-cover" />
                 <button onClick={() => handleRemoveExistingImage(index)}>
                   <FaTimesCircle className="text-red-600 absolute top-0 right-0" />
@@ -256,6 +257,7 @@ const UpdateProductPage = () => {
             ))}
             {imageFiles.map((file, index) => (
               <div key={index} className="relative">
+                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={URL.createObjectURL(file)}
                   className="w-20 h-20 object-cover"

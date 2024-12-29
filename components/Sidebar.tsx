@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
   )?.name || "Dashboard";
   
 
-  const { user, logOut } = useContext(LoginContext) as LoginContextType;
+  const { logOut } = useContext(LoginContext) as LoginContextType;
 
   return (
     <motion.div

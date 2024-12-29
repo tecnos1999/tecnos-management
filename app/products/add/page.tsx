@@ -149,7 +149,7 @@ const AddProductPage: React.FC = () => {
         tehnic: null,
         linkVideo: documents.videoLink || "",
         partnerName: partnerName,
-        tags: selectedTags, // Adăugăm tag-urile selectate
+        tags: selectedTags, 
       };
 
       await productService.createProduct(
