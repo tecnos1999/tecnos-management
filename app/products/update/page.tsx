@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -60,12 +60,15 @@ const UpdateProductPage = () => {
   const subcategoryService = useMemo(() => new SubcategoryService(), []);
   const itemCategoryService = useMemo(() => new ItemCategoryService(), []);
   const partnersService = useMemo(() => new PartnersService(), []);
+  const tagService = useMemo(() => new TagService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
 
   const categories = useSelector(selectCategories);
   const subcategories = useSelector(selectSubcategories);
   const itemCategories = useSelector(selectItemCategories);
-
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [allTags, setAllTags] = useState<TagDTO[]>([]);
+  const [tagsDropdownOpen, setTagsDropdownOpen] = useState(false);
   const containerVariants = {
     initial: { opacity: 0, scale: 0.9 },
     animate: {
@@ -80,11 +83,8 @@ const UpdateProductPage = () => {
     },
   };
 
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [allTags, setAllTags] = useState<TagDTO[]>([]);
-  const [tagsDropdownOpen, setTagsDropdownOpen] = useState(false);
 
-  const tagService = useMemo(() => new TagService(), []);
+
 
   const handleTagSelect = (tagName: string) => {
     setSelectedTags((prevTags) =>
@@ -94,53 +94,61 @@ const UpdateProductPage = () => {
     );
   };
 
+  const loadData = useCallback(async () => {
+    try {
+      const product = await productService.getProductBySku(productSku);
+      setSku(product.sku);
+      setName(product.name);
+      setDescription(product.description);
+      setItemCategory(product.itemCategory || "");
+      setCategory(product.category || "");
+      setSubCategory(product.subCategory || "");
+      setPartnerName(product.partnerName || "");
+      setBroschure(product.broschure ? new File([], product.broschure) : null);
+      setTechnicalSheet(product.tehnic ? new File([], product.tehnic) : null);
+      setVideoLink(product.linkVideo || "");
+      setExistingImages(product.images || []);
+      setSelectedTags(product.tags || []);
+
+      const [
+        fetchedCategories,
+        fetchedSubcategories,
+        fetchedItemCategories,
+        fetchedPartners,
+        fetchedTags,
+      ] = await Promise.all([
+        categoryService.getCategories(),
+        subcategoryService.getSubcategories(),
+        itemCategoryService.getItemCategories(),
+        partnersService.getAllPartners(),
+        tagService.getAllTags(),
+      ]);
+
+      dispatch(loadCategories(fetchedCategories));
+      dispatch(retrieveCategoriesSuccess());
+      dispatch(loadSubcategories(fetchedSubcategories));
+      dispatch(retrieveSubcategoriesSuccess());
+      dispatch(loadItemCategories(fetchedItemCategories));
+      dispatch(retrieveItemCategoriesSuccess());
+      setPartners(fetchedPartners);
+      setAllTags(fetchedTags);
+    } catch (error) {
+      toast.error((error as string) || "Failed to load product data");
+    }
+  }, [
+    productService,
+    categoryService,
+    subcategoryService,
+    itemCategoryService,
+    partnersService,
+    tagService,
+    productSku,
+    dispatch,
+  ]);
+
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const product = await productService.getProductBySku(productSku);
-        setSku(product.sku);
-        setName(product.name);
-        setDescription(product.description);
-        setItemCategory(product.itemCategory || "");
-        setCategory(product.category || "");
-        setSubCategory(product.subCategory || "");
-        setPartnerName(product.partnerName || "");
-        setBroschure(
-          product.broschure ? new File([], product.broschure) : null
-        );
-        setTechnicalSheet(product.tehnic ? new File([], product.tehnic) : null);
-        setVideoLink(product.linkVideo || "");
-        setExistingImages(product.images || []);
-        setSelectedTags(product.tags || []);
-
-        const [
-          fetchedCategories,
-          fetchedSubcategories,
-          fetchedItemCategories,
-          fetchedPartners,
-          fetchedTags,
-        ] = await Promise.all([
-          categoryService.getCategories(),
-          subcategoryService.getSubcategories(),
-          itemCategoryService.getItemCategories(),
-          partnersService.getAllPartners(),
-          tagService.getAllTags(),
-        ]);
-
-        dispatch(loadCategories(fetchedCategories));
-        dispatch(retrieveCategoriesSuccess());
-        dispatch(loadSubcategories(fetchedSubcategories));
-        dispatch(retrieveSubcategoriesSuccess());
-        dispatch(loadItemCategories(fetchedItemCategories));
-        dispatch(retrieveItemCategoriesSuccess());
-        setPartners(fetchedPartners);
-        setAllTags(fetchedTags);
-      } catch (error) {
-        toast.error((error as string) || "Failed to load product data");
-      }
-    };
     loadData();
-  }, [productSku, productService]);
+  }, [loadData]);
 
   const handleUpdate = async () => {
     try {

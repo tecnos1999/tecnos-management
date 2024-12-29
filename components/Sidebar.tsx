@@ -21,7 +21,6 @@ import SidebarItem from "./SidebarItem";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { LoginContext } from "@/module/context/LoginProvider";
 import LoginContextType from "@/module/context/LoginContextType";
 import { determinePath } from "@/system/utils";

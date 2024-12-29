@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useContext } from "react";
+import React, { useState, useEffect, useMemo, useContext, useCallback } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import Dialog from "@/components/Dialog";
 import ModalCarousel from "@/module/carousel/components/ModalCarousel";
@@ -27,7 +27,7 @@ const CarouselPage: React.FC = () => {
   const carouselService = useMemo(() => new CarouselService(), []);
   const { user } = useContext(LoginContext) as LoginContextType;
 
-  const fetchCarouselItems = async () => {
+  const fetchCarouselItems = useCallback(async () => {
     try {
       const items = await carouselService.getAllCarouselItems();
       setCarouselItems(items || []);
@@ -36,11 +36,11 @@ const CarouselPage: React.FC = () => {
         error instanceof Error ? error.message : "Failed to fetch carousel items."
       );
     }
-  };
+  }, [carouselService]);
 
   useEffect(() => {
     fetchCarouselItems();
-  }, [carouselService]);
+  }, [fetchCarouselItems]);
 
   const handleDeleteRequest = (item: CarouselDTO) => {
     setItemToDelete(item);
