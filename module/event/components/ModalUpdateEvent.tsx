@@ -29,7 +29,7 @@ const ModalUpdateEvent: React.FC<ModalUpdateEventProps> = ({
       setTitle(event.title || "");
       setDescription(event.description || "");
       setExternalLink(event.externalLink || "");
-      setPreviewImage(event.image?.url || null);
+      setPreviewImage(event.imageUrl || null);
     }
   }, [event]);
 

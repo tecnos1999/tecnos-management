@@ -162,7 +162,7 @@ const NewsPage: React.FC = () => {
           newsItem={newsToUpdate}
           onClose={() => setIsUpdateModalOpen(false)}
           onUpdateNews={handleUpdateNews}
-          availableTags={availableTags} // Transmite tag-urile
+          availableTags={availableTags} 
         />
 
         <NewsTable
