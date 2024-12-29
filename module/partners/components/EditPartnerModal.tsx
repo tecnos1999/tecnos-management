@@ -30,7 +30,7 @@ const EditPartnerModal: React.FC<EditPartnerModalProps> = ({
     catalogFile: null as File | null,
   });
   const [previewLogo, setPreviewLogo] = useState<string | null>(
-    partner?.image?.url || null
+    partner?.imageUrl || null
   );
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const EditPartnerModal: React.FC<EditPartnerModalProps> = ({
         logo: null,
         catalogFile: null,
       });
-      setPreviewLogo(partner.image?.url || null);
+      setPreviewLogo(partner.imageUrl || null);
     }
   }, [partner]);
 
@@ -75,9 +75,7 @@ const EditPartnerModal: React.FC<EditPartnerModalProps> = ({
       catalogFile: partner?.catalogFile || "",
       createdAt: partner?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      image: previewLogo
-        ? { url: previewLogo, type: logo?.type || "" }
-        : partner?.image || { url: "", type: "" },
+      imageUrl: previewLogo || partner?.imageUrl || "",
     };
 
     onSavePartner(updatedPartner, logo, catalogFile);
