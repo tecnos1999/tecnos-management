@@ -16,6 +16,9 @@ import {
   faNewspaper,
   faTags,
   faQuoteRight,
+  faParagraph,
+  faPenNib,
+  faListUl,
 } from "@fortawesome/free-solid-svg-icons";
 import SidebarItem from "./SidebarItem";
 import { motion } from "framer-motion";
@@ -94,8 +97,26 @@ const menuItems = [
     path: "motto",
     icon: faQuoteRight, 
     color: "bg-blue-500", 
-  }
-
+  },
+  
+  {
+    name: "Caption",
+    path: "caption",
+    icon: faParagraph,
+    color: "bg-orange-500",
+  },
+  {
+    name: "Blogs",
+    path: "blogs",
+    icon: faPenNib,
+    color: "bg-lime-500",
+  },
+  {
+    name: "Series",
+    path: "series",
+    icon: faListUl,
+    color: "bg-fuchsia-500",
+  },
   
   
 ];
@@ -153,7 +174,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
         </motion.div>
       </div>
 
-      <nav className="mt-6 mx-3">
+      <nav className="mt-3 mx-3">
         <ul className="space-y-4">
           {menuItems.map((item) => (
             <Link href={determinePath(item.path)} key={item.name}>
