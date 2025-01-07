@@ -23,16 +23,14 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
     title: string;
     description: string;
     viewUrl: string;
-    captionCodes: string[];
   }>({
     title: "",
     description: "",
     viewUrl: "",
-    captionCodes: [],
   });
 
   const [captions, setCaptions] = useState<CaptionDTO[]>([]);
-  const [selectedCaptions, setSelectedCaptions] = useState<string[]>([]);
+  const [selectedCaptions, setSelectedCaptions] = useState<CaptionDTO[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [broschure, setBroschure] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -60,11 +58,11 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCaptionSelection = (captionCode: string) => {
+  const handleCaptionSelection = (caption: CaptionDTO) => {
     setSelectedCaptions((prev) =>
-      prev.includes(captionCode)
-        ? prev.filter((code) => code !== captionCode)
-        : [...prev, captionCode]
+      prev.find((c) => c.code === caption.code)
+        ? prev.filter((c) => c.code !== caption.code)
+        : [...prev, caption]
     );
   };
 
@@ -111,7 +109,7 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
         viewUrl: formData.viewUrl || "",
         seriesCode: null,
         active: false,
-        captionCodes: selectedCaptions,
+        captions: selectedCaptions,
       };
 
       onAddBlog(newBlog, image, broschure);
@@ -203,9 +201,9 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
                     <button
                       key={caption.code}
                       type="button"
-                      onClick={() => handleCaptionSelection(caption.code)}
+                      onClick={() => handleCaptionSelection(caption)}
                       className={`p-3 border rounded-lg ${
-                        selectedCaptions.includes(caption.code)
+                        selectedCaptions.some((c) => c.code === caption.code)
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-800"
                       }`}

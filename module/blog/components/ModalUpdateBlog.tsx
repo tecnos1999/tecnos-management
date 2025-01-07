@@ -29,17 +29,17 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
     title: string;
     description: string;
     viewUrl: string;
-    captionCodes: string[];
+    captions: CaptionDTO[];
   }>({
     title: blogItem?.title || "",
     description: blogItem?.description || "",
     viewUrl: blogItem?.viewUrl || "",
-    captionCodes: blogItem?.captionCodes || [],
+    captions: blogItem?.captions || [],
   });
 
   const [captions, setCaptions] = useState<CaptionDTO[]>([]);
-  const [selectedCaptions, setSelectedCaptions] = useState<string[]>(
-    blogItem?.captionCodes || []
+  const [selectedCaptions, setSelectedCaptions] = useState<CaptionDTO[]>(
+    blogItem?.captions || []
   );
   const [image, setImage] = useState<File | null>(null);
   const [broschure, setBroschure] = useState<File | null>(null);
@@ -68,9 +68,9 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
         title: blogItem.title,
         description: blogItem.description,
         viewUrl: blogItem.viewUrl || "",
-        captionCodes: blogItem.captionCodes,
+        captions: blogItem.captions,
       });
-      setSelectedCaptions(blogItem.captionCodes);
+      setSelectedCaptions(blogItem.captions);
       setPreviewImage(blogItem.mainPhotoUrl || null);
     }
   }, [blogItem]);
@@ -82,11 +82,11 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCaptionSelection = (captionCode: string) => {
+  const handleCaptionSelection = (caption: CaptionDTO) => {
     setSelectedCaptions((prev) =>
-      prev.includes(captionCode)
-        ? prev.filter((code) => code !== captionCode)
-        : [...prev, captionCode]
+      prev.find((c) => c.code === caption.code)
+        ? prev.filter((c) => c.code !== caption.code)
+        : [...prev, caption]
     );
   };
 
@@ -134,7 +134,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
         title: formData.title,
         description: formData.description,
         viewUrl: formData.viewUrl,
-        captionCodes: selectedCaptions,
+        captions: selectedCaptions,
       };
 
       onUpdateBlog(updatedBlog, image, broschure);
@@ -226,9 +226,9 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                     <button
                       key={caption.code}
                       type="button"
-                      onClick={() => handleCaptionSelection(caption.code)}
+                      onClick={() => handleCaptionSelection(caption)}
                       className={`p-3 border rounded-lg ${
-                        selectedCaptions.includes(caption.code)
+                        selectedCaptions.some((c) => c.code === caption.code)
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-800"
                       }`}

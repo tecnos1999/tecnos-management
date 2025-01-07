@@ -1,3 +1,5 @@
+import { CaptionDTO } from "@/module/caption/dto/CaptionDTO";
+
 export interface BlogDTO {
     code: string;
     title: string;
@@ -7,6 +9,6 @@ export interface BlogDTO {
     viewUrl: string | null;
     seriesCode: string | null;
     active: boolean;
-    captionCodes: string[];
+    captions : CaptionDTO[];
   }
   
