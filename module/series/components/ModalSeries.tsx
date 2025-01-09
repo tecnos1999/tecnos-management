@@ -7,6 +7,10 @@ import { SeriesDTO } from "@/module/series/dto/SeriesDTO";
 import BlogService from "@/module/blog/services/BlogService";
 import { BlogDTO } from "@/module/blog/dto/BlogDTO";
 import { useDropzone } from "react-dropzone";
+import dynamic from "next/dynamic";
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 
 interface ModalSeriesProps {
   isOpen: boolean;
@@ -47,11 +51,13 @@ const ModalSeries: React.FC<ModalSeriesProps> = ({
     if (isOpen) fetchBlogs();
   }, [isOpen, blogService]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, description: value }));
   };
 
   const handleBlogSelection = (blogCode: string) => {
@@ -106,15 +112,41 @@ const ModalSeries: React.FC<ModalSeriesProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl relative"
+            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl relative overflow-y-auto max-h-[90vh]"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "#d1d5db #f3f4f6",
+            }}
           >
-            <h2 className="text-3xl font-semibold mb-6 text-gray-800">
-              Add New Series
-            </h2>
+            <style jsx>{`
+              ::-webkit-scrollbar {
+                width: 8px;
+              }
+              ::-webkit-scrollbar-track {
+                background: #f3f4f6;
+              }
+              ::-webkit-scrollbar-thumb {
+                background-color: #d1d5db;
+                border-radius: 4px;
+                border: 2px solid #f3f4f6;
+              }
+            `}</style>
+
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-3xl font-semibold text-gray-700">
+                Add New Series
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
@@ -129,7 +161,7 @@ const ModalSeries: React.FC<ModalSeriesProps> = ({
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm"
+                  className={`mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
                   placeholder="Enter series name"
                 />
               </div>
@@ -140,15 +172,12 @@ const ModalSeries: React.FC<ModalSeriesProps> = ({
                 >
                   Description
                 </label>
-                <textarea
-                  id="description"
-                  name="description"
+                <ReactQuill
+                  theme="snow"
                   value={formData.description}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm"
-                  rows={4}
-                  placeholder="Enter series description"
-                ></textarea>
+                  onChange={handleDescriptionChange}
+                  className="mt-2 rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500 max-h-[20vh] overflow-auto"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -160,7 +189,7 @@ const ModalSeries: React.FC<ModalSeriesProps> = ({
                       key={blog.code}
                       type="button"
                       onClick={() => handleBlogSelection(blog.code)}
-                      className={`p-3 border rounded-lg ${
+                      className={`p-3 border rounded-lg text-sm font-medium ${
                         selectedBlogs.includes(blog.code)
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-800"
@@ -197,7 +226,7 @@ const ModalSeries: React.FC<ModalSeriesProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                 >
                   Cancel
                 </button>

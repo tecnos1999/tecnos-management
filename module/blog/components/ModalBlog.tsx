@@ -8,6 +8,11 @@ import { BlogDTO } from "../dto/BlogDTO";
 import CaptionService from "@/module/caption/services/CaptionService";
 import { CaptionDTO } from "@/module/caption/dto/CaptionDTO";
 
+// Dynamically import ReactQuill
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
+
 interface ModalBlogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -18,7 +23,11 @@ interface ModalBlogProps {
   ) => void;
 }
 
-const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => {
+const ModalBlog: React.FC<ModalBlogProps> = ({
+  isOpen,
+  onClose,
+  onAddBlog,
+}) => {
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
@@ -41,7 +50,9 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
     const fetchCaptions = async () => {
       try {
         const fetchedCaptions = await captionService.getAllCaptions();
-        const inactiveCaptions = fetchedCaptions.filter((caption) => !caption.active);
+        const inactiveCaptions = fetchedCaptions.filter(
+          (caption) => !caption.active
+        );
         setCaptions(inactiveCaptions);
       } catch (error) {
         toast.error("Failed to fetch captions.");
@@ -52,7 +63,9 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
   }, [isOpen, captionService]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -66,10 +79,7 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
     );
   };
 
-  const handleDrop = (
-    acceptedFiles: File[],
-    type: "image" | "broschure"
-  ) => {
+  const handleDrop = (acceptedFiles: File[], type: "image" | "broschure") => {
     const file = acceptedFiles[0];
     if (type === "image") {
       setImage(file);
@@ -91,10 +101,16 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
     maxFiles: 1,
   });
 
+  const stripHtmlTags = (html: string): string => {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.description) {
+    if (!formData.title || !stripHtmlTags(formData.description).trim()) {
       toast.error("Title and description are required.");
       return;
     }
@@ -137,9 +153,17 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-3xl font-semibold mb-6 text-gray-800">
-              Add New Blog
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-3xl font-semibold text-gray-700">
+                Add New Blog
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
@@ -154,7 +178,7 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm"
+                  className={`mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
                   placeholder="Enter blog title"
                 />
               </div>
@@ -165,15 +189,14 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
                 >
                   Description
                 </label>
-                <textarea
-                  id="description"
-                  name="description"
+                <ReactQuill
+                  theme="snow"
                   value={formData.description}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm"
-                  rows={4}
-                  placeholder="Enter blog description"
-                ></textarea>
+                  onChange={(value) =>
+                    setFormData((prev) => ({ ...prev, description: value }))
+                  }
+                  className="mt-2 max-h-[20vh] overflow-auto   rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500"
+                />
               </div>
               <div>
                 <label
@@ -188,7 +211,7 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
                   name="viewUrl"
                   value={formData.viewUrl}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm"
+                  className={`mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
                   placeholder="Enter view URL"
                 />
               </div>
@@ -207,9 +230,8 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-800"
                       }`}
-                    >
-                      {caption.text}
-                    </button>
+                      dangerouslySetInnerHTML={{ __html: caption.text }}
+                    ></button>
                   ))}
                 </div>
               </div>
@@ -257,7 +279,7 @@ const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                 >
                   Cancel
                 </button>

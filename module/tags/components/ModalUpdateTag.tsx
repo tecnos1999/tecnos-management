@@ -65,7 +65,15 @@ const ModalUpdateTag: React.FC<ModalUpdateTagProps> = ({
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
       >
-        <h2 className="text-lg font-semibold mb-4">Update Tag</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-700">Update Tag</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 focus:outline-none text-xl"
+          >
+            &times;
+          </button>
+        </div>
         <div>
           <label
             htmlFor="name"
@@ -79,7 +87,7 @@ const ModalUpdateTag: React.FC<ModalUpdateTagProps> = ({
             value={formData.name}
             onChange={handleInputChange}
             className="block w-full border border-gray-300 rounded-lg py-2 px-3 mb-4"
-            disabled // Name is disabled to prevent changing it
+            disabled
           />
         </div>
         <div>
@@ -89,10 +97,7 @@ const ModalUpdateTag: React.FC<ModalUpdateTagProps> = ({
           >
             Color
           </label>
-          <SketchPicker
-            color={formData.color}
-            onChange={handleColorChange}
-          />
+          <SketchPicker color={formData.color} onChange={handleColorChange} />
           <div className="mt-2 text-sm text-gray-500">
             Selected color: {formData.color}
           </div>
@@ -108,7 +113,7 @@ const ModalUpdateTag: React.FC<ModalUpdateTagProps> = ({
             onClick={handleSubmit}
             className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
           >
-            Update
+            Save
           </button>
         </div>
       </motion.div>

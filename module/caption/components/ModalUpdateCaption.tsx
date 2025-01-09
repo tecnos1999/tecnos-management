@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import "react-quill/dist/quill.snow.css";
 import dynamic from "next/dynamic";
 
-
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 interface ModalUpdateCaptionProps {
@@ -113,7 +112,17 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-xl font-semibold mb-4">Update Caption</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-3xl font-semibold text-gray-700">
+                Update Caption
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
             <form onSubmit={(e) => e.preventDefault()}>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
@@ -146,7 +155,7 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
                   name="position"
                   value={formData.position}
                   onChange={handleInputChange}
-                  className="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+                  className="mt-2 p-2 block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
                 >
                   <option value="left">Left</option>
                   <option value="right">Right</option>
@@ -190,13 +199,12 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md shadow-sm hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                 >
                   Cancel
                 </button>
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.05 }}
                   onClick={handleSubmit}
                   className="bg-red-500 text-white px-4 py-2 rounded-md shadow-sm hover:bg-red-600"
                 >

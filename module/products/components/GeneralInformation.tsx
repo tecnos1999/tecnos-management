@@ -1,4 +1,8 @@
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 
 interface GeneralInformationProps {
   sku: string;
@@ -46,12 +50,14 @@ const GeneralInformationContainer: React.FC<GeneralInformationProps> = ({
         onChange={(e) => setName(e.target.value)}
         className="w-full border border-gray-300 p-3 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
       />
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="w-full border border-gray-300 p-3 rounded-md min-h-32 max-h-32 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
-      />
+      <div className="w-full">
+        <ReactQuill
+          theme="snow"
+          value={description}
+          onChange={setDescription}
+          className="mt-2 rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500  max-h-[20vh] overflow-auto"
+        />
+      </div>
     </motion.div>
   );
 };

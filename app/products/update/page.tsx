@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,6 +40,10 @@ import { LoginContext } from "@/module/context/LoginProvider";
 import LoginContextType from "@/module/context/LoginContextType";
 import TagService from "@/module/tags/services/TagService";
 import TagDTO from "@/module/tags/dto/TagDTO";
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
+import dynamic from "next/dynamic";
 
 const UpdateProductPage = () => {
   const [sku, setSku] = useState("");
@@ -82,9 +92,6 @@ const UpdateProductPage = () => {
       transition: { duration: 0.3, ease: "easeIn" },
     },
   };
-
-
-
 
   const handleTagSelect = (tagName: string) => {
     setSelectedTags((prevTags) =>
@@ -230,11 +237,12 @@ const UpdateProductPage = () => {
           placeholder="Name"
           className="w-full p-2 mb-4 border rounded"
         />
-        <textarea
+      
+        <ReactQuill
+          theme="snow"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description"
-          className="w-full p-2 border rounded"
+          onChange={setDescription}
+          className="mt-2 rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500  max-h-[20vh] overflow-auto"
         />
       </motion.div>
 
@@ -248,7 +256,7 @@ const UpdateProductPage = () => {
           <div className="flex gap-2">
             {existingImages.map((img, index) => (
               <div key={index} className="relative">
-                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img} className="w-20 h-20 object-cover" />
                 <button onClick={() => handleRemoveExistingImage(index)}>
                   <FaTimesCircle className="text-red-600 absolute top-0 right-0" />
@@ -257,7 +265,7 @@ const UpdateProductPage = () => {
             ))}
             {imageFiles.map((file, index) => (
               <div key={index} className="relative">
-                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={URL.createObjectURL(file)}
                   className="w-20 h-20 object-cover"

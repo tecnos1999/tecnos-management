@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTimesCircle } from "react-icons/fa";
 import { CaptionDTO } from "../dto/CaptionDTO";
 import { toast } from "react-toastify";
 import { useDropzone } from "react-dropzone";
@@ -44,11 +43,6 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
     setPreviewImage(URL.createObjectURL(file));
   };
 
-  const handleRemoveImage = () => {
-    setFormData((prev) => ({ ...prev, image: null }));
-    setPreviewImage(null);
-  };
-
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: handleDrop,
     accept: { "image/*": [] },
@@ -84,7 +78,7 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
       setPreviewImage(null);
       onClose();
     } catch (error) {
-      toast.error(error as string || "Failed to add caption.");
+      toast.error((error as string) || "Failed to add caption.");
     } finally {
       setIsSubmitting(false);
     }
@@ -100,25 +94,30 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-3xl relative"
+            className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl relative"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-500 hover:text-red-600"
-            >
-              <FaTimesCircle size={24} />
-            </button>
-            <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center">
-              Add Caption
-            </h2>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <label className="block text-lg font-medium text-gray-700 mb-2">
-                  Text
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-3xl font-semibold text-gray-700">
+                Add Caption
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label
+                  htmlFor="text"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Caption Text
                 </label>
                 <ReactQuill
                   theme="snow"
@@ -126,30 +125,33 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
                   onChange={(value) =>
                     setFormData((prev) => ({ ...prev, text: value }))
                   }
-                  className="shadow-sm focus:ring-red-500 focus:border-red-500"
+                  className="mt-2 rounded-lg shadow-sm border  focus:ring-red-500 focus:border-red-500"
                 />
               </div>
-              <div className="mb-6">
-                <label className="block text-lg font-medium text-gray-700 mb-2">
+              <div>
+                <label
+                  htmlFor="position"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Position
                 </label>
                 <select
                   name="position"
                   value={formData.position}
                   onChange={handleInputChange}
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+                  className="mt-2 p-2 block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
                 >
                   <option value="left">Left</option>
                   <option value="right">Right</option>
                 </select>
               </div>
-              <div className="mb-6">
-                <label className="block text-lg font-medium text-gray-700 mb-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Upload Image
                 </label>
                 <div
                   {...getRootProps()}
-                  className="border-2 border-dashed rounded-lg p-6 cursor-pointer hover:bg-gray-100 focus:outline-none"
+                  className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50"
                 >
                   <input {...getInputProps()} />
                   {previewImage ? (
@@ -159,19 +161,9 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
                         alt="Preview"
                         className="w-full h-64 object-cover rounded-lg shadow-md"
                       />
-                      <button
-                        type="button"
-                        className="absolute top-2 right-2 bg-white rounded-full shadow p-2 hover:bg-red-500 hover:text-white"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveImage();
-                        }}
-                      >
-                        <FaTimesCircle size={20} />
-                      </button>
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center">
+                    <p className="text-gray-500">
                       Drag & drop an image, or click to select
                     </p>
                   )}
@@ -181,15 +173,14 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-600"
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 focus:outline-none"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Saving..." : "Save"}

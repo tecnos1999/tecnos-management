@@ -44,10 +44,11 @@ const SeriesTable: React.FC<SeriesTableProps> = ({
                 <td className="py-3 px-6 text-gray-800 font-medium">
                   {seriesItem.name}
                 </td>
-                <td className="py-3 px-6 text-gray-600 truncate max-w-xs">
-                  {seriesItem.description}
-                </td>
-               
+                <td
+                  className="py-3 px-6 text-gray-600 truncate max-w-xs"
+                  dangerouslySetInnerHTML={{ __html: seriesItem.description }}
+                ></td>
+
                 <td className="py-3 px-6 flex items-center space-x-4">
                   <button
                     onClick={() => handleEdit(seriesItem)}

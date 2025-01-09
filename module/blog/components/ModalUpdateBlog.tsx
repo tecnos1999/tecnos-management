@@ -7,11 +7,15 @@ import { toast } from "react-toastify";
 import { BlogDTO } from "../dto/BlogDTO";
 import CaptionService from "@/module/caption/services/CaptionService";
 import { CaptionDTO } from "@/module/caption/dto/CaptionDTO";
+import dynamic from "next/dynamic";
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 
 interface ModalUpdateBlogProps {
   isOpen: boolean;
   onClose: () => void;
-  blogItem: BlogDTO | null; 
+  blogItem: BlogDTO | null;
   onUpdateBlog: (
     updatedBlog: BlogDTO,
     image: File | null,
@@ -76,7 +80,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
   }, [blogItem]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -90,10 +94,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
     );
   };
 
-  const handleDrop = (
-    acceptedFiles: File[],
-    type: "image" | "broschure"
-  ) => {
+  const handleDrop = (acceptedFiles: File[], type: "image" | "broschure") => {
     const file = acceptedFiles[0];
     if (type === "image") {
       setImage(file);
@@ -156,15 +157,35 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl relative"
+            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl overflow-y-auto max-h-[90vh] relative"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
+            style={{ scrollbarWidth: "thin", scrollbarColor: "#d1d5db #f3f4f6" }}
           >
-            <h2 className="text-3xl font-semibold mb-6 text-gray-800">
-              Edit Blog
-            </h2>
+            <style jsx>{`
+              ::-webkit-scrollbar {
+                width: 8px;
+              }
+              ::-webkit-scrollbar-track {
+                background: #f3f4f6;
+              }
+              ::-webkit-scrollbar-thumb {
+                background-color: #d1d5db;
+                border-radius: 4px;
+                border: 2px solid #f3f4f6;
+              }
+            `}</style>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-3xl font-semibold text-gray-700">Edit Blog</h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                &times;
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
@@ -179,7 +200,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm"
+                  className="mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
                   placeholder="Enter blog title"
                 />
               </div>
@@ -190,15 +211,14 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                 >
                   Description
                 </label>
-                <textarea
-                  id="description"
-                  name="description"
+                <ReactQuill
+                  theme="snow"
                   value={formData.description}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm"
-                  rows={4}
-                  placeholder="Enter blog description"
-                ></textarea>
+                  onChange={(value) =>
+                    setFormData((prev) => ({ ...prev, description: value }))
+                  }
+                  className="mt-2 rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500 max-h-[20vh] overflow-auto"
+                />
               </div>
               <div>
                 <label
@@ -213,7 +233,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                   name="viewUrl"
                   value={formData.viewUrl}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm"
+                  className="mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
                   placeholder="Enter view URL"
                 />
               </div>
@@ -221,20 +241,19 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Captions (Select from all)
                 </label>
-                <div className="grid grid-cols-3 gap-4 max-h-40 overflow-y-auto">
+                <div className="grid grid-cols-3 gap-4 max-h-[15vh] overflow-y-auto">
                   {captions.map((caption) => (
                     <button
                       key={caption.code}
                       type="button"
                       onClick={() => handleCaptionSelection(caption)}
-                      className={`p-3 border rounded-lg ${
+                      className={`p-3 border rounded-lg text-sm font-medium ${
                         selectedCaptions.some((c) => c.code === caption.code)
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-800"
                       }`}
-                    >
-                      {caption.text}
-                    </button>
+                      dangerouslySetInnerHTML={{ __html: caption.text }}
+                    ></button>
                   ))}
                 </div>
               </div>
@@ -282,7 +301,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                 >
                   Cancel
                 </button>

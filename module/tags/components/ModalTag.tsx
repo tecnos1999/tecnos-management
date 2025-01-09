@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { SketchPicker } from "react-color"; // Importăm picker-ul
+import { SketchPicker } from "react-color";
 import TagDTO from "../dto/TagDTO";
 
 interface ModalTagProps {
@@ -15,7 +15,7 @@ interface ModalTagProps {
 const ModalTag: React.FC<ModalTagProps> = ({ isOpen, onClose, onAddTag }) => {
   const [tagData, setTagData] = useState<{ name: string; color: string }>({
     name: "",
-    color: "#000000", // Setăm o culoare implicită
+    color: "#000000",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +53,7 @@ const ModalTag: React.FC<ModalTagProps> = ({ isOpen, onClose, onAddTag }) => {
       setShowErrors(false);
       onClose();
     } catch (error) {
-      toast.error(error as string || "Failed to add tag.");
+      toast.error((error as string) || "Failed to add tag.");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,74 +69,82 @@ const ModalTag: React.FC<ModalTagProps> = ({ isOpen, onClose, onAddTag }) => {
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-4xl relative"
-            initial={{ scale: 0.8, opacity: 0 }}
+            className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg relative"
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
+            exit={{ scale: 0.9, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-3xl font-semibold mb-6 text-left text-red-500">
-              Add New Tag
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-6">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={tagData.name}
-                    onChange={handleInputChange}
-                    className={`mt-2 block w-full rounded-lg border-2 ${
-                      showErrors && !tagData.name
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    } focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4`}
-                    placeholder="Enter tag name"
-                  />
-                  {showErrors && !tagData.name && (
-                    <p className="text-sm text-red-500 mt-1">
-                      This field is required.
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="color"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Color
-                  </label>
-                  <SketchPicker
-                    color={tagData.color}
-                    onChange={handleColorChange}
-                  />
-                  <div className="mt-2 text-sm text-gray-500">
-                    Selected color: {tagData.color}
-                  </div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-700">Add New Tag</h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 focus:outline-none text-xl"
+              >
+                &times;
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Tag Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={tagData.name}
+                  onChange={handleInputChange}
+                  className={`mt-2 block w-full rounded-lg border-2 ${
+                    showErrors && !tagData.name
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  } focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
+                  placeholder="Enter tag name"
+                />
+                {showErrors && !tagData.name && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Please provide a tag name.
+                  </p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="color"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Tag Color
+                </label>
+                <SketchPicker
+                  color={tagData.color}
+                  onChange={handleColorChange}
+                  className="shadow-md rounded-lg"
+                />
+                <div className="mt-2 text-sm text-gray-500">
+                  Selected color:{" "}
+                  <span
+                    style={{ backgroundColor: tagData.color }}
+                    className="inline-block w-4 h-4 rounded-full border ml-1"
+                  ></span>{" "}
+                  {tagData.color}
                 </div>
               </div>
-
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-gray-600"
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <motion.button
                   type="submit"
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none"
                   whileHover={{ scale: 1.05 }}
-                  className="bg-red-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-red-600"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Saving..." : "Save"}

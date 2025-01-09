@@ -3,10 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import dynamic from "next/dynamic";
+import { toast } from "react-toastify";
 import NewsDTO from "../dto/NewsDTO";
 import TagDTO from "@/module/tags/dto/TagDTO";
 import { freeIcons } from "@/system/utils";
-import { toast } from "react-toastify";
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
+import { format } from "path";
 
 interface ModalAddNewsProps {
   isOpen: boolean;
@@ -50,11 +55,17 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
     }
   }, [isOpen]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleShortDescriptionChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, shortDescription: value }));
+  };
+
+  const handleLongDescriptionChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, longDescription: value }));
   };
 
   const handleTagSelect = (tag: TagDTO) => {
@@ -73,12 +84,12 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!formData.icon) {
       toast.error("Please select an icon.");
       return;
     }
-  
+
     const newNews: NewsDTO = {
       title: formData.title,
       shortDescription: formData.shortDescription,
@@ -86,12 +97,10 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
       tags: selectedTags,
       icon: formData.icon,
     };
-  
+
     onAddNews(newNews);
     onClose();
   };
-  
-  
 
   if (!isOpen) return null;
 
@@ -108,18 +117,29 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
       >
-        <h2 className="text-xl font-bold mb-4">Add News</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-3xl font-semibold text-gray-700">Add News</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            &times;
+          </button>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Title
             </label>
+
             <input
               type="text"
+              id="title"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              className={`mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
+              placeholder="Enter title"
               required
             />
           </div>
@@ -127,52 +147,72 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
             <label className="block text-sm font-medium text-gray-700">
               Short Description
             </label>
-            <textarea
-              name="shortDescription"
+            <ReactQuill
               value={formData.shortDescription}
-              onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              required
-            ></textarea>
+              onChange={handleShortDescriptionChange}
+              className="mt-1 max-h-[12vh]  overflow-auto"
+            />
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Long Description
             </label>
-            <textarea
-              name="longDescription"
+            <ReactQuill
               value={formData.longDescription}
-              onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              required
-            ></textarea>
+              onChange={handleLongDescriptionChange}
+              className="mt-1 max-h-[12vh] overflow-auto"
+            />
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
+
+          <div className="mb-4 py-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Select Tags
             </label>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <motion.div
+              className="flex flex-wrap gap-2 mt-2 overflow-auto p-2"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.1,
+                  },
+                },
+              }}
+            >
               {availableTags.map((tag) => (
-                <button
+                <motion.button
                   key={tag.name}
                   type="button"
                   onClick={() => handleTagSelect(tag)}
-                  className={`px-4 py-2 rounded-full border ${
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-4 py-2 rounded-full border transition-all ${
                     selectedTags.some((t) => t.name === tag.name)
                       ? "bg-red-500 text-white border-red-600"
-                      : "bg-gray-100 border-gray-300"
+                      : "bg-gray-100 border-gray-300 text-gray-700"
                   }`}
                 >
                   {tag.name}
-                </button>
+                </motion.button>
               ))}
-            </div>
+            </motion.div>
           </div>
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Select Icon
             </label>
-            <div className="grid grid-cols-6 gap-4 max-h-48 overflow-y-scroll">
+            <div className="grid grid-cols-6 gap-4 max-h-48 overflow-y-scroll p-2">
               {freeIcons.map((iconOption) => (
                 <button
                   key={iconOption.name}
@@ -185,7 +225,6 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
                   }`}
                 >
                   <FontAwesomeIcon icon={iconOption.icon} size="2x" />
-                  <p className="text-xs mt-2">{iconOption.name}</p>
                 </button>
               ))}
             </div>
@@ -194,7 +233,7 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
             >
               Cancel
             </button>
@@ -202,7 +241,7 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
               type="submit"
               className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
             >
-              Add News
+              Save
             </button>
           </div>
         </form>
