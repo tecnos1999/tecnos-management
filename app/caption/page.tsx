@@ -150,7 +150,7 @@ const CaptionPage: React.FC = () => {
 
         <Dialog
           isOpen={isDialogOpen}
-          message={`Are you sure you want to delete the caption "${captionToDelete?.text}"?`}
+          message={`Are you sure you want to delete the caption "${captionToDelete?.code}"?`}
           onConfirm={handleConfirmDelete}
           onCancel={() => setIsDialogOpen(false)}
         />

@@ -44,8 +44,7 @@ const TestimonialsTable: React.FC<TestimonialsTableProps> = ({
                 </td>
                 <td className="py-3 px-6 text-gray-600">{testimonial.position}</td>
                 <td className="py-3 px-6 text-gray-600">{testimonial.company}</td>
-                <td className="py-3 px-6 text-gray-600 truncate max-w-xs">
-                  {testimonial.testimonial}
+                <td className="py-3 px-6 text-gray-600 truncate max-w-xs"  dangerouslySetInnerHTML={{ __html: testimonial.testimonial }}>
                 </td>
                 <td className="py-3 px-6 flex items-center space-x-4">
                   <button

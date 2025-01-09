@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaTimesCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import WebinarDTO from "../dto/WebinarDTO";
+import WebinarCard from "./WebinarCard";
 
 interface ModalWebinarProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddWebinar: (webinar: WebinarDTO , image : File | null) => void;
+  onAddWebinar: (webinar: WebinarDTO, image: File | null) => void;
 }
 
 const ModalWebinar: React.FC<ModalWebinarProps> = ({
@@ -32,9 +33,7 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setWebinarData((prev) => ({ ...prev, [name]: value }));
   };
@@ -58,14 +57,14 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!webinarData.title) {
       setShowErrors(true);
       return;
     }
-  
+
     setIsSubmitting(true);
-  
+
     try {
       const newWebinar: WebinarDTO = {
         webCode: `WEB${Date.now()}`,
@@ -74,9 +73,9 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-  
+
       onAddWebinar(newWebinar, webinarData.image);
-  
+
       setWebinarData({
         title: "",
         externalLink: "",
@@ -85,13 +84,13 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
       setPreviewImage(null);
       setShowErrors(false);
       onClose();
+      toast.success("Webinar added successfully!");
     } catch (error) {
-      toast.error(error as string || "Failed to add webinar.");
+      toast.error((error as string) || "Failed to add webinar.");
     } finally {
       setIsSubmitting(false);
     }
   };
-  
 
   return (
     <AnimatePresence>
@@ -103,17 +102,25 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-4xl relative"
+            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-6xl relative"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-3xl font-semibold mb-6 text-left text-red-500">
-              Add New Webinar
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-3xl font-semibold text-gray-700">
+                Add New Webinar
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-8">
                 <div>
                   <label
                     htmlFor="title"
@@ -139,12 +146,10 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
                       This field is required.
                     </p>
                   )}
-                </div>
 
-                <div>
                   <label
                     htmlFor="externalLink"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mt-4"
                   >
                     External Link
                   </label>
@@ -157,10 +162,8 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
                     className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
                     placeholder="Enter external link"
                   />
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mt-4">
                     Webinar Image
                   </label>
                   <div
@@ -192,20 +195,30 @@ const ModalWebinar: React.FC<ModalWebinarProps> = ({
                     )}
                   </div>
                 </div>
+
+                <div className="flex justify-center items-center flex-col">
+                  <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                    Webinar Preview
+                  </h3>
+                  <WebinarCard
+                    title={webinarData.title || "Webinar Title"}
+                    link={webinarData.externalLink || "#"}
+                    imageUrl={previewImage || "/placeholder.jpg"}
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.05 }}
                   className="bg-red-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-red-600"
                   disabled={isSubmitting}
                 >

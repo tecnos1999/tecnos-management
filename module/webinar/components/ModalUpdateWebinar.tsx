@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDropzone } from "react-dropzone";
 import WebinarDTO from "../dto/WebinarDTO";
+import WebinarCard from "./WebinarCard";
 
 interface ModalUpdateWebinarProps {
   isOpen: boolean;
@@ -18,23 +19,45 @@ const ModalUpdateWebinar: React.FC<ModalUpdateWebinarProps> = ({
   onClose,
   onUpdateWebinar,
 }) => {
-  const [title, setTitle] = useState("");
-  const [externalLink, setExternalLink] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [webinarData, setWebinarData] = useState<{
+    title: string;
+    externalLink: string;
+    image: File | null;
+  }>({
+    title: "",
+    externalLink: "",
+    image: null,
+  });
+
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (webinar) {
-      setTitle(webinar.title || "");
-      setExternalLink(webinar.externalLink || "");
+      setWebinarData({
+        title: webinar.title || "",
+        externalLink: webinar.externalLink || "",
+        image: null,
+      });
       setPreviewImage(webinar.imageUrl || null);
     }
   }, [webinar]);
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setWebinarData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
-    setImage(file);
+    setWebinarData((prev) => ({ ...prev, image: file }));
     setPreviewImage(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setWebinarData((prev) => ({ ...prev, image: null }));
+    setPreviewImage(null);
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -47,12 +70,12 @@ const ModalUpdateWebinar: React.FC<ModalUpdateWebinarProps> = ({
     if (webinar) {
       const updatedWebinar: WebinarDTO = {
         ...webinar,
-        title,
-        externalLink,
+        title: webinarData.title,
+        externalLink: webinarData.externalLink,
         updatedAt: new Date().toISOString(),
       };
 
-      onUpdateWebinar(updatedWebinar, image);
+      onUpdateWebinar(updatedWebinar, webinarData.image);
       onClose();
     }
   };
@@ -69,90 +92,111 @@ const ModalUpdateWebinar: React.FC<ModalUpdateWebinarProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl"
+            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-6xl relative"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">Update Webinar</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-700">Update Webinar</h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
             <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
-              <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-8">
                 <div>
                   <label
                     htmlFor="title"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Title
+                    Webinar Title
                   </label>
                   <input
                     type="text"
                     id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    name="title"
+                    value={webinarData.title}
+                    onChange={handleInputChange}
                     className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
                     placeholder="Enter webinar title"
                   />
-                </div>
 
-                <div>
                   <label
                     htmlFor="externalLink"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mt-4"
                   >
                     External Link
                   </label>
                   <input
                     type="url"
                     id="externalLink"
-                    value={externalLink}
-                    onChange={(e) => setExternalLink(e.target.value)}
+                    name="externalLink"
+                    value={webinarData.externalLink}
+                    onChange={handleInputChange}
                     className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
                     placeholder="Enter external link"
                   />
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Image Preview
-                  </label>
-                  <div className="mb-4">
-                    {previewImage ? (
-                      <img
-                        src={previewImage}
-                        alt="Webinar Preview"
-                        className="w-full h-40 object-cover rounded-lg border"
-                      />
-                    ) : (
-                      <span className="text-gray-500 text-sm">No image available</span>
-                    )}
-                  </div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload New Image (optional)
+                  <label className="block text-sm font-medium text-gray-700 mt-4">
+                    Webinar Image
                   </label>
                   <div
                     {...getRootProps()}
                     className="border-2 border-dashed rounded-lg p-4 cursor-pointer hover:bg-gray-100"
                   >
                     <input {...getInputProps()} />
-                    <p className="text-sm text-gray-500">
-                      Drag & drop an image, or click to select
-                    </p>
+                    {previewImage ? (
+                      <div className="relative">
+                        <img
+                          src={previewImage}
+                          alt="Webinar Preview"
+                          className="w-[250px] h-[250px] object-cover rounded-lg"
+                        />
+                        <button
+                          className="absolute top-2 right-2 text-red-500"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveImage();
+                          }}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Drag & drop an image, or click to select
+                      </p>
+                    )}
                   </div>
+                </div>
+
+                <div className="flex justify-center items-center flex-col">
+                  <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                    Webinar Preview
+                  </h3>
+                  <WebinarCard
+                    title={webinarData.title || "Webinar Title"}
+                    link={webinarData.externalLink || "#"}
+                    imageUrl={previewImage || "/placeholder.jpg"}
+                  />
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-4 mt-4">
+              <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                 >
                   Cancel
                 </button>
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.05 }}
                   onClick={handleSubmit}
                   className="bg-red-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-red-600"
                 >

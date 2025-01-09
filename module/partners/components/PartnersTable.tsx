@@ -61,9 +61,12 @@ const PartnersTable: React.FC<PartnersTableProps> = ({
                   {partner.name}
                 </td>
 
-                <td className="py-3 px-6 text-gray-600">
-                  {partner.description}
-                </td>
+                <td
+                  className="py-3 px-6 text-gray-600"
+                  dangerouslySetInnerHTML={{
+                    __html: partner.description || "No description available",
+                  }}
+                ></td>
 
                 <td className="py-3 px-6 ">
                   {partner.catalogFile ? (

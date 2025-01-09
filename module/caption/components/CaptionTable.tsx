@@ -44,9 +44,15 @@ const CaptionTable: React.FC<CaptionTableProps> = ({
                   {captionItem.code}
                 </td>
                 <td className="py-3 px-6 text-gray-800 font-medium">
-                  {captionItem.text}
+                  <div
+                    dangerouslySetInnerHTML={{ __html: captionItem.text }}
+                    className="prose max-w-none"
+                  />
                 </td>
-                <td className="py-3 px-6 text-gray-600">{captionItem.position}</td>
+
+                <td className="py-3 px-6 text-gray-600">
+                  {captionItem.position}
+                </td>
                 <td className="py-3 px-6 text-gray-600">
                   {captionItem.photoUrl ? (
                     <img

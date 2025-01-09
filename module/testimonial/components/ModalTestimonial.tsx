@@ -3,7 +3,12 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
 import TestimonialDTO from "../dto/TestimonialDTO";
+import QuoteCard from "./QuoteCard";
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 
 interface ModalTestimonialProps {
   isOpen: boolean;
@@ -32,10 +37,14 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
   const [showErrors, setShowErrors] = useState(false);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setTestimonialData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTestimonialChange = (value: string) => {
+    setTestimonialData((prev) => ({ ...prev, testimonial: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +59,7 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
 
     try {
       const newTestimonial: TestimonialDTO = {
-        code: `TST${Date.now()}`, // Generare cod unic
+        code: `TST${Date.now()}`,
         name: testimonialData.name,
         position: testimonialData.position,
         company: testimonialData.company,
@@ -69,7 +78,7 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
       setShowErrors(false);
       onClose();
     } catch (error) {
-      toast.error(error as string || "Failed to add testimonial.");
+      toast.error((error as string) || "Failed to add testimonial.");
     } finally {
       setIsSubmitting(false);
     }
@@ -85,17 +94,25 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-4xl relative"
+            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-6xl relative"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-3xl font-semibold mb-6 text-left text-red-500">
-              Add New Testimonial
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-3xl font-semibold text-gray-700">
+                Add New Testimonial
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-8">
                 <div>
                   <label
                     htmlFor="name"
@@ -113,7 +130,7 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
                       showErrors && !testimonialData.name
                         ? "border-red-500"
                         : "border-gray-300"
-                    } focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4`}
+                    } focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
                     placeholder="Enter name"
                   />
                   {showErrors && !testimonialData.name && (
@@ -121,12 +138,10 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
                       This field is required.
                     </p>
                   )}
-                </div>
 
-                <div>
                   <label
                     htmlFor="position"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mt-4"
                   >
                     Position
                   </label>
@@ -136,15 +151,13 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
                     name="position"
                     value={testimonialData.position}
                     onChange={handleInputChange}
-                    className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
+                    className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4"
                     placeholder="Enter position"
                   />
-                </div>
 
-                <div>
                   <label
                     htmlFor="company"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mt-4"
                   >
                     Company
                   </label>
@@ -154,30 +167,25 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
                     name="company"
                     value={testimonialData.company}
                     onChange={handleInputChange}
-                    className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
+                    className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4"
                     placeholder="Enter company"
                   />
-                </div>
 
-                <div>
                   <label
                     htmlFor="testimonial"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mt-4"
                   >
                     Testimonial
                   </label>
-                  <textarea
-                    id="testimonial"
-                    name="testimonial"
+                  <ReactQuill
+                    theme="snow"
                     value={testimonialData.testimonial}
-                    onChange={handleInputChange}
-                    className={`mt-2 block w-full rounded-lg border-2 ${
+                    onChange={handleTestimonialChange}
+                    className={`mt-2 ${
                       showErrors && !testimonialData.testimonial
-                        ? "border-red-500"
+                        ? "border-red-500 focus:outline-none"
                         : "border-gray-300"
-                    } focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4`}
-                    placeholder="Enter testimonial"
-                    rows={5}
+                    }`}
                   />
                   {showErrors && !testimonialData.testimonial && (
                     <p className="text-sm text-red-500 mt-1">
@@ -185,20 +193,31 @@ const ModalTestimonial: React.FC<ModalTestimonialProps> = ({
                     </p>
                   )}
                 </div>
+
+                <div className="flex flex-col items-center justify-center">
+                  <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                    Testimonial Preview
+                  </h3>
+                  <QuoteCard
+                    quote={testimonialData.testimonial || "Testimonial text"}
+                    author={testimonialData.name || "Author Name"}
+                    job={testimonialData.position || "Position"}
+                    company={testimonialData.company || "Company Name"}
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.05 }}
                   className="bg-red-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-red-600"
                   disabled={isSubmitting}
                 >

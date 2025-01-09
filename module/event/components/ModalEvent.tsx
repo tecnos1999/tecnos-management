@@ -1,18 +1,21 @@
 "use client";
 
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimesCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
 import EventDTO from "../dto/EventDTO";
-import { LoginContext } from "@/module/context/LoginProvider";
-import LoginContextType from "@/module/context/LoginContextType";
+import EventCard from "./EventCard";
+import "react-quill/dist/quill.snow.css";
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface ModalEventProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddEvent: (event: EventDTO , image : File | null) => void;
+  onAddEvent: (event: EventDTO, image: File | null) => void;
 }
 
 const ModalEvent: React.FC<ModalEventProps> = ({
@@ -36,13 +39,15 @@ const ModalEvent: React.FC<ModalEventProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
-    const { user } = useContext(LoginContext) as LoginContextType;
-
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
     setEventData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setEventData((prev) => ({ ...prev, description: value }));
   };
 
   const handleDrop = (acceptedFiles: File[]) => {
@@ -64,14 +69,14 @@ const ModalEvent: React.FC<ModalEventProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!eventData.title || !eventData.description) {
       setShowErrors(true);
       return;
     }
-  
+
     setIsSubmitting(true);
-  
+
     try {
       const eventDTO: EventDTO = {
         eventCode: `EVT${Date.now()}`,
@@ -81,9 +86,9 @@ const ModalEvent: React.FC<ModalEventProps> = ({
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-  
+
       await onAddEvent(eventDTO, eventData.image);
-  
+
       toast.success("Event added successfully!");
       setEventData({
         title: "",
@@ -94,13 +99,11 @@ const ModalEvent: React.FC<ModalEventProps> = ({
       setPreviewImage(null);
       onClose();
     } catch (error) {
-      toast.error(error as string || "Failed to add event.");
+      toast.error((error as string) || "Failed to add event.");
     } finally {
       setIsSubmitting(false);
     }
   };
-  
-  
 
   return (
     <AnimatePresence>
@@ -112,17 +115,25 @@ const ModalEvent: React.FC<ModalEventProps> = ({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-4xl relative"
+            className="bg-white rounded-lg shadow-xl p-8 w-full max-w-6xl relative"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-3xl font-semibold mb-6 text-left text-red-500">
-              Add New Event
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-700">
+                Add New Event
+              </h2>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-8">
                 <div>
                   <label
                     htmlFor="title"
@@ -140,7 +151,7 @@ const ModalEvent: React.FC<ModalEventProps> = ({
                       showErrors && !eventData.title
                         ? "border-red-500"
                         : "border-gray-300"
-                    } focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4`}
+                    } focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
                     placeholder="Enter event title"
                   />
                   {showErrors && !eventData.title && (
@@ -148,39 +159,32 @@ const ModalEvent: React.FC<ModalEventProps> = ({
                       This field is required.
                     </p>
                   )}
-                </div>
 
-                <div>
                   <label
                     htmlFor="description"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mt-4"
                   >
                     Description
                   </label>
-                  <textarea
-                    id="description"
-                    name="description"
+                  <ReactQuill
+                    theme="snow"
                     value={eventData.description}
-                    onChange={handleInputChange}
-                    className={`mt-2 block w-full rounded-lg border-2 ${
+                    onChange={handleDescriptionChange}
+                    className={`mt-2 max-h-[40vh] ${
                       showErrors && !eventData.description
                         ? "border-red-500"
                         : "border-gray-300"
-                    } focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4`}
-                    placeholder="Enter event description"
-                    rows={5}
+                    }`}
                   />
                   {showErrors && !eventData.description && (
                     <p className="text-sm text-red-500 mt-1">
                       This field is required.
                     </p>
                   )}
-                </div>
 
-                <div>
                   <label
                     htmlFor="externalLink"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mt-4"
                   >
                     External Link
                   </label>
@@ -190,13 +194,11 @@ const ModalEvent: React.FC<ModalEventProps> = ({
                     name="externalLink"
                     value={eventData.externalLink}
                     onChange={handleInputChange}
-                    className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
+                    className="mt-2 block w-full rounded-lg border-gray-300 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4"
                     placeholder="Enter external link"
                   />
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mt-4">
                     Event Image
                   </label>
                   <div
@@ -228,20 +230,33 @@ const ModalEvent: React.FC<ModalEventProps> = ({
                     )}
                   </div>
                 </div>
+
+                <div className="flex justify-center items-center flex-col">
+                  <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                    Event Preview
+                  </h3>
+                  <div className="flex justify-center flex-shrink-0 w-[320px]">
+                    <EventCard
+                      image={previewImage || "/placeholder.jpg"}
+                      title={eventData.title || "Event Title"}
+                      subtitle="Event Subtitle"
+                      description={eventData.description || "Event description"}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-gray-600"
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.05 }}
                   className="bg-red-500 text-white px-6 py-2 rounded-md shadow-sm hover:bg-red-600"
                   disabled={isSubmitting}
                 >

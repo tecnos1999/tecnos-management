@@ -18,3 +18,15 @@ body {
     text-wrap: balance;
   }
 }
+
+.ql-container {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.ql-toolbar {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+}

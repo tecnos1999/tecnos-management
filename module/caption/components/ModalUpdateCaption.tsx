@@ -6,7 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaTimesCircle } from "react-icons/fa";
 import { CaptionDTO } from "../dto/CaptionDTO";
 import { toast } from "react-toastify";
+import "react-quill/dist/quill.snow.css";
+import dynamic from "next/dynamic";
 
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 interface ModalUpdateCaptionProps {
   isOpen: boolean;
   captionItem: CaptionDTO | null;
@@ -43,9 +48,13 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
     }
   }, [captionItem]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTextChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, text: value }));
   };
 
   const handleDrop = (acceptedFiles: File[]) => {
@@ -92,13 +101,13 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 overflow-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl"
+            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl  max-h-[90vh]"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
@@ -110,16 +119,25 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
                 <label className="block text-sm font-medium text-gray-700">
                   Text
                 </label>
-                <input
-                  type="text"
-                  name="text"
-                  value={formData.text}
-                  onChange={handleInputChange}
-                  className="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
-                  placeholder="Enter caption text"
-                  required
-                />
+                <div className="mt-2 border border-gray-300 rounded-lg shadow-sm focus-within:ring-red-500 focus-within:border-red-500 ">
+                  <ReactQuill
+                    theme="snow"
+                    value={formData.text}
+                    onChange={handleTextChange}
+                    className="max-h-80  "
+                    modules={{
+                      toolbar: [
+                        [{ header: [1, 2, false] }],
+                        ["bold", "italic", "underline", "strike"],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        ["link", "image"],
+                        ["clean"],
+                      ],
+                    }}
+                  />
+                </div>
               </div>
+
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Position
@@ -192,5 +210,4 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
     </AnimatePresence>
   );
 };
-
 export default ModalUpdateCaption;

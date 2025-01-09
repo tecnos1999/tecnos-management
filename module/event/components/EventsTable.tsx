@@ -60,7 +60,12 @@ const EventsTable: React.FC<EventsTableProps> = ({
                 <td className="py-3 px-6 text-gray-800 font-medium">
                   {event.title}
                 </td>
-                <td className="py-3 px-6 text-gray-600">{event.description}</td>
+                <td
+                  className="py-3 px-6 text-gray-600"
+                  dangerouslySetInnerHTML={{
+                    __html: event.description,
+                  }}
+                ></td>
                 <td className="py-3 px-6 text-gray-600">
                   {new Date(event.createdAt || "").toLocaleDateString()}
                 </td>
