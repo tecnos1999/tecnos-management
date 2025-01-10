@@ -1,6 +1,5 @@
 import React from "react";
 import { useDropzone } from "react-dropzone";
-import { toast } from "react-toastify";
 
 interface DropzoneProps {
   fileType: string;
@@ -8,7 +7,7 @@ interface DropzoneProps {
   onFileDrop: (file: File) => void;
 }
 
-const Dropzone: React.FC<DropzoneProps> = ({ fileType, currentFile, onFileDrop }) => {
+const Dropzone: React.FC<DropzoneProps> = ({ currentFile, onFileDrop }) => {
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {

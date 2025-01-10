@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
@@ -44,6 +44,7 @@ import TagDTO from "@/module/tags/dto/TagDTO";
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 import dynamic from "next/dynamic";
+import { determinePath } from "@/system/utils";
 
 const UpdateProductPage = () => {
   const [sku, setSku] = useState("");
@@ -60,7 +61,7 @@ const UpdateProductPage = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [imagesToRemove, setImagesToRemove] = useState<string[]>([]);
-
+  const router = useRouter();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const productSku = decodeURIComponent(searchParams.get("sku") || "");
@@ -191,6 +192,7 @@ const UpdateProductPage = () => {
       await productService.updateProduct(user.token, productSku, formData);
 
       toast.success("Product updated successfully!");
+      router.push(determinePath("/products"));
     } catch (error) {
       toast.error(
         (error as string) || "Failed to update product. Please try again later."
@@ -216,7 +218,7 @@ const UpdateProductPage = () => {
 
   return (
     <div className="container min-h-screen p-4 grid grid-cols-3 gap-4">
-      <HeaderContainer onCancel={() => {}} onSubmit={handleUpdate} isEditMode />
+      <HeaderContainer onCancel={() => router.push(determinePath("/products"))} onSubmit={handleUpdate} isEditMode />
       <motion.div
         className="col-[1/3] row-[2/6] bg-white p-6 rounded-xl shadow-md border border-gray-200"
         variants={containerVariants}
