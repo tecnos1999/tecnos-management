@@ -38,7 +38,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       onMouseLeave={() => onHover("")}
     >
       <div
-        className={`flex items-center justify-center w-8 h-8 p-4 rounded-md transition-colors duration-300 ${
+        className={`flex items-center justify-center w-6 h-6 p-4 rounded-md transition-colors duration-300 ${
           isActive || isHovered ? color : "bg-gray-800"
         }`}
       >

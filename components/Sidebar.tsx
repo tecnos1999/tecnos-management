@@ -58,47 +58,47 @@ const menuItems = [
   {
     name: "Event",
     path: "event",
-    icon: faCalendarAlt, 
-    color: "bg-teal-500", 
+    icon: faCalendarAlt,
+    color: "bg-teal-500",
   },
   {
     name: "Webinar",
     path: "webinar",
     icon: faVideo,
-    color: "bg-orange-500", 
+    color: "bg-orange-500",
   },
   {
     name: "Testimonial",
     path: "testimonial",
-    icon: faComments, 
-    color: "bg-gray-500", 
+    icon: faComments,
+    color: "bg-gray-500",
   },
   {
     name: "Carousel",
     path: "carousel",
-    icon: faImages, 
-    color: "bg-indigo-500", 
+    icon: faImages,
+    color: "bg-indigo-500",
   },
   {
     name: "News",
     path: "news",
-    icon: faNewspaper, 
-    color: "bg-cyan-500", 
+    icon: faNewspaper,
+    color: "bg-cyan-500",
   },
   {
     name: "Tags",
     path: "tags",
-    icon: faTags, 
-    color: "bg-green-500", 
-  }
+    icon: faTags,
+    color: "bg-green-500",
+  },
 
-  ,{
+  {
     name: "Motto",
     path: "motto",
-    icon: faQuoteRight, 
-    color: "bg-blue-500", 
+    icon: faQuoteRight,
+    color: "bg-blue-500",
   },
-  
+
   {
     name: "Caption",
     path: "caption",
@@ -117,8 +117,6 @@ const menuItems = [
     icon: faListUl,
     color: "bg-fuchsia-500",
   },
-  
-  
 ];
 
 interface SidebarProps {
@@ -130,11 +128,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
   const [hoveredItem, setHoveredItem] = useState<string>("");
 
   const pathname = usePathname();
-  const activeItem = menuItems.find((item) =>
-    pathname === determinePath(item.path) ||
-    pathname.startsWith(determinePath(item.path) + "/")
-  )?.name || "Dashboard";
-  
+  const activeItem =
+    menuItems.find(
+      (item) =>
+        pathname === determinePath(item.path) ||
+        pathname.startsWith(determinePath(item.path) + "/")
+    )?.name || "Dashboard";
 
   const { logOut } = useContext(LoginContext) as LoginContextType;
 
@@ -174,7 +173,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
         </motion.div>
       </div>
 
-      <nav className="mt-3 mx-3">
+      <nav
+        className="mt-3 mx-3 overflow-y-auto scrollbar-hidden"
+        style={{ height: "calc(100vh - 128px)" ,  paddingBottom: "calc(2rem + 1rem)" }}
+      >
         <ul className="space-y-4">
           {menuItems.map((item) => (
             <Link href={determinePath(item.path)} key={item.name}>
@@ -192,8 +194,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isNavOpen, setIsNavOpen }) => {
       </nav>
 
       <div className="absolute bottom-0 w-full p-4 bg-zinc-900">
-        
-
         <motion.div
           className="flex items-center justify-center mt-4 hover:bg-zinc-700 p-2 rounded cursor-pointer transition-all duration-300"
           onClick={logOut}
