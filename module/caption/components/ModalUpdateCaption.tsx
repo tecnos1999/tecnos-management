@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
+
 interface ModalUpdateCaptionProps {
   isOpen: boolean;
   captionItem: CaptionDTO | null;
@@ -25,10 +26,12 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
   onUpdateCaption,
 }) => {
   const [formData, setFormData] = useState<{
+    title: string;
     text: string;
     position: string;
     image: File | null;
   }>({
+    title: "",
     text: "",
     position: "left",
     image: null,
@@ -39,6 +42,7 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
   useEffect(() => {
     if (captionItem) {
       setFormData({
+        title: captionItem.title,
         text: captionItem.text,
         position: captionItem.position,
         image: null,
@@ -47,15 +51,18 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
     }
   }, [captionItem]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  // Pentru select și input de tip text (cum e title)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Pentru textul WYSIWYG (ReactQuill)
   const handleTextChange = (value: string) => {
     setFormData((prev) => ({ ...prev, text: value }));
   };
 
+  // Handlers pentru upload imagine
   const handleDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setFormData((prev) => ({ ...prev, image: file }));
@@ -73,19 +80,21 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
     maxFiles: 1,
   });
 
+  // Funcția care se apelează la click pe "Save"
   const handleSubmit = () => {
     if (!captionItem) {
       toast.error("No caption selected for update.");
       return;
     }
 
-    if (!formData.text) {
+    if (!formData.text.trim()) {
       toast.error("Text is required.");
       return;
     }
 
     const updatedCaption: CaptionDTO = {
       ...captionItem,
+      title: formData.title,       // <-- adăugăm și title
       text: formData.text,
       position: formData.position,
     };
@@ -113,9 +122,7 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
             transition={{ duration: 0.3 }}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-3xl font-semibold text-gray-700">
-                Update Caption
-              </h2>
+              <h2 className="text-3xl font-semibold text-gray-700">Update Caption</h2>
               <button
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-700"
@@ -123,17 +130,30 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
                 &times;
               </button>
             </div>
+
             <form onSubmit={(e) => e.preventDefault()}>
+              {/* Input pentru Title */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Text
-                </label>
-                <div className="mt-2 border border-gray-300 rounded-lg shadow-sm focus-within:ring-red-500 focus-within:border-red-500 ">
+                <label className="block text-sm font-medium text-gray-700">Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  className="mt-2 p-2 block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+                  placeholder="Write a caption title..."
+                />
+              </div>
+
+              {/* Editor text (ReactQuill) */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">Text</label>
+                <div className="mt-2 border border-gray-300 rounded-lg shadow-sm focus-within:ring-red-500 focus-within:border-red-500">
                   <ReactQuill
                     theme="snow"
                     value={formData.text}
                     onChange={handleTextChange}
-                    className="max-h-80  "
+                    className="max-h-80"
                     modules={{
                       toolbar: [
                         [{ header: [1, 2, false] }],
@@ -147,10 +167,9 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
                 </div>
               </div>
 
+              {/* Select position */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Position
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Position</label>
                 <select
                   name="position"
                   value={formData.position}
@@ -161,10 +180,10 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
                   <option value="right">Right</option>
                 </select>
               </div>
+
+              {/* Upload Image */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload Image
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
                 <div
                   {...getRootProps()}
                   className="border-2 border-dashed rounded-lg p-4 cursor-pointer hover:bg-gray-100"
@@ -189,12 +208,12 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
                       </button>
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">
-                      Drag & drop an image, or click to select
-                    </p>
+                    <p className="text-sm text-gray-500">Drag & drop an image, or click to select</p>
                   )}
                 </div>
               </div>
+
+              {/* Butoane de acțiune */}
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
@@ -218,4 +237,5 @@ const ModalUpdateCaption: React.FC<ModalUpdateCaptionProps> = ({
     </AnimatePresence>
   );
 };
+
 export default ModalUpdateCaption;

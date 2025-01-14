@@ -10,5 +10,6 @@ export interface BlogDTO {
     seriesCode: string | null;
     active: boolean;
     captions : CaptionDTO[];
+    skuProducts: string[];
   }
   

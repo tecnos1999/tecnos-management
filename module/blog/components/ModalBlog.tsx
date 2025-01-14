@@ -23,11 +23,7 @@ interface ModalBlogProps {
   ) => void;
 }
 
-const ModalBlog: React.FC<ModalBlogProps> = ({
-  isOpen,
-  onClose,
-  onAddBlog,
-}) => {
+const ModalBlog: React.FC<ModalBlogProps> = ({ isOpen, onClose, onAddBlog }) => {
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
@@ -43,6 +39,9 @@ const ModalBlog: React.FC<ModalBlogProps> = ({
   const [image, setImage] = useState<File | null>(null);
   const [broschure, setBroschure] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const [skuInput, setSkuInput] = useState<string>("");
+  const [skuProducts, setSkuProducts] = useState<string[]>([]);
 
   const captionService = useMemo(() => new CaptionService(), []);
 
@@ -89,6 +88,21 @@ const ModalBlog: React.FC<ModalBlogProps> = ({
     }
   };
 
+  const handleAddSku = () => {
+    if (skuInput.trim() && !skuProducts.includes(skuInput.trim())) {
+      setSkuProducts((prev) => [...prev, skuInput.trim()]);
+      setSkuInput("");
+      toast.success("SKU added to the list.");
+    } else {
+      toast.error("SKU is empty or already in the list.");
+    }
+  };
+
+  const handleRemoveSku = (sku: string) => {
+    setSkuProducts((prev) => prev.filter((item) => item !== sku));
+    toast.info("SKU removed from the list.");
+  };
+
   const imageDropzone = useDropzone({
     onDrop: (acceptedFiles) => handleDrop(acceptedFiles, "image"),
     accept: { "image/*": [] },
@@ -126,6 +140,7 @@ const ModalBlog: React.FC<ModalBlogProps> = ({
         seriesCode: null,
         active: false,
         captions: selectedCaptions,
+        skuProducts,
       };
 
       onAddBlog(newBlog, image, broschure);
@@ -141,13 +156,13 @@ const ModalBlog: React.FC<ModalBlogProps> = ({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 "
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl relative"
+            className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl relative max-h-[90vh] overflow-auto"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
@@ -195,7 +210,7 @@ const ModalBlog: React.FC<ModalBlogProps> = ({
                   onChange={(value) =>
                     setFormData((prev) => ({ ...prev, description: value }))
                   }
-                  className="mt-2 max-h-[20vh] overflow-auto   rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500"
+                  className="mt-2 max-h-[20vh] overflow-auto rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500"
                 />
               </div>
               <div>
@@ -219,7 +234,7 @@ const ModalBlog: React.FC<ModalBlogProps> = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Captions (Select from inactive)
                 </label>
-                <div className="grid grid-cols-3 gap-4 max-h-40 overflow-y-auto">
+                <div className="grid grid-cols-3 gap-4 max-h-[15vh] overflow-y-auto">
                   {captions.map((caption) => (
                     <button
                       key={caption.code}
@@ -230,9 +245,61 @@ const ModalBlog: React.FC<ModalBlogProps> = ({
                           ? "bg-green-500 text-white"
                           : "bg-gray-100 text-gray-800"
                       }`}
-                      dangerouslySetInnerHTML={{ __html: caption.text }}
-                    ></button>
+                    >
+                      {caption.title}
+                    </button>
                   ))}
+                </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="sku"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Add Product SKU
+                </label>
+                <div className="flex items-center mt-2 space-x-2">
+                  <input
+                    type="text"
+                    id="sku"
+                    value={skuInput}
+                    onChange={(e) => setSkuInput(e.target.value)}
+                    placeholder="Enter SKU"
+                    className="block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddSku}
+                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                    Added SKUs:
+                  </h3>
+                  {skuProducts.length > 0 ? (
+                    <ul className="space-y-1">
+                      {skuProducts.map((sku) => (
+                        <li
+                          key={sku}
+                          className="flex items-center justify-between bg-gray-100 p-2 rounded-lg"
+                        >
+                          <span className="text-gray-800">{sku}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSku(sku)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            Remove
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">No SKUs added yet.</p>
+                  )}
                 </div>
               </div>
               <div>

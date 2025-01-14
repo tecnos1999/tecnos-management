@@ -23,6 +23,7 @@ const CaptionTable: React.FC<CaptionTableProps> = ({
         <thead>
           <tr className="bg-gray-100 text-gray-600 text-left text-sm uppercase tracking-wide">
             <th className="py-3 px-6 rounded-l-lg">Code</th>
+            <th className="py-3 px-6">Title</th>
             <th className="py-3 px-6">Text</th>
             <th className="py-3 px-6">Position</th>
             <th className="py-3 px-6">Image</th>
@@ -42,6 +43,9 @@ const CaptionTable: React.FC<CaptionTableProps> = ({
               >
                 <td className="py-3 px-6 text-gray-800 font-medium">
                   {captionItem.code}
+                </td>
+                <td className="py-3 px-6 text-gray-800 font-medium">
+                  {captionItem.title}
                 </td>
                 <td className="py-3 px-6 text-gray-800 font-medium">
                   <div

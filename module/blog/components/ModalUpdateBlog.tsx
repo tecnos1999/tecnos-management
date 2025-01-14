@@ -42,8 +42,10 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
   });
 
   const [captions, setCaptions] = useState<CaptionDTO[]>([]);
-  const [selectedCaptions, setSelectedCaptions] = useState<CaptionDTO[]>(
-    blogItem?.captions || []
+  const [selectedCaptions, setSelectedCaptions] = useState<CaptionDTO[]>([]);
+  const [skuInput, setSkuInput] = useState<string>("");
+  const [skuProducts, setSkuProducts] = useState<string[]>(
+    blogItem?.skuProducts || []
   );
   const [image, setImage] = useState<File | null>(null);
   const [broschure, setBroschure] = useState<File | null>(null);
@@ -74,14 +76,13 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
         viewUrl: blogItem.viewUrl || "",
         captions: blogItem.captions,
       });
-      setSelectedCaptions(blogItem.captions);
+      setSelectedCaptions(blogItem.captions || []);
+      setSkuProducts(blogItem.skuProducts || []);
       setPreviewImage(blogItem.mainPhotoUrl || null);
     }
   }, [blogItem]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -92,6 +93,21 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
         ? prev.filter((c) => c.code !== caption.code)
         : [...prev, caption]
     );
+  };
+
+  const handleAddSku = () => {
+    if (skuInput.trim() && !skuProducts.includes(skuInput.trim())) {
+      setSkuProducts((prev) => [...prev, skuInput.trim()]);
+      setSkuInput("");
+      toast.success("SKU added to the list.");
+    } else {
+      toast.error("SKU is empty or already in the list.");
+    }
+  };
+
+  const handleRemoveSku = (sku: string) => {
+    setSkuProducts((prev) => prev.filter((item) => item !== sku));
+    toast.info("SKU removed from the list.");
   };
 
   const handleDrop = (acceptedFiles: File[], type: "image" | "broschure") => {
@@ -119,7 +135,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.description) {
+    if (!formData.title || !formData.description.trim()) {
       toast.error("Title and description are required.");
       return;
     }
@@ -136,6 +152,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
         description: formData.description,
         viewUrl: formData.viewUrl,
         captions: selectedCaptions,
+        skuProducts,
       };
 
       onUpdateBlog(updatedBlog, image, broschure);
@@ -162,21 +179,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            style={{ scrollbarWidth: "thin", scrollbarColor: "#d1d5db #f3f4f6" }}
           >
-            <style jsx>{`
-              ::-webkit-scrollbar {
-                width: 8px;
-              }
-              ::-webkit-scrollbar-track {
-                background: #f3f4f6;
-              }
-              ::-webkit-scrollbar-thumb {
-                background-color: #d1d5db;
-                border-radius: 4px;
-                border: 2px solid #f3f4f6;
-              }
-            `}</style>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-3xl font-semibold text-gray-700">Edit Blog</h2>
               <button
@@ -217,7 +220,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                   onChange={(value) =>
                     setFormData((prev) => ({ ...prev, description: value }))
                   }
-                  className="mt-2 rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500 max-h-[20vh] overflow-auto"
+                  className="mt-2 rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500"
                 />
               </div>
               <div>
@@ -239,26 +242,6 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Captions (Select from all)
-                </label>
-                <div className="grid grid-cols-3 gap-4 max-h-[15vh] overflow-y-auto">
-                  {captions.map((caption) => (
-                    <button
-                      key={caption.code}
-                      type="button"
-                      onClick={() => handleCaptionSelection(caption)}
-                      className={`p-3 border rounded-lg text-sm font-medium ${
-                        selectedCaptions.some((c) => c.code === caption.code)
-                          ? "bg-green-500 text-white"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                      dangerouslySetInnerHTML={{ __html: caption.text }}
-                    ></button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Blog Image
                 </label>
                 <div
@@ -273,9 +256,7 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                       className="w-40 h-40 object-cover rounded-lg"
                     />
                   ) : (
-                    <p className="text-sm text-gray-500">
-                      Drag & drop an image, or click to select
-                    </p>
+                    <p>Drag & drop an image or click to select</p>
                   )}
                 </div>
               </div>
@@ -289,25 +270,94 @@ const ModalUpdateBlog: React.FC<ModalUpdateBlogProps> = ({
                 >
                   <input {...broschureDropzone.getInputProps()} />
                   {broschure ? (
-                    <p className="text-sm text-gray-500">{broschure.name}</p>
+                    <p>{broschure.name}</p>
                   ) : (
-                    <p className="text-sm text-gray-500">
-                      Drag & drop a PDF, or click to select
-                    </p>
+                    <p>Drag & drop a PDF or click to select</p>
                   )}
                 </div>
               </div>
-              <div className="flex justify-end space-x-4 mt-4">
+              <div>
+                <label
+                  htmlFor="sku"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Add Product SKU
+                </label>
+                <div className="flex items-center mt-2 space-x-2">
+                  <input
+                    type="text"
+                    id="sku"
+                    value={skuInput}
+                    onChange={(e) => setSkuInput(e.target.value)}
+                    placeholder="Enter SKU"
+                    className="block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 shadow-sm sm:text-sm py-2 px-4"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddSku}
+                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                    Added SKUs:
+                  </h3>
+                  {skuProducts.length > 0 ? (
+                    <ul className="space-y-1">
+                      {skuProducts.map((sku) => (
+                        <li
+                          key={sku}
+                          className="flex items-center justify-between bg-gray-100 p-2 rounded-lg"
+                        >
+                          <span className="text-gray-800">{sku}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSku(sku)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            Remove
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500">No SKUs added yet.</p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Captions
+                </label>
+                <div className="grid grid-cols-3 gap-4 max-h-[15vh] overflow-y-auto">
+                  {captions.map((caption) => (
+                    <button
+                      key={caption.code}
+                      type="button"
+                      onClick={() => handleCaptionSelection(caption)}
+                      className={`p-3 border rounded-lg text-sm font-medium ${
+                        selectedCaptions.some((c) => c.code === caption.code)
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                      dangerouslySetInnerHTML={{ __html: caption.title }}
+                    ></button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                  className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600"
+                  className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                 >
                   Update
                 </button>

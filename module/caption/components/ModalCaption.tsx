@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,10 +22,12 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
   onAddCaption,
 }) => {
   const [formData, setFormData] = useState<{
+    title: string;
     text: string;
     position: string;
     image: File | null;
   }>({
+    title: "",
     text: "",
     position: "left",
     image: null,
@@ -32,7 +36,7 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -52,8 +56,8 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.text.trim()) {
-      toast.error("Text is required.");
+    if (!formData.title.trim() || !formData.text.trim()) {
+      toast.error("Title and text are required.");
       return;
     }
 
@@ -62,6 +66,7 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
     try {
       const newCaption: CaptionDTO = {
         code: `CAP${Date.now()}`,
+        title: formData.title,
         text: formData.text,
         position: formData.position,
         photoUrl: "",
@@ -71,6 +76,7 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
       onAddCaption(newCaption, formData.image);
 
       setFormData({
+        title: "",
         text: "",
         position: "left",
         image: null,
@@ -114,6 +120,23 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Title
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  className="mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4"
+                  placeholder="Enter caption title"
+                />
+              </div>
+              <div>
+                <label
                   htmlFor="text"
                   className="block text-sm font-medium text-gray-700"
                 >
@@ -125,7 +148,7 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
                   onChange={(value) =>
                     setFormData((prev) => ({ ...prev, text: value }))
                   }
-                  className="mt-2 rounded-lg shadow-sm border  focus:ring-red-500 focus:border-red-500"
+                  className="mt-2 rounded-lg shadow-sm border focus:ring-red-500 focus:border-red-500"
                 />
               </div>
               <div>
@@ -143,6 +166,7 @@ const ModalCaption: React.FC<ModalCaptionProps> = ({
                 >
                   <option value="left">Left</option>
                   <option value="right">Right</option>
+                  <option value="center">Center</option>
                 </select>
               </div>
               <div>
