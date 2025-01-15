@@ -19,6 +19,7 @@ import {
   faParagraph,
   faPenNib,
   faListUl,
+  faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import SidebarItem from "./SidebarItem";
 import { motion } from "framer-motion";
@@ -117,6 +118,14 @@ const menuItems = [
     icon: faListUl,
     color: "bg-fuchsia-500",
   },
+
+  {
+    name: "TSE Cards",
+    path: "infocards",
+    icon: faInfoCircle,
+    color: "bg-teal-500", 
+  }
+  
 ];
 
 interface SidebarProps {
