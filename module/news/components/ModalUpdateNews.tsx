@@ -8,7 +8,6 @@ import NewsDTO from "../dto/NewsDTO";
 import TagDTO from "@/module/tags/dto/TagDTO";
 import { freeIcons } from "@/system/utils";
 
-// Import dinamic pentru ReactQuill
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 
@@ -33,12 +32,14 @@ const ModalUpdateNews: React.FC<ModalUpdateNewsProps> = ({
     longDescription: string;
     tags: TagDTO[];
     icon: string;
+    link: string;
   }>({
     title: "",
     shortDescription: "",
     longDescription: "",
     tags: [],
     icon: "",
+    link: "",
   });
 
   const [selectedTags, setSelectedTags] = useState<TagDTO[]>([]);
@@ -51,6 +52,7 @@ const ModalUpdateNews: React.FC<ModalUpdateNewsProps> = ({
         longDescription: newsItem.longDescription,
         tags: newsItem.tags || [],
         icon: newsItem.icon || "",
+        link: newsItem.link || "",
       });
       setSelectedTags(newsItem.tags || []);
     }
@@ -177,6 +179,21 @@ const ModalUpdateNews: React.FC<ModalUpdateNewsProps> = ({
               ))}
             </div>
           </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Link
+            </label>
+            <input
+              type="text"
+              name="link"
+              value={formData.link}
+              onChange={handleInputChange}
+              className={`mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
+              placeholder="Enter link (optional)"
+            />
+          </div>
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">
               Select Icon

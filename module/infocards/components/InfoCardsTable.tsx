@@ -41,10 +41,11 @@ const InfoCardsTable: React.FC<InfoCardsTableProps> = ({
                 <td className="py-3 px-6">{infoCard.code}</td>
                 <td className="py-3 px-6">{infoCard.title}</td>
                 <td
-                  className="py-3 px-6 truncate"
+                  className="py-3 px-6 truncate max-w-[300px]  text-ellipsis whitespace-nowrap"
                   dangerouslySetInnerHTML={{ __html: infoCard.description }}
                 ></td>
-                <td className="py-3 px-6 truncate">
+
+                <td className="py-3 px-6 truncate max-w-[300px]  text-ellipsis whitespace-nowrap">
                   {infoCard.features.join(", ")}
                 </td>
 

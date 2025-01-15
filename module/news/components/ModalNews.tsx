@@ -11,7 +11,6 @@ import { freeIcons } from "@/system/utils";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
-import { format } from "path";
 
 interface ModalAddNewsProps {
   isOpen: boolean;
@@ -32,12 +31,14 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
     longDescription: string;
     tags: TagDTO[];
     icon: string;
+    link: string;
   }>({
     title: "",
     shortDescription: "",
     longDescription: "",
     tags: [],
     icon: "",
+    link: "",
   });
 
   const [selectedTags, setSelectedTags] = useState<TagDTO[]>([]);
@@ -50,6 +51,7 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
         longDescription: "",
         tags: [],
         icon: "",
+        link: "",
       });
       setSelectedTags([]);
     }
@@ -96,6 +98,7 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
       longDescription: formData.longDescription,
       tags: selectedTags,
       icon: formData.icon,
+      link: formData.link,
     };
 
     onAddNews(newNews);
@@ -206,6 +209,20 @@ const ModalAddNews: React.FC<ModalAddNewsProps> = ({
                 </motion.button>
               ))}
             </motion.div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Link
+            </label>
+            <input
+              type="text"
+              id="link"
+              name="link"
+              value={formData.link}
+              onChange={handleInputChange}
+              className={`mt-2 block w-full rounded-lg border-2 focus:border-red-500 focus:ring-red-500 focus:outline-none shadow-sm sm:text-sm py-2 px-4`}
+              placeholder="Enter link (optional)"
+            />
           </div>
 
           <div className="mb-4">

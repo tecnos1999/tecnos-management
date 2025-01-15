@@ -7,6 +7,7 @@ interface NewsDTO {
     longDescription: string;
     tags: TagDTO[];
     icon: string;
+    link: string;
   }
   
   export default NewsDTO;
